@@ -11,12 +11,14 @@ import fastifyCsrf from 'fastify-csrf';
 import helmet from 'fastify-helmet';
 
 import { AppModule } from './app.module';
+import { HttpCommonExceptionFilter } from './common/filters';
 import { PROTOCOL } from './constants';
 
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter());
 
+  app.useGlobalFilters(new HttpCommonExceptionFilter());
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   app.setGlobalPrefix('api/v1');
   app.enableCors({
