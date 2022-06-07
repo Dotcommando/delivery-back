@@ -30,10 +30,14 @@ export function getExceptionsMessages(exception: HttpException | Error): string[
   const errorMessages = [];
 
   if (exception instanceof HttpException) {
+    const response = exception?.getResponse();
+
     errorMessages.push(
-      typeof exception?.getResponse() === 'string'
-        ? exception.getResponse() as string
-        : JSON.stringify(exception.getResponse()),
+      typeof response === 'string'
+        ? response as string
+        : typeof response === 'object' && (response as HttpException)?.message
+          ? (response as HttpException).message
+          : JSON.stringify(response),
     );
 
     if (exception instanceof AddressedHttpException) {
