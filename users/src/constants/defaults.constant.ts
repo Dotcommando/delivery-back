@@ -1,0 +1,11 @@
+export const PASSWORD_MIN_LENGTH = Number(process.env.PASSWORD_MIN_LENGTH);
+export const USERNAME_MIN_LENGTH = Number(process.env.USERNAME_MIN_LENGTH);
+export const USERNAME_MAX_LENGTH = Number(process.env.USERNAME_MAX_LENGTH);
+export const NAME_MIN_LENGTH = Number(process.env.NAME_MIN_LENGTH);
+export const NAME_MAX_LENGTH = Number(process.env.NAME_MAX_LENGTH);
+export const IMAGE_BASE64_MAX_LENGTH = Number(process.env.IMAGE_BASE64_MAX_LENGTH);
+export const PROPERTY_LENGTH_8 = Number(process.env.PROPERTY_LENGTH_8);
+export const PROPERTY_LENGTH_16 = Number(process.env.PROPERTY_LENGTH_16);
+export const PROPERTY_LENGTH_24 = Number(process.env.PROPERTY_LENGTH_24);
+export const PROPERTY_LENGTH_32 = Number(process.env.PROPERTY_LENGTH_32);
+export const PROPERTY_LENGTH_64 = Number(process.env.PROPERTY_LENGTH_64);
