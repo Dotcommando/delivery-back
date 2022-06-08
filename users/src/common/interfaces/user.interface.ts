@@ -8,7 +8,7 @@ export interface IUser {
   firstName: string;
   middleName: string;
   lastName: string;
-  userName: string;
+  username: string;
   email: string;
   avatar: string;
   addresses: ObjectId[];

@@ -4,6 +4,7 @@ export interface IAddress {
   _id: ObjectId;
   postalCode: string;
   country: string;
+  region: string;
   city: string;
   street: string;
   building: string;

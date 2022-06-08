@@ -3,7 +3,7 @@ import * as mongoose from 'mongoose';
 
 import { AddressSchema } from './address.schema';
 
-import { EMAIL_REGEXP, ROLE, USERNAME_REGEXP } from '../common/constants';
+import { EMAIL_REGEXP, NAME_REGEXP, ROLE, USERNAME_REGEXP } from '../common/constants';
 import { IUserDocument } from '../common/interfaces';
 import {
   IMAGE_BASE64_MAX_LENGTH,
@@ -26,7 +26,26 @@ const Schema = mongoose.Schema;
 
 export const UserSchema = new Schema<IUserDocument, mongoose.Model<IUserDocument>>(
   {
-    userName: {
+    firstName: {
+      type: String,
+      required: [ true, 'First name is required' ],
+      minLength: NAME_MIN_LENGTH,
+      maxLength: NAME_MAX_LENGTH,
+      match: [ NAME_REGEXP, 'First name can contain just latin symbols, digits, underscores and single quotes' ],
+    },
+    middleName: {
+      type: String,
+      validate: optionalRange(NAME_MIN_LENGTH, NAME_MAX_LENGTH),
+      match: [ NAME_REGEXP, 'Middle name can contain just latin symbols, digits, underscores and single quotes' ],
+    },
+    lastName: {
+      type: String,
+      required: [ true, 'Last name is required' ],
+      minLength: NAME_MIN_LENGTH,
+      maxLength: NAME_MAX_LENGTH,
+      match: [ NAME_REGEXP, 'Last name can contain just latin symbols, digits, underscores and single quotes' ],
+    },
+    username: {
       type: String,
       validate: optionalRange(USERNAME_MIN_LENGTH, USERNAME_MAX_LENGTH),
       match: [
@@ -36,36 +55,17 @@ export const UserSchema = new Schema<IUserDocument, mongoose.Model<IUserDocument
       index: {
         unique: true,
         partialFilterExpression: {
-          'userName': { $exists: true },
+          'username': { $exists: true },
         },
       },
-    },
-    firstName: {
-      type: String,
-      required: [ true, 'First name is required' ],
-      minLength: NAME_MIN_LENGTH,
-      maxLength: NAME_MAX_LENGTH,
-    },
-    middleName: {
-      type: String,
-      validate: optionalRange(NAME_MIN_LENGTH, NAME_MAX_LENGTH),
-    },
-    lastName: {
-      type: String,
-      required: [ true, 'Last name is required' ],
-      minLength: NAME_MIN_LENGTH,
-      maxLength: NAME_MAX_LENGTH,
     },
     email: {
       type: String,
       required: [ true, 'Email can not be empty' ],
       index: { unique: true },
       lowercase: true,
-      match: [
-        EMAIL_REGEXP,
-        'Email should be valid',
-      ],
-      validate: optionalRange(0, PROPERTY_LENGTH_64),
+      match: [ EMAIL_REGEXP, 'Email should be valid' ],
+      maxLength: PROPERTY_LENGTH_64,
     },
     avatar: {
       type: String,
