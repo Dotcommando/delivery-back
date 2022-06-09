@@ -1,4 +1,5 @@
 export const PASSWORD_MIN_LENGTH = Number(process.env.PASSWORD_MIN_LENGTH);
+export const PASSWORD_MAX_LENGTH = Number(process.env.PASSWORD_MAX_LENGTH);
 export const USERNAME_MIN_LENGTH = Number(process.env.USERNAME_MIN_LENGTH);
 export const USERNAME_MAX_LENGTH = Number(process.env.USERNAME_MAX_LENGTH);
 export const NAME_MIN_LENGTH = Number(process.env.NAME_MIN_LENGTH);
@@ -12,3 +13,8 @@ export const PROPERTY_LENGTH_32 = Number(process.env.PROPERTY_LENGTH_32);
 export const PROPERTY_LENGTH_64 = Number(process.env.PROPERTY_LENGTH_64);
 export const POSTAL_CODE_MIN_LENGTH = Number(process.env.POSTAL_CODE_MIN_LENGTH);
 export const POSTAL_CODE_MAX_LENGTH = Number(process.env.POSTAL_CODE_MAX_LENGTH);
+export const ADDRESSES_MAX_SIZE = Number(process.env.ADDRESSES_MAX_SIZE);
+export const PHONE_NUMBERS_MAX_SIZE = Number(process.env.PHONE_NUMBERS_MAX_SIZE);
+export const PHONE_NUMBER_MIN_LENGTH = Number(process.env.PHONE_NUMBER_MIN_LENGTH);
+export const PHONE_NUMBER_MAX_LENGTH = Number(process.env.PHONE_NUMBER_MAX_LENGTH);
+export const ORDERS_MAX_SIZE = Number(process.env.ORDERS_MAX_SIZE);

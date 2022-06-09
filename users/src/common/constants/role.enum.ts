@@ -6,3 +6,5 @@ export enum ROLE {
   MANAGER = 'manager',
   ADMIN = 'admin',
 }
+
+export const ROLE_ARRAY = Object.values(ROLE);
