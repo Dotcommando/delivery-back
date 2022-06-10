@@ -36,6 +36,7 @@
   "devDependencies": {
     "@nestjs/cli": "8.2.6",
     "@nestjs/schematics": "8.0.11",
+    "@nestjs/swagger": "^5.2.1",
     "@nestjs/testing": "8.4.6",
     "@types/jest": "27.5.0",
     "@types/node": "16.11.38",

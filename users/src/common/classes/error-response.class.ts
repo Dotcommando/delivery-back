@@ -9,6 +9,7 @@ export class ErrorResponse implements IResponse<null> {
 
   constructor(status: number | HttpStatus, errorMessages: string[] | string) {
     this.status = status;
+    this.data = null;
 
     this.errors = Array.isArray(errorMessages)
       ? [...errorMessages]

@@ -3,9 +3,11 @@ import { ConfigService } from '@nestjs/config';
 import { ClientProxy } from '@nestjs/microservices';
 import { ApiTags } from '@nestjs/swagger';
 
-import { Observable } from 'rxjs';
+import { lastValueFrom, timeout } from 'rxjs';
 
-import { USERS_EVENTS } from './common/constants';
+import { MAX_TIME_OF_REQUEST_WAITING, USERS_EVENTS } from './common/constants';
+import { IResponse, IUserSafe } from './common/interfaces';
+import { RegisterDto } from './dto';
 
 
 @Controller('auth')
@@ -18,11 +20,12 @@ export class AuthController {
   }
 
   @Post('register')
-  public register(
-    @Body() body,
-  ): Observable<unknown> {
-    return this.userServiceClient.send(USERS_EVENTS.USER_CREATE_USER, {
-      ...body,
-    });
+  public async register(
+    @Body() body: RegisterDto,
+  ): Promise<IResponse<{ user: IUserSafe }>> {
+    return await lastValueFrom(
+      this.userServiceClient.send(USERS_EVENTS.USER_CREATE_USER, body)
+        .pipe(timeout(MAX_TIME_OF_REQUEST_WAITING)),
+    );
   }
 }

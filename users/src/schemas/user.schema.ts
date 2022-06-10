@@ -1,19 +1,21 @@
 import * as bcrypt from 'bcrypt';
 import * as mongoose from 'mongoose';
+import { Schema } from 'mongoose';
 
-import { AddressSchema } from './address.schema';
-
-import { EMAIL_REGEXP, NAME_REGEXP, ROLE, USERNAME_REGEXP } from '../common/constants';
-import { IUserDocument } from '../common/interfaces';
 import {
+  EMAIL_REGEXP,
   IMAGE_BASE64_MAX_LENGTH,
   NAME_MAX_LENGTH,
   NAME_MIN_LENGTH,
+  NAME_REGEXP,
   PASSWORD_MIN_LENGTH,
   PROPERTY_LENGTH_64,
+  ROLE,
   USERNAME_MAX_LENGTH,
   USERNAME_MIN_LENGTH,
-} from '../constants';
+  USERNAME_REGEXP,
+} from '../common/constants';
+import { IUserDocument } from '../common/interfaces';
 import { optionalRange } from '../validators';
 
 
@@ -22,7 +24,6 @@ function transformValue(doc, ret: { [key: string]: unknown }) {
 }
 
 const SALT_ROUNDS = 10;
-const Schema = mongoose.Schema;
 
 export const UserSchema = new Schema<IUserDocument, mongoose.Model<IUserDocument>>(
   {
@@ -71,7 +72,7 @@ export const UserSchema = new Schema<IUserDocument, mongoose.Model<IUserDocument
       type: String,
       validate: optionalRange(0, IMAGE_BASE64_MAX_LENGTH),
     },
-    addresses: [AddressSchema],
+    addresses: [Schema.Types.ObjectId],
     phoneNumbers: [String],
     roles: {
       type: [String],

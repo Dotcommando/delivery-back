@@ -1,3 +1,5 @@
+import { PartialType } from '@nestjs/swagger';
+
 import { Transform, TransformFnParams, Type } from 'class-transformer';
 import {
   ArrayMaxSize,
@@ -14,20 +16,13 @@ import {
 } from 'class-validator';
 import { ObjectId, Types } from 'mongoose';
 
-import { EMAIL_REGEXP, NAME_REGEXP, ROLE, ROLE_ARRAY, USERNAME_REGEXP } from '../common/constants';
-import {
-  maxLengthStringMessage,
-  minLengthStringMessage,
-  toArrayOfObjectIds,
-  toBoolean,
-  toObjectId,
-} from '../common/helpers';
-import { IUser } from '../common/interfaces';
 import {
   ADDRESSES_MAX_SIZE,
+  EMAIL_REGEXP,
   IMAGE_BASE64_MAX_LENGTH,
   NAME_MAX_LENGTH,
   NAME_MIN_LENGTH,
+  NAME_REGEXP,
   ORDERS_MAX_SIZE,
   PASSWORD_MAX_LENGTH,
   PASSWORD_MIN_LENGTH,
@@ -35,9 +30,20 @@ import {
   PHONE_NUMBER_MIN_LENGTH,
   PHONE_NUMBERS_MAX_SIZE,
   PROPERTY_LENGTH_64,
+  ROLE,
+  ROLE_ARRAY,
   USERNAME_MAX_LENGTH,
   USERNAME_MIN_LENGTH,
+  USERNAME_REGEXP,
 } from '../constants';
+import {
+  maxLengthStringMessage,
+  minLengthStringMessage,
+  toArrayOfObjectIds,
+  toBoolean,
+  toObjectId,
+} from '../helpers';
+import { IUser } from '../interfaces';
 
 export class UserDto implements IUser {
   @IsDefined()
@@ -167,3 +173,5 @@ export class UserDto implements IUser {
   @IsOptional()
   deactivated: boolean;
 }
+
+export class PartialUserDto extends PartialType(UserDto) {}

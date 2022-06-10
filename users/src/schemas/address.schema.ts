@@ -1,15 +1,14 @@
 import * as mongoose from 'mongoose';
+import { Schema } from 'mongoose';
 
-import { IAddressDocument } from '../common/interfaces';
 import {
   POSTAL_CODE_MAX_LENGTH,
   POSTAL_CODE_MIN_LENGTH,
   PROPERTY_LENGTH_1,
   PROPERTY_LENGTH_64,
-} from '../constants';
+} from '../common/constants';
+import { IAddressDocument } from '../common/interfaces';
 
-
-const Schema = mongoose.Schema;
 
 export const AddressSchema = new Schema<IAddressDocument, mongoose.Model<IAddressDocument>>(
   {

@@ -1,11 +1,18 @@
+import { PartialType } from '@nestjs/swagger';
+
 import { Transform, TransformFnParams, Type } from 'class-transformer';
 import { IsDefined, IsString, Matches, MaxLength, MinLength } from 'class-validator';
 import { ObjectId, Types } from 'mongoose';
 
-import { POSTAL_CODE_REGEXP } from '../common/constants';
-import { maxLengthStringMessage, minLengthStringMessage, toObjectId } from '../common/helpers';
-import { IAddress } from '../common/interfaces';
-import { POSTAL_CODE_MAX_LENGTH, POSTAL_CODE_MIN_LENGTH, PROPERTY_LENGTH_1, PROPERTY_LENGTH_64 } from '../constants';
+import {
+  POSTAL_CODE_MAX_LENGTH,
+  POSTAL_CODE_MIN_LENGTH,
+  POSTAL_CODE_REGEXP,
+  PROPERTY_LENGTH_1,
+  PROPERTY_LENGTH_64,
+} from '../constants';
+import { maxLengthStringMessage, minLengthStringMessage, toObjectId } from '../helpers';
+import { IAddress } from '../interfaces';
 
 export class AddressDto implements IAddress {
   @IsDefined()
@@ -67,3 +74,5 @@ export class AddressDto implements IAddress {
   })
   building: string;
 }
+
+export class PartialAddressDto extends PartialType(AddressDto) {}
