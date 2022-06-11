@@ -1,4 +1,4 @@
-import { BadRequestException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
 import { Model } from 'mongoose';
@@ -7,14 +7,16 @@ import { EMAIL_REGEXP, USERNAME_REGEXP } from '../common/constants';
 import { PartialUserDto } from '../common/dto';
 import { AddressedHttpException } from '../common/exceptions';
 import { createAddressedException } from '../common/helpers';
-import { IUser, IUserDocument, IUserSafe } from '../common/interfaces';
+import { ITokenDocument, IUser, IUserDocument, IUserSafe } from '../common/interfaces';
 import { DEFAULT_USER_DATA } from '../constants/default-user-data.constant';
 import { IEmailPassword, IUsernamePassword, IValidateUserRes, UserCredentialsReq } from '../types';
+import { RefreshTokenData } from '../types/refresh-token-data.type';
 
 
 @Injectable()
 export class DbAccessService {
   constructor(
+    @InjectModel('Token') private readonly tokenModel: Model<ITokenDocument>,
     @InjectModel('User') private readonly userModel: Model<IUserDocument>,
   ) {
   }
@@ -84,6 +86,21 @@ export class DbAccessService {
       };
     } catch (e) {
       createAddressedException('Users >> DBAccessService >> saveNewUser', e);
+    }
+  }
+
+  public async saveRefreshToken(token: RefreshTokenData): Promise<{ saved: boolean }> {
+    try {
+      const newToken = new this.tokenModel(token);
+      const saved = await newToken.save();
+
+      return {
+        saved: Boolean(saved),
+      };
+    } catch (e) {
+      return {
+        saved: false,
+      };
     }
   }
 }

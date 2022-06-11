@@ -14,7 +14,7 @@ import {
   MinLength,
   ValidateNested,
 } from 'class-validator';
-import { ObjectId, Types } from 'mongoose';
+import { Types } from 'mongoose';
 
 import {
   ADDRESSES_MAX_SIZE,
@@ -49,7 +49,7 @@ export class UserDto implements IUser {
   @IsDefined()
   @Transform((data: TransformFnParams) => toObjectId({ value: data.value, key: data.key }))
   @Type(() => Types.ObjectId)
-  _id: ObjectId;
+  _id: Types.ObjectId;
 
   @IsString({ message: 'First name must be a string' })
   @MinLength(NAME_MIN_LENGTH, {
@@ -119,7 +119,7 @@ export class UserDto implements IUser {
   @ArrayMaxSize(ADDRESSES_MAX_SIZE)
   @Transform(toArrayOfObjectIds('Addresses'))
   @Type(() => Types.ObjectId)
-  addresses: ObjectId[];
+  addresses: Types.ObjectId[];
 
   @IsArray({ message: 'Phone numbers must be an array' })
   @IsString({
@@ -154,7 +154,7 @@ export class UserDto implements IUser {
   @ArrayMaxSize(ORDERS_MAX_SIZE)
   @Transform(toArrayOfObjectIds('Orders'))
   @Type(() => Types.ObjectId)
-  orders: ObjectId[];
+  orders: Types.ObjectId[];
 
   @IsBoolean()
   @IsOptional()

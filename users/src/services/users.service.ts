@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 import { DbAccessService } from './db-access.service';
 
@@ -120,6 +120,14 @@ export class UsersService {
       },
       options,
     );
+
+    await this.dbAccessService.saveRefreshToken({
+      userId: validUser._id,
+      refreshToken: refreshToken,
+      issuedForUserAgent: new Types.ObjectId(),
+      issuedAt: new Date(now),
+      expiredAfter: new Date(refreshTokenExpiredAfter),
+    });
 
     return {
       status: HttpStatus.OK,

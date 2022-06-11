@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 
-import { AddressSchema, UserSchema } from './schemas';
+import { AddressSchema, TokenSchema, UserSchema } from './schemas';
 import { DbAccessService, JwtConfigService, MongoConfigService, UsersService } from './services';
 import configuration from './services/config';
 import { UsersController } from './users.controller';
@@ -25,6 +25,13 @@ import { UsersController } from './users.controller';
         name: 'User',
         schema: UserSchema,
         collection: 'users',
+      },
+    ]),
+    MongooseModule.forFeature([
+      {
+        name: 'Token',
+        schema: TokenSchema,
+        collection: 'tokens',
       },
     ]),
     MongooseModule.forFeature([

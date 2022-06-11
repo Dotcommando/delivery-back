@@ -1,7 +1,7 @@
-import { Document, ObjectId } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 export interface IAddress {
-  _id: ObjectId;
+  _id: Types.ObjectId;
   postalCode: string;
   country: string;
   region: string;

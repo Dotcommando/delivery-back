@@ -2,7 +2,7 @@ import { PartialType } from '@nestjs/swagger';
 
 import { Transform, TransformFnParams, Type } from 'class-transformer';
 import { IsDefined, IsString, Matches, MaxLength, MinLength } from 'class-validator';
-import { ObjectId, Types } from 'mongoose';
+import { Types } from 'mongoose';
 
 import {
   POSTAL_CODE_MAX_LENGTH,
@@ -18,7 +18,7 @@ export class AddressDto implements IAddress {
   @IsDefined()
   @Transform((data: TransformFnParams) => toObjectId({ value: data.value, key: data.key }))
   @Type(() => Types.ObjectId)
-  _id: ObjectId;
+  _id: Types.ObjectId;
 
   @IsString({ message: 'Postal code must be a string' })
   @MinLength(PROPERTY_LENGTH_1, {

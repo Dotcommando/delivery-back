@@ -1,20 +1,20 @@
-import { Document, ObjectId } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 import { ROLE } from '../constants';
 
 
 export interface IUser {
-  _id: ObjectId;
+  _id: Types.ObjectId;
   firstName: string;
   middleName?: string;
   lastName: string;
   username?: string;
   email: string;
   avatar: string;
-  addresses: ObjectId[];
+  addresses: Types.ObjectId[];
   phoneNumbers: string[];
   roles: ROLE[];
-  orders: ObjectId[];
+  orders: Types.ObjectId[];
   isConfirmed: boolean;
   password: string;
   deactivated: boolean;
