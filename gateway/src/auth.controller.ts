@@ -1,4 +1,4 @@
-import { Body, Controller, Inject, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Inject, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientProxy } from '@nestjs/microservices';
 import { ApiTags } from '@nestjs/swagger';
@@ -28,7 +28,8 @@ export class AuthController {
     @Body() body: RegisterDto,
   ): Promise<IResponse<{ user: IUserSafe }>> {
     return await lastValueFrom(
-      this.userServiceClient.send(USERS_EVENTS.USER_CREATE_USER, body)
+      this.userServiceClient
+        .send(USERS_EVENTS.USER_CREATE_USER, body)
         .pipe(timeout(MAX_TIME_OF_REQUEST_WAITING)),
     );
   }
@@ -39,12 +40,16 @@ export class AuthController {
     @Body() body: SignInDto,
     @Req() req: AuthorizedRequest,
   ): Promise<IResponse<ISignInRes>> {
-    // const user: IUserSafe | null = req?.user ?? null;
-    //
-    // if (!user) {
-    //   throw new UnauthorizedException('User with such pare of email or username and password not found');
-    // }
+    const data: ISignInRes | null = req?.user ?? null;
 
-    return await this.authService.signIn(body);
+    if (!data) {
+      throw new UnauthorizedException('User with such pare of email or username and password not found');
+    }
+
+    return {
+      status: HttpStatus.OK,
+      data,
+      errors: null,
+    };
   }
 }

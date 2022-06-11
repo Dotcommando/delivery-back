@@ -18,11 +18,9 @@ export class AuthService {
   }
 
   public async validateUser(user: SignInDto): Promise<IResponse<IValidateUserRes>> {
-    const address = 'Gateway >> AuthService >> validateUser';
-
     if ((!('username' in user) && !('email' in user)) || (!user.username && !user.email)) {
       throw new AddressedHttpException(
-        address,
+        'Gateway >> AuthService >> validateUser',
         'Something one required: email or username',
         HttpStatus.BAD_REQUEST,
       );

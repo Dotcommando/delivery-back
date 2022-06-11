@@ -3,9 +3,9 @@ import { PassportStrategy } from '@nestjs/passport';
 
 import { Strategy } from 'passport-local';
 
-import { IResponse, IUserSafe } from '../common/interfaces';
+import { IResponse } from '../common/interfaces';
 import { AuthService } from '../services';
-import { IValidateUserRes } from '../types';
+import { ISignInRes } from '../types';
 
 
 @Injectable()
@@ -17,14 +17,14 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(email: string, password: string): Promise<IUserSafe | null> {
-    const validateUserResponse: IResponse<IValidateUserRes> = await this.authService
-      .validateUser({ email, password });
+  async validate(email: string, password: string): Promise<ISignInRes | null> {
+    const validateUserResponse: IResponse<ISignInRes> = await this.authService
+      .signIn({ email, password });
 
-    if (!validateUserResponse.data?.userIsValid) {
+    if (!validateUserResponse.data?.user) {
       throw new UnauthorizedException('No such pare of email and password found');
     }
 
-    return validateUserResponse.data?.user ?? null;
+    return validateUserResponse.data ?? null;
   }
 }

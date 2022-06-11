@@ -1,7 +1,8 @@
 import { FastifyRequest } from 'fastify';
 
-import { IUserSafe } from '../common/interfaces';
+import { ISignInRes } from './sign-in-res.interface';
+
 
 export type AuthorizedRequest = FastifyRequest & {
-  user: IUserSafe | null;
+  user: ISignInRes | null;
 }
