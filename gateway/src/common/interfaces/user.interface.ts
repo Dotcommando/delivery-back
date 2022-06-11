@@ -21,6 +21,8 @@ export interface IUser {
 }
 
 export interface IUserDocument extends Omit<IUser, '_id'>, Document<IUser> {
+  compareEncryptedPassword: (password: string) => boolean;
+  getEncryptedPassword: (password: string) => string;
 }
 
 export type IUserSafe = Omit<IUser, 'password'>;

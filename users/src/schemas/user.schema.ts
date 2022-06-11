@@ -19,8 +19,13 @@ import { IUserDocument } from '../common/interfaces';
 import { optionalRange } from '../validators';
 
 
-function transformValue(doc, ret: { [key: string]: unknown }) {
+function safeValue(doc, ret: { [key: string]: unknown }) {
   delete ret.password;
+  delete ret.id;
+}
+
+function prepareValue(doc, ret: { [key: string]: unknown }) {
+  delete ret.id;
 }
 
 const SALT_ROUNDS = 10;
@@ -108,12 +113,12 @@ export const UserSchema = new Schema<IUserDocument, mongoose.Model<IUserDocument
     toObject: {
       virtuals: true,
       versionKey: false,
-      transform: transformValue,
+      transform: prepareValue,
     },
     toJSON: {
       virtuals: true,
       versionKey: false,
-      transform: transformValue,
+      transform: safeValue,
     },
   },
 );

@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { AddressSchema, UserSchema } from './schemas';
-import { MongoConfigService, UsersService } from './services';
+import { DbAccessService, JwtConfigService, MongoConfigService, UsersService } from './services';
 import configuration from './services/config';
 import { UsersController } from './users.controller';
 
@@ -15,6 +16,9 @@ import { UsersController } from './users.controller';
     }),
     MongooseModule.forRootAsync({
       useClass: MongoConfigService,
+    }),
+    JwtModule.registerAsync({
+      useClass: JwtConfigService,
     }),
     MongooseModule.forFeature([
       {
@@ -32,6 +36,9 @@ import { UsersController } from './users.controller';
     ]),
   ],
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [
+    DbAccessService,
+    UsersService,
+  ],
 })
 export class UsersModule {}

@@ -99,6 +99,7 @@ export class UserDto implements IUser {
   username: string;
 
   @IsString({ message: 'Email must be a string' })
+  @Transform((data: TransformFnParams) => data.value.toLowerCase())
   @MaxLength(PROPERTY_LENGTH_64, {
     message: `Email must be equal or shorter than ${PROPERTY_LENGTH_64} symbols`,
   })
