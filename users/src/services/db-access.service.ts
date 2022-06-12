@@ -8,7 +8,7 @@ import { PartialUserDto } from '../common/dto';
 import { AddressedHttpException } from '../common/exceptions';
 import { createAddressedException } from '../common/helpers';
 import { ITokenDocument, IUser, IUserDocument } from '../common/interfaces';
-import { DEFAULT_USER_DATA } from '../constants/default-user-data.constant';
+import { DEFAULT_USER_DATA } from '../constants';
 import { IEmailPassword, IUsernamePassword, IValidateUserRes, UserCredentialsReq } from '../types';
 import { RefreshTokenData } from '../types/refresh-token-data.type';
 

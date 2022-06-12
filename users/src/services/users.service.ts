@@ -126,6 +126,7 @@ export class UsersService {
       issuedForUserAgent: new Types.ObjectId(),
       issuedAt: new Date(now),
       expiredAfter: new Date(refreshTokenExpiredAfter),
+      blacklisted: false,
     });
 
     return {

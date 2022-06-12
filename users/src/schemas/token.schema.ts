@@ -1,7 +1,8 @@
-import * as bcrypt from 'bcrypt';
+import { createHash } from 'crypto';
 import * as mongoose from 'mongoose';
 import { Schema } from 'mongoose';
 
+import { JWT_SECRET_KEY } from '../common/constants';
 import { ITokenDocument } from '../common/interfaces';
 
 
@@ -9,14 +10,16 @@ function prepareValue(doc, ret: { [key: string]: unknown }) {
   delete ret.id;
 }
 
-const SALT_ROUNDS = 10;
-
 export const TokenSchema = new Schema<ITokenDocument, mongoose.Model<ITokenDocument>>(
   {
     userId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: [ true, 'UserId required for refresh token' ],
+    },
+    accessToken: {
+      type: String,
+      required: false,
     },
     refreshToken: {
       type: String,
@@ -36,6 +39,10 @@ export const TokenSchema = new Schema<ITokenDocument, mongoose.Model<ITokenDocum
       type: Schema.Types.Date,
       required: [ true, 'Date of expiration required' ],
     },
+    blacklisted: {
+      type: Schema.Types.Boolean,
+      default: false,
+    },
   },
   {
     toObject: {
@@ -53,11 +60,11 @@ export const TokenSchema = new Schema<ITokenDocument, mongoose.Model<ITokenDocum
 
 TokenSchema.methods = {
   compareEncryptedRefreshToken(refreshToken: string) {
-    return bcrypt.compare(refreshToken, this.refreshToken);
+    return createHash('sha256').update(`${JWT_SECRET_KEY}:${refreshToken}`).digest('hex') === this.refreshToken;
   },
 
   async getEncryptedToken(refreshToken: string) {
-    return bcrypt.hash(String(refreshToken), SALT_ROUNDS);
+    return createHash('sha256').update(`${JWT_SECRET_KEY}:${refreshToken}`).digest('hex') ;
   },
 };
 
