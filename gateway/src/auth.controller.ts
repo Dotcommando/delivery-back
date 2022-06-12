@@ -7,7 +7,7 @@ import { lastValueFrom, timeout } from 'rxjs';
 
 import { MAX_TIME_OF_REQUEST_WAITING, USERS_EVENTS } from './common/constants';
 import { IResponse, IUser } from './common/interfaces';
-import { RegisterDto, SignInDto } from './dto';
+import { RegisterBodyDto, SignInBodyDto } from './dto';
 import { AuthLocalGuard } from './guards';
 import { AuthService } from './services';
 import { AuthorizedRequest, ISignInRes } from './types';
@@ -25,7 +25,7 @@ export class AuthController {
 
   @Post('register')
   public async register(
-    @Body() body: RegisterDto,
+    @Body() body: RegisterBodyDto,
   ): Promise<IResponse<{ user: IUser }>> {
     return await lastValueFrom(
       this.userServiceClient
@@ -37,7 +37,7 @@ export class AuthController {
   @UseGuards(AuthLocalGuard)
   @Post('sign-in')
   public async signIn(
-    @Body() body: SignInDto,
+    @Body() body: SignInBodyDto,
     @Req() req: AuthorizedRequest,
   ): Promise<IResponse<ISignInRes>> {
     const data: ISignInRes | null = req?.user ?? null;

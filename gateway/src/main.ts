@@ -9,6 +9,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { fastifyCookie } from 'fastify-cookie';
 import fastifyCsrf from 'fastify-csrf';
 import helmet from 'fastify-helmet';
+import * as morgan from 'morgan';
 
 import { AppModule } from './app.module';
 import { HttpCommonExceptionFilter } from './common/filters';
@@ -37,6 +38,10 @@ async function bootstrap() {
       },
     },
   });
+
+  if (process.env.ENVIRONMENT === 'dev') {
+    app.use(morgan('tiny'));
+  }
 
   const options = new DocumentBuilder()
     .setTitle('API docs')

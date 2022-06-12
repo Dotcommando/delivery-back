@@ -6,6 +6,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './services';
 import configuration from './services/config';
 import { LocalStrategy } from './strategies';
+import { UsersController } from './users.controller';
 
 
 @Module({
@@ -16,6 +17,7 @@ import { LocalStrategy } from './strategies';
   ],
   controllers: [
     AuthController,
+    UsersController,
   ],
   providers: [
     AuthService,

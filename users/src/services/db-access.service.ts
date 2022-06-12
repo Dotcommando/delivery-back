@@ -1,7 +1,7 @@
 import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 import { EMAIL_REGEXP, USERNAME_REGEXP } from '../common/constants';
 import { PartialUserDto } from '../common/dto';
@@ -95,5 +95,40 @@ export class DbAccessService {
         saved: false,
       };
     }
+  }
+
+  public async checkAccessToken(accessToken): Promise<{ blacklisted: boolean }> {
+    try {
+      const tokenDoc: ITokenDocument | null = await this.tokenModel.findOne({ accessToken });
+
+      return {
+        blacklisted: tokenDoc
+          ? tokenDoc.blacklisted
+          : false,
+      };
+    } catch (e) {
+      createAddressedException('Users >> DBAccessService >> checkAccessToken', e);
+    }
+  }
+
+  public async findManyUsers(userIds: Array<string | Types.ObjectId>): Promise<IUser[] | null> {
+    try {
+      const ids = userIds.map((userId: string | Types.ObjectId) => new Types.ObjectId(userId));
+      const userDocs: IUserDocument[] = await this.userModel.find({
+        _id: { $in: ids },
+      });
+
+      if (!userDocs || !userDocs.length) {
+        return null;
+      }
+
+      return userDocs.map((userDoc: IUserDocument) => userDoc.toJSON());
+    } catch (e) {
+      createAddressedException('Users >> DBAccessService >> findManyUsers', e);
+    }
+  }
+
+  public async findUserById(userId: string | Types.ObjectId): Promise<IUser | null> {
+    return (await this.findManyUsers([userId]))?.[0] ?? null;
   }
 }

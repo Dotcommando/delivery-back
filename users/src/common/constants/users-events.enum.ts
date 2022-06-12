@@ -2,4 +2,6 @@ export enum USERS_EVENTS {
   USER_CREATE_USER = 'user_create_user',
   USER_VALIDATE_USER = 'user_validate_user',
   USER_ISSUE_TOKENS = 'user_issue_tokens',
+  USER_VERIFY_ACCESS_TOKEN = 'user_verify_access_token',
+  USER_GET_USER = 'user_get_user',
 }

@@ -1,4 +1,12 @@
-import { BadRequestException, ConflictException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+  PreconditionFailedException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
@@ -11,8 +19,9 @@ import { LOGIN_ORIGIN } from '../common/constants';
 import { PartialUserDto } from '../common/dto';
 import { AddressedHttpException } from '../common/exceptions';
 import { IResponse, IUser, IUserDocument } from '../common/interfaces';
-import { RegisterDto, SignInDto } from '../dto';
-import { ISignInRes, IValidateUserRes, UserCredentialsReq } from '../types';
+import { BEARER_PREFIX } from '../constants';
+import { GetUserBodyDto, RegisterBodyDto, SignInBodyDto } from '../dto';
+import { ISignInRes, IValidateUserRes, IVerifyTokenRes, UserCredentialsReq } from '../types';
 
 
 @Injectable()
@@ -33,7 +42,7 @@ export class UsersService {
     return this.dbAccessService.checkEmailOccupation(user.email);
   }
 
-  public async register(user: RegisterDto): Promise<IResponse<{ user: IUser }>> {
+  public async register(user: RegisterBodyDto): Promise<IResponse<{ user: IUser }>> {
     const errorAddress = 'Users >> UsersService >> register';
     const usernameRequired = 'username' in user;
 
@@ -62,7 +71,7 @@ export class UsersService {
     };
   }
 
-  public async validateUser(user: SignInDto): Promise<IResponse<IValidateUserRes>> {
+  public async validateUser(user: SignInBodyDto): Promise<IResponse<IValidateUserRes>> {
     if ((!('username' in user) && !('email' in user)) || (!user.username && !user.email)) {
       throw new BadRequestException('Something one required: email or username');
     }
@@ -76,7 +85,7 @@ export class UsersService {
     };
   }
 
-  public async issueTokens(user: SignInDto): Promise<IResponse<ISignInRes>> {
+  public async issueTokens(user: SignInBodyDto): Promise<IResponse<ISignInRes>> {
     const validateUserResponse = await this.validateUser(user);
 
     if (!validateUserResponse.data?.user) {
@@ -138,6 +147,73 @@ export class UsersService {
         accessTokenExpiredAfter,
         refreshTokenExpiredAfter,
       },
+      errors: null,
+    };
+  }
+
+  public async verifyAccessToken(data: { accessToken: string }): Promise<IResponse<IVerifyTokenRes>> {
+    if (!data || !data?.accessToken || typeof data.accessToken !== 'string') {
+      throw new BadRequestException('Access token missed in the request or has wrong format');
+    }
+
+    const accessToken = this.jwtService.decode(data?.accessToken.replace(BEARER_PREFIX, ''));
+
+    if (!accessToken) {
+      throw new BadRequestException('Access token can not be decoded');
+    }
+
+    if (accessToken['exp'] < Date.now()) {
+      throw new BadRequestException('Access token expired');
+    }
+
+    const verified = Boolean(
+      this.jwtService.verify(
+        data.accessToken,
+        { secret: this.configService.get('secretKey') },
+      ),
+    );
+
+    if (!verified) {
+      throw new UnauthorizedException('Access token is not genuine');
+    }
+
+    const checkTokenResult = await this.dbAccessService.checkAccessToken(data.accessToken);
+
+    if (checkTokenResult.blacklisted) {
+      throw new UnauthorizedException('Access token is not genuine');
+    }
+
+    const userId = accessToken['sub'];
+    const user = await this.dbAccessService.findUserById(userId);
+
+    if (!user) {
+      throw new PreconditionFailedException(`Cannot get user by Id ${userId}`);
+    }
+
+    return {
+      status: HttpStatus.OK,
+      data: {
+        verified,
+        user,
+      },
+      errors: null,
+    };
+  }
+
+  public async getUser(data: GetUserBodyDto): Promise<IResponse<{ user: IUser }>> {
+    if (!data?._id || !Types.ObjectId.isValid(data._id)) {
+      throw new BadRequestException('UserId is not valid ObjectId');
+    }
+
+    const user: IUser | null = await this.dbAccessService.findUserById(data._id);
+
+    if (!user) {
+      throw new NotFoundException(`Cannot find user with _id ${data._id}`);
+    }
+
+    return {
+      status: HttpStatus.OK,
+      data: { user },
       errors: null,
     };
   }
