@@ -7,7 +7,7 @@ import { EMAIL_REGEXP, USERNAME_REGEXP } from '../common/constants';
 import { PartialUserDto } from '../common/dto';
 import { AddressedHttpException } from '../common/exceptions';
 import { createAddressedException } from '../common/helpers';
-import { ITokenDocument, IUser, IUserDocument, IUserSafe } from '../common/interfaces';
+import { ITokenDocument, IUser, IUserDocument } from '../common/interfaces';
 import { DEFAULT_USER_DATA } from '../constants/default-user-data.constant';
 import { IEmailPassword, IUsernamePassword, IValidateUserRes, UserCredentialsReq } from '../types';
 import { RefreshTokenData } from '../types/refresh-token-data.type';
@@ -67,23 +67,16 @@ export class DbAccessService {
 
     return {
       userIsValid,
-      ...(userIsValid && { user: userDoc.toJSON() as IUserSafe }),
+      ...(userIsValid && { user: userDoc.toJSON() as IUser }),
     };
   }
 
-  public async saveNewUser(
-    user: PartialUserDto,
-    options: { withPassword: boolean } = { withPassword: false },
-  ): Promise<{ user: IUserSafe | IUser }> {
+  public async saveNewUser(user: PartialUserDto): Promise<{ user: IUser }> {
     try {
       const userDoc: IUserDocument = new this.userModel({ ...DEFAULT_USER_DATA, ...user });
       const savedUserDoc = await userDoc.save();
 
-      return {
-        user: options.withPassword
-          ? savedUserDoc.toObject() as IUser
-          : savedUserDoc.toJSON() as IUserSafe,
-      };
+      return { user: savedUserDoc.toJSON() as IUser };
     } catch (e) {
       createAddressedException('Users >> DBAccessService >> saveNewUser', e);
     }

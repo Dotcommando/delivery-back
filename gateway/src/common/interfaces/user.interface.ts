@@ -16,13 +16,11 @@ export interface IUser {
   roles: ROLE[];
   orders: Types.ObjectId[];
   isConfirmed: boolean;
-  password: string;
   deactivated: boolean;
 }
 
 export interface IUserDocument extends Omit<IUser, '_id'>, Document<IUser> {
+  password: string;
   compareEncryptedPassword: (password: string) => boolean;
   getEncryptedPassword: (password: string) => string;
 }
-
-export type IUserSafe = Omit<IUser, 'password'>;

@@ -6,7 +6,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { lastValueFrom, timeout } from 'rxjs';
 
 import { MAX_TIME_OF_REQUEST_WAITING, USERS_EVENTS } from './common/constants';
-import { IResponse, IUserSafe } from './common/interfaces';
+import { IResponse, IUser } from './common/interfaces';
 import { RegisterDto, SignInDto } from './dto';
 import { AuthLocalGuard } from './guards';
 import { AuthService } from './services';
@@ -26,7 +26,7 @@ export class AuthController {
   @Post('register')
   public async register(
     @Body() body: RegisterDto,
-  ): Promise<IResponse<{ user: IUserSafe }>> {
+  ): Promise<IResponse<{ user: IUser }>> {
     return await lastValueFrom(
       this.userServiceClient
         .send(USERS_EVENTS.USER_CREATE_USER, body)

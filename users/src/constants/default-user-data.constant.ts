@@ -10,6 +10,5 @@ export const DEFAULT_USER_DATA: Omit<IUser, '_id'> = {
   roles: [],
   orders: [],
   isConfirmed: false,
-  password: '',
   deactivated: false,
 };

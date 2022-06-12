@@ -1,7 +1,7 @@
-import { IUserSafe } from '../common/interfaces';
+import { IUser } from '../common/interfaces';
 
 export interface ISignInRes {
-  user: IUserSafe;
+  user: IUser;
   accessToken: string;
   refreshToken: string;
   accessTokenExpiredAfter: number;

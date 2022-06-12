@@ -10,7 +10,7 @@ import { DbAccessService } from './db-access.service';
 import { LOGIN_ORIGIN } from '../common/constants';
 import { PartialUserDto } from '../common/dto';
 import { AddressedHttpException } from '../common/exceptions';
-import { IResponse, IUserDocument, IUserSafe } from '../common/interfaces';
+import { IResponse, IUser, IUserDocument } from '../common/interfaces';
 import { RegisterDto, SignInDto } from '../dto';
 import { ISignInRes, IValidateUserRes, UserCredentialsReq } from '../types';
 
@@ -33,7 +33,7 @@ export class UsersService {
     return this.dbAccessService.checkEmailOccupation(user.email);
   }
 
-  public async register(user: RegisterDto): Promise<IResponse<{ user: IUserSafe }>> {
+  public async register(user: RegisterDto): Promise<IResponse<{ user: IUser }>> {
     const errorAddress = 'Users >> UsersService >> register';
     const usernameRequired = 'username' in user;
 
@@ -51,7 +51,7 @@ export class UsersService {
       throw new ConflictException(`Username ${user.username} occupied`);
     }
 
-    const newUserResponse: { user: IUserSafe } = await this.dbAccessService.saveNewUser(user);
+    const newUserResponse: { user: IUser } = await this.dbAccessService.saveNewUser(user);
 
     return {
       status: HttpStatus.CREATED,
@@ -87,8 +87,7 @@ export class UsersService {
       );
     }
 
-    const validUser: IUserSafe = { ...validateUserResponse.data.user };
-
+    const validUser: IUser = { ...validateUserResponse.data.user };
     const userId = String(validUser._id);
     const options = { secret: this.configService.get('secretKey') };
     const now = Date.now();

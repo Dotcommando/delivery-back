@@ -3,7 +3,7 @@ import { MessagePattern } from '@nestjs/microservices';
 
 import { USERS_EVENTS } from './common/constants';
 import { TcpCommonExceptionFilter } from './common/filters';
-import { IResponse, IUserSafe } from './common/interfaces';
+import { IResponse, IUser } from './common/interfaces';
 import { RegisterDto, SignInDto } from './dto';
 import { UsersService } from './services';
 import { ISignInRes, IValidateUserRes } from './types';
@@ -15,7 +15,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @MessagePattern(USERS_EVENTS.USER_CREATE_USER)
-  public async register(user: RegisterDto): Promise<IResponse<{ user: IUserSafe }>> {
+  public async register(user: RegisterDto): Promise<IResponse<{ user: IUser }>> {
     return await this.usersService.register(user);
   }
 

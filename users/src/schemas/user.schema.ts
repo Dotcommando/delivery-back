@@ -24,10 +24,6 @@ function safeValue(doc, ret: { [key: string]: unknown }) {
   delete ret.id;
 }
 
-function prepareValue(doc, ret: { [key: string]: unknown }) {
-  delete ret.id;
-}
-
 const SALT_ROUNDS = 10;
 
 export const UserSchema = new Schema<IUserDocument, mongoose.Model<IUserDocument>>(
@@ -113,7 +109,7 @@ export const UserSchema = new Schema<IUserDocument, mongoose.Model<IUserDocument
     toObject: {
       virtuals: true,
       versionKey: false,
-      transform: prepareValue,
+      transform: safeValue,
     },
     toJSON: {
       virtuals: true,
