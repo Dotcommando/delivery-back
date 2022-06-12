@@ -43,7 +43,7 @@ import {
   toBoolean,
   toObjectId,
 } from '../helpers';
-import { IUser } from '../interfaces';
+import { IUser } from '../types';
 
 export class UserDto implements IUser {
   @IsDefined()

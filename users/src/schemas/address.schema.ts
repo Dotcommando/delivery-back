@@ -7,7 +7,7 @@ import {
   PROPERTY_LENGTH_1,
   PROPERTY_LENGTH_64,
 } from '../common/constants';
-import { IAddressDocument } from '../common/interfaces';
+import { IAddressDocument } from '../common/types';
 
 
 export const AddressSchema = new Schema<IAddressDocument, mongoose.Model<IAddressDocument>>(

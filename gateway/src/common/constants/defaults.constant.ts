@@ -19,3 +19,5 @@ export const PHONE_NUMBER_MIN_LENGTH = Number(process.env.PHONE_NUMBER_MIN_LENGT
 export const PHONE_NUMBER_MAX_LENGTH = Number(process.env.PHONE_NUMBER_MAX_LENGTH);
 export const ORDERS_MAX_SIZE = Number(process.env.ORDERS_MAX_SIZE);
 export const MAX_TIME_OF_REQUEST_WAITING = Number(process.env.MAX_TIME_OF_REQUEST_WAITING);
+export const JWT_MIN_TOKEN_LENGTH = Number(process.env.JWT_MIN_TOKEN_LENGTH);
+export const JWT_MAX_TOKEN_LENGTH = Number(process.env.JWT_MAX_TOKEN_LENGTH);

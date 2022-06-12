@@ -15,7 +15,7 @@ import {
   USERNAME_MIN_LENGTH,
   USERNAME_REGEXP,
 } from '../common/constants';
-import { IUserDocument } from '../common/interfaces';
+import { IUserDocument } from '../common/types';
 import { optionalRange } from '../validators';
 
 

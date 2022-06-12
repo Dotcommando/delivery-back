@@ -12,7 +12,7 @@ import {
   PROPERTY_LENGTH_64,
 } from '../constants';
 import { maxLengthStringMessage, minLengthStringMessage, toObjectId } from '../helpers';
-import { IAddress } from '../interfaces';
+import { IAddress } from '../types';
 
 export class AddressDto implements IAddress {
   @IsDefined()

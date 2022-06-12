@@ -1,6 +1,6 @@
 import { HttpStatus } from '@nestjs/common';
 
-import { IResponse } from '../interfaces';
+import { IResponse } from '../types';
 
 export class ErrorResponse implements IResponse<null> {
   public status: number | HttpStatus;

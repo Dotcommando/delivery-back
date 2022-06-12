@@ -1,6 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 
-import { IResponse } from '../common/interfaces';
+import { IResponse } from '../common/types';
 import { AuthService } from '../services';
 import { IVerifyTokenRes } from '../types';
 

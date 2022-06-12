@@ -7,7 +7,7 @@ import { EMAIL_REGEXP, USERNAME_REGEXP } from '../common/constants';
 import { PartialUserDto } from '../common/dto';
 import { AddressedHttpException } from '../common/exceptions';
 import { createAddressedException } from '../common/helpers';
-import { ITokenDocument, IUser, IUserDocument } from '../common/interfaces';
+import { ITokenDocument, IUser, IUserDocument } from '../common/types';
 import { DEFAULT_USER_DATA } from '../constants';
 import { IEmailPassword, IUsernamePassword, IValidateUserRes, UserCredentialsReq } from '../types';
 import { RefreshTokenData } from '../types/refresh-token-data.type';

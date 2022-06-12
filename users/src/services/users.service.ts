@@ -18,9 +18,9 @@ import { DbAccessService } from './db-access.service';
 import { LOGIN_ORIGIN } from '../common/constants';
 import { PartialUserDto } from '../common/dto';
 import { AddressedHttpException } from '../common/exceptions';
-import { IResponse, IUser, IUserDocument } from '../common/interfaces';
+import { IResponse, IUser, IUserDocument } from '../common/types';
 import { BEARER_PREFIX } from '../constants';
-import { GetUserBodyDto, RegisterBodyDto, SignInBodyDto } from '../dto';
+import { GetUserBodyDto, RegisterBodyDto, SignInBodyDto, VerifyAccessTokenBodyDto } from '../dto';
 import { ISignInRes, IValidateUserRes, IVerifyTokenRes, UserCredentialsReq } from '../types';
 
 
@@ -151,7 +151,7 @@ export class UsersService {
     };
   }
 
-  public async verifyAccessToken(data: { accessToken: string }): Promise<IResponse<IVerifyTokenRes>> {
+  public async verifyAccessToken(data: VerifyAccessTokenBodyDto): Promise<IResponse<IVerifyTokenRes>> {
     if (!data || !data?.accessToken || typeof data.accessToken !== 'string') {
       throw new BadRequestException('Access token missed in the request or has wrong format');
     }

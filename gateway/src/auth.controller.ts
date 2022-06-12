@@ -6,7 +6,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { lastValueFrom, timeout } from 'rxjs';
 
 import { MAX_TIME_OF_REQUEST_WAITING, USERS_EVENTS } from './common/constants';
-import { IResponse, IUser } from './common/interfaces';
+import { IResponse, IUser } from './common/types';
 import { RegisterBodyDto, SignInBodyDto } from './dto';
 import { AuthLocalGuard } from './guards';
 import { AuthService } from './services';

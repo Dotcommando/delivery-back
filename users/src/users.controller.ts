@@ -3,8 +3,8 @@ import { MessagePattern } from '@nestjs/microservices';
 
 import { USERS_EVENTS } from './common/constants';
 import { TcpCommonExceptionFilter } from './common/filters';
-import { IResponse, IUser } from './common/interfaces';
-import { GetUserBodyDto, RegisterBodyDto, SignInBodyDto } from './dto';
+import { IResponse, IUser } from './common/types';
+import { GetUserBodyDto, RegisterBodyDto, SignInBodyDto, VerifyAccessTokenBodyDto } from './dto';
 import { UsersService } from './services';
 import { ISignInRes, IValidateUserRes, IVerifyTokenRes } from './types';
 
@@ -30,7 +30,7 @@ export class UsersController {
   }
 
   @MessagePattern(USERS_EVENTS.USER_VERIFY_ACCESS_TOKEN)
-  public async verifyAccessToken(data: { accessToken: string }): Promise<IResponse<IVerifyTokenRes>> {
+  public async verifyAccessToken(data: VerifyAccessTokenBodyDto): Promise<IResponse<IVerifyTokenRes>> {
     return await this.usersService.verifyAccessToken(data);
   }
 

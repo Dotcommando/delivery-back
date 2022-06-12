@@ -3,7 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 
 import { Strategy } from 'passport-local';
 
-import { IResponse } from '../common/interfaces';
+import { IResponse } from '../common/types';
 import { AuthService } from '../services';
 import { ISignInRes } from '../types';
 

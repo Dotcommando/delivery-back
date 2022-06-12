@@ -1,4 +1,4 @@
-import { IUser } from '../common/interfaces';
+import { IUser } from '../common/types';
 
 export interface ISignInRes {
   user: IUser;

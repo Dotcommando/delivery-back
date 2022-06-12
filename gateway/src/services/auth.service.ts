@@ -5,7 +5,7 @@ import { lastValueFrom, timeout } from 'rxjs';
 
 import { MAX_TIME_OF_REQUEST_WAITING, USERS_EVENTS } from '../common/constants';
 import { AddressedHttpException } from '../common/exceptions';
-import { IResponse } from '../common/interfaces';
+import { IResponse } from '../common/types';
 import { SignInBodyDto } from '../dto';
 import { ISignInRes, IValidateUserRes, IVerifyTokenRes } from '../types';
 
