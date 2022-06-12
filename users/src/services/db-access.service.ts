@@ -1,16 +1,16 @@
-import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
+import { createHash } from 'crypto';
 import { Model, Types } from 'mongoose';
 
-import { EMAIL_REGEXP, USERNAME_REGEXP } from '../common/constants';
-import { PartialUserDto } from '../common/dto';
+import { EMAIL_REGEXP, JWT_SECRET_KEY, USERNAME_REGEXP } from '../common/constants';
+import { PartialTokenDto, PartialUserDto } from '../common/dto';
 import { AddressedHttpException } from '../common/exceptions';
 import { createAddressedException } from '../common/helpers';
-import { ITokenDocument, IUser, IUserDocument } from '../common/types';
-import { DEFAULT_USER_DATA } from '../constants';
-import { IEmailPassword, IUsernamePassword, IValidateUserRes, UserCredentialsReq } from '../types';
-import { RefreshTokenData } from '../types/refresh-token-data.type';
+import { IToken, ITokenDocument, IUser, IUserDocument } from '../common/types';
+import { BEARER_PREFIX, DEFAULT_USER_DATA } from '../constants';
+import { IEmailPassword, IUsernamePassword, IValidateUserRes, RefreshTokenData, UserCredentialsReq } from '../types';
 
 
 @Injectable()
@@ -99,7 +99,13 @@ export class DbAccessService {
 
   public async checkAccessToken(accessToken): Promise<{ blacklisted: boolean }> {
     try {
-      const tokenDoc: ITokenDocument | null = await this.tokenModel.findOne({ accessToken });
+      const tokenDoc: ITokenDocument | null = await this.tokenModel
+        .findOne({
+          $or: [
+            { accessToken: accessToken.replace(BEARER_PREFIX, '') },
+            { refreshToken: this.encryptRefreshToken(accessToken) },
+          ],
+        });
 
       return {
         blacklisted: tokenDoc
@@ -130,5 +136,41 @@ export class DbAccessService {
 
   public async findUserById(userId: string | Types.ObjectId): Promise<IUser | null> {
     return (await this.findManyUsers([userId]))?.[0] ?? null;
+  }
+
+  private encryptRefreshToken(refreshToken: string): string {
+    return createHash('sha256')
+      .update(`${JWT_SECRET_KEY}:${refreshToken.replace(BEARER_PREFIX, '')}`)
+      .digest('hex') ;
+  }
+
+  public async findRefreshToken(refreshToken: string): Promise<IToken | null> {
+    const encryptedToken = this.encryptRefreshToken(refreshToken);
+
+    const foundToken: ITokenDocument = await this.tokenModel.findOne({ refreshToken: encryptedToken });
+
+    return foundToken ? foundToken.toJSON() as IToken : null;
+  }
+
+  public async updateToken(filter: PartialTokenDto, updates: PartialTokenDto): Promise<IToken> {
+    const updatedFilter: PartialTokenDto = {
+      ...filter,
+      ...(filter?._id && { _id: new Types.ObjectId(filter._id) }),
+      ...(filter?.refreshToken && { refreshToken: this.encryptRefreshToken(filter.refreshToken) }),
+    };
+
+    const updatedUpdates: PartialTokenDto = {
+      ...updates,
+      ...(updates?.accessToken && { accessToken: updates.accessToken.replace(BEARER_PREFIX, '') }),
+    };
+
+    const updatedToken: ITokenDocument | null = await this.tokenModel
+      .findOneAndUpdate(updatedFilter, updatedUpdates, { returnDocument: 'after' });
+
+    if (!updatedToken) {
+      throw new NotFoundException('Token to update not found');
+    }
+
+    return updatedToken.toJSON() as IToken;
   }
 }

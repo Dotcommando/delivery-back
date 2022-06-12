@@ -7,10 +7,10 @@ import { lastValueFrom, timeout } from 'rxjs';
 
 import { MAX_TIME_OF_REQUEST_WAITING, USERS_EVENTS } from './common/constants';
 import { IResponse, IUser } from './common/types';
-import { RegisterBodyDto, SignInBodyDto } from './dto';
-import { AuthLocalGuard } from './guards';
+import { RegisterBodyDto, ReissueTokensBodyDto, SignInBodyDto } from './dto';
+import { AuthLocalGuard, JwtGuard } from './guards';
 import { AuthService } from './services';
-import { AuthorizedRequest, ISignInRes } from './types';
+import { AuthenticatedRequest, AuthorizedRequest, ISignInRes } from './types';
 
 
 @Controller('auth')
@@ -51,5 +51,18 @@ export class AuthController {
       data,
       errors: null,
     };
+  }
+
+  @UseGuards(JwtGuard)
+  @Post('reissue-tokens')
+  public async reissueTokens(
+    @Body() body: ReissueTokensBodyDto,
+    @Req() req: AuthenticatedRequest,
+  ): Promise<IResponse<ISignInRes>> {
+    const user: IUser | null = req?.user ?? null;
+    const accessToken = body.accessToken;
+    const refreshToken: string | null = req.headers?.authorization;
+
+    return await this.authService.reissueTokens({ user, accessToken, refreshToken });
   }
 }

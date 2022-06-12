@@ -14,6 +14,7 @@ import {
 import { maxLengthStringMessage, minLengthStringMessage, toObjectId } from '../helpers';
 import { IAddress } from '../types';
 
+
 export class AddressDto implements IAddress {
   @IsDefined()
   @Transform((data: TransformFnParams) => toObjectId({ value: data.value, key: data.key }))

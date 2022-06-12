@@ -4,6 +4,7 @@ import { Schema } from 'mongoose';
 
 import { JWT_SECRET_KEY } from '../common/constants';
 import { ITokenDocument } from '../common/types';
+import { BEARER_PREFIX } from '../constants';
 
 
 function prepareValue(doc, ret: { [key: string]: unknown }) {
@@ -60,11 +61,15 @@ export const TokenSchema = new Schema<ITokenDocument, mongoose.Model<ITokenDocum
 
 TokenSchema.methods = {
   compareEncryptedRefreshToken(refreshToken: string) {
-    return createHash('sha256').update(`${JWT_SECRET_KEY}:${refreshToken}`).digest('hex') === this.refreshToken;
+    return createHash('sha256')
+      .update(`${JWT_SECRET_KEY}:${refreshToken.replace(BEARER_PREFIX, '')}`)
+      .digest('hex') === this.refreshToken;
   },
 
   async getEncryptedToken(refreshToken: string) {
-    return createHash('sha256').update(`${JWT_SECRET_KEY}:${refreshToken}`).digest('hex') ;
+    return createHash('sha256')
+      .update(`${JWT_SECRET_KEY}:${refreshToken.replace(BEARER_PREFIX, '')}`)
+      .digest('hex') ;
   },
 };
 

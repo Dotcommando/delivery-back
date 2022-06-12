@@ -16,12 +16,12 @@ import { Model, Types } from 'mongoose';
 import { DbAccessService } from './db-access.service';
 
 import { LOGIN_ORIGIN } from '../common/constants';
-import { PartialUserDto } from '../common/dto';
+import { PartialTokenDto, PartialUserDto } from '../common/dto';
 import { AddressedHttpException } from '../common/exceptions';
-import { IResponse, IUser, IUserDocument } from '../common/types';
+import { IResponse, IToken, IUser, IUserDocument } from '../common/types';
 import { BEARER_PREFIX } from '../constants';
-import { GetUserBodyDto, RegisterBodyDto, SignInBodyDto, VerifyAccessTokenBodyDto } from '../dto';
-import { ISignInRes, IValidateUserRes, IVerifyTokenRes, UserCredentialsReq } from '../types';
+import { GetUserBodyDto, RegisterBodyDto, ReissueTokensBodyDto, SignInBodyDto, VerifyAccessTokenBodyDto } from '../dto';
+import { IIssueTokensRes, ISignInRes, IValidateUserRes, IVerifyTokenRes, UserCredentialsReq } from '../types';
 
 
 @Injectable()
@@ -85,7 +85,48 @@ export class UsersService {
     };
   }
 
-  public async issueTokens(user: SignInBodyDto): Promise<IResponse<ISignInRes>> {
+  private issueToken(userId: string | Types.ObjectId, now: number, tokenType: 'refresh' | 'access' = 'access'): string {
+    const options = { secret: this.configService.get('secretKey') };
+
+    return this.jwtService.sign(
+      {
+        sub: String(userId),
+        aud: this.configService.get('audience'),
+        iss: this.configService.get('issuer'),
+        azp: this.configService.get('authorizedParty'),
+        exp: now + (tokenType === 'access' ? this.configService.get('accessTokenExpiresIn') : this.configService.get('refreshTokenExpiresIn')),
+        iat: now,
+        loginOrigin: LOGIN_ORIGIN.USERNAME_PASSWORD,
+      },
+      options,
+    );
+  }
+
+  public async issueTokens(userId: string | Types.ObjectId): Promise<IIssueTokensRes> {
+    const now = Date.now();
+    const accessTokenExpiredAfter = now + this.configService.get('accessTokenExpiresIn');
+    const refreshTokenExpiredAfter = now + this.configService.get('refreshTokenExpiresIn');
+    const accessToken = this.issueToken(userId, now, 'access');
+    const refreshToken = this.issueToken(userId, now, 'refresh');
+
+    await this.dbAccessService.saveRefreshToken({
+      userId: new Types.ObjectId(userId),
+      refreshToken: refreshToken,
+      issuedForUserAgent: new Types.ObjectId(),
+      issuedAt: new Date(now),
+      expiredAfter: new Date(refreshTokenExpiredAfter),
+      blacklisted: false,
+    });
+
+    return {
+      accessToken,
+      refreshToken,
+      accessTokenExpiredAfter,
+      refreshTokenExpiredAfter,
+    };
+  }
+
+  public async signIn(user: SignInBodyDto): Promise<IResponse<ISignInRes>> {
     const validateUserResponse = await this.validateUser(user);
 
     if (!validateUserResponse.data?.user) {
@@ -97,55 +138,13 @@ export class UsersService {
     }
 
     const validUser: IUser = { ...validateUserResponse.data.user };
-    const userId = String(validUser._id);
-    const options = { secret: this.configService.get('secretKey') };
-    const now = Date.now();
-    const accessTokenExpiredAfter = now + this.configService.get('accessTokenExpiresIn');
-    const refreshTokenExpiredAfter = now + this.configService.get('refreshTokenExpiresIn');
-
-    const accessToken = this.jwtService.sign(
-      {
-        sub: userId,
-        aud: this.configService.get('audience'),
-        iss: this.configService.get('issuer'),
-        azp: this.configService.get('authorizedParty'),
-        exp: accessTokenExpiredAfter,
-        iat: now,
-        loginOrigin: LOGIN_ORIGIN.USERNAME_PASSWORD,
-      },
-      options,
-    );
-
-    const refreshToken = this.jwtService.sign(
-      {
-        sub: userId,
-        aud: this.configService.get('audience'),
-        iss: this.configService.get('issuer'),
-        azp: this.configService.get('CSAuthParty'),
-        exp: refreshTokenExpiredAfter,
-        iat: now,
-        loginOrigin: LOGIN_ORIGIN.USERNAME_PASSWORD,
-      },
-      options,
-    );
-
-    await this.dbAccessService.saveRefreshToken({
-      userId: validUser._id,
-      refreshToken: refreshToken,
-      issuedForUserAgent: new Types.ObjectId(),
-      issuedAt: new Date(now),
-      expiredAfter: new Date(refreshTokenExpiredAfter),
-      blacklisted: false,
-    });
+    const issueTokenResponse = await this.issueTokens(validUser._id);
 
     return {
       status: HttpStatus.OK,
       data: {
         user: validUser,
-        accessToken,
-        refreshToken,
-        accessTokenExpiredAfter,
-        refreshTokenExpiredAfter,
+        ...issueTokenResponse,
       },
       errors: null,
     };
@@ -196,6 +195,61 @@ export class UsersService {
         verified,
         user,
       },
+      errors: null,
+    };
+  }
+
+  public async reissueTokens(data: ReissueTokensBodyDto): Promise<IResponse<IIssueTokensRes>> {
+    const accessToken = this.jwtService.decode(data?.accessToken.replace(BEARER_PREFIX, ''));
+    const refreshToken = this.jwtService.decode(data?.refreshToken.replace(BEARER_PREFIX, ''));
+    const userId = new Types.ObjectId(refreshToken?.['sub']);
+
+    if (!accessToken && refreshToken) {
+      await this.dbAccessService.updateToken({
+        userId,
+        refreshToken: data.refreshToken,
+      }, {
+        blacklisted: true,
+      });
+
+      throw new BadRequestException('Cannot decode Access token for reissuing');
+    } else if (!accessToken && !refreshToken) {
+      throw new BadRequestException('Cannot decode tokens for reissuing');
+    } else if (accessToken && !refreshToken) {
+      throw new BadRequestException('Cannot decode Refresh token for reissuing');
+    }
+
+    const getRefreshToken: IToken = await this.dbAccessService.findRefreshToken(data.refreshToken);
+
+    if (getRefreshToken.blacklisted) {
+      throw new BadRequestException('Refresh token blacklisted');
+    }
+
+    if (!refreshToken?.['exp'] || (new Date(refreshToken?.['exp'])).getTime() < Date.now()) {
+      await this.dbAccessService.updateToken({
+        userId,
+        refreshToken: data.refreshToken,
+      }, {
+        accessToken: data.accessToken,
+        blacklisted: true,
+      } as PartialTokenDto);
+
+      throw new BadRequestException('Refresh token is expired or has no expiration date');
+    }
+
+    const issueTokensRes: IIssueTokensRes = await this.issueTokens(userId);
+
+    await this.dbAccessService.updateToken({
+      userId,
+      refreshToken: data.refreshToken,
+    }, {
+      accessToken: data.accessToken,
+      blacklisted: true,
+    } as PartialTokenDto);
+
+    return {
+      status: HttpStatus.OK,
+      data: issueTokensRes,
       errors: null,
     };
   }

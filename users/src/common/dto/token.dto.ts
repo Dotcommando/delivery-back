@@ -8,6 +8,7 @@ import { JWT_MAX_TOKEN_LENGTH, JWT_MIN_TOKEN_LENGTH } from '../constants';
 import { maxLengthStringMessage, minLengthStringMessage, toBoolean, toObjectId } from '../helpers';
 import { IToken } from '../types';
 
+
 export class TokenDto implements IToken {
   @IsDefined()
   @Transform((data: TransformFnParams) => toObjectId({ value: data.value, key: data.key }))
