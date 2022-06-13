@@ -1,7 +1,7 @@
 import { HttpException } from '@nestjs/common';
 
 export class AddressedHttpException extends HttpException {
-  constructor(public errorAddress: string, public errorMessage: string, public statusCode: number) {
+  constructor(public statusCode: number, public errorAddress: string, public errorMessage: string) {
     super(errorMessage, statusCode);
   }
 

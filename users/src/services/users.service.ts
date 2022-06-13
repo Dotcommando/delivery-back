@@ -16,8 +16,8 @@ import { Model, Types } from 'mongoose';
 import { DbAccessService } from './db-access.service';
 
 import { LOGIN_ORIGIN } from '../common/constants';
+import { AddressedErrorCatching, ApplyAddressedErrorCatching } from '../common/decorators';
 import { PartialTokenDto, PartialUserDto } from '../common/dto';
-import { AddressedHttpException } from '../common/exceptions';
 import { IResponse, IToken, IUser, IUserDocument } from '../common/types';
 import {
   GetUserBodyDto,
@@ -30,6 +30,7 @@ import {
 import { IIssueTokensRes, ISignInRes, IValidateUserRes, IVerifyTokenRes, UserCredentialsReq } from '../types';
 
 
+@ApplyAddressedErrorCatching
 @Injectable()
 export class UsersService {
   constructor(
@@ -48,10 +49,9 @@ export class UsersService {
     return this.dbAccessService.checkEmailOccupation(user.email);
   }
 
+  @AddressedErrorCatching()
   public async register(user: RegisterBodyDto): Promise<IResponse<{ user: IUser }>> {
-    const errorAddress = 'Users >> UsersService >> register';
     const usernameRequired = 'username' in user;
-
     const requestsToCheck = [
       this.checkEmail(user),
       ...(usernameRequired ? [this.checkUsername(user)] : []),
@@ -59,11 +59,11 @@ export class UsersService {
     const checkResults: PromiseSettledResult<{ occupied: boolean }>[] = await Promise.allSettled(requestsToCheck);
 
     if (checkResults[0].status === 'rejected' || (usernameRequired && checkResults[1].status === 'rejected')) {
-      throw new AddressedHttpException(errorAddress, 'Cannot check occupation of email or username', HttpStatus.PRECONDITION_FAILED);
-    } else if (checkResults[0].value.occupied) {
-      throw new ConflictException(`Email ${user.email} occupied`);
+      throw new PreconditionFailedException('Cannot check occupation of email or username');
+    } else if ((checkResults[0] as PromiseFulfilledResult<{ occupied: boolean }>).value.occupied) {
+      throw new ConflictException(`Email ${ user.email } occupied`);
     } else if (usernameRequired && (checkResults[1] as PromiseFulfilledResult<{ occupied: boolean }>)?.value?.occupied) {
-      throw new ConflictException(`Username ${user.username} occupied`);
+      throw new ConflictException(`Username ${ user.username } occupied`);
     }
 
     const newUserResponse: { user: IUser } = await this.dbAccessService.saveNewUser(user);
@@ -77,6 +77,7 @@ export class UsersService {
     };
   }
 
+  @AddressedErrorCatching()
   public async validateUser(user: SignInBodyDto): Promise<IResponse<IValidateUserRes>> {
     if ((!('username' in user) && !('email' in user)) || (!user.username && !user.email)) {
       throw new BadRequestException('Something one required: email or username');
@@ -91,6 +92,7 @@ export class UsersService {
     };
   }
 
+  @AddressedErrorCatching()
   private issueToken(userId: string | Types.ObjectId, now: number, tokenType: 'refresh' | 'access' = 'access'): string {
     const options = { secret: this.configService.get('secretKey') };
 
@@ -108,6 +110,7 @@ export class UsersService {
     );
   }
 
+  @AddressedErrorCatching()
   public async issueTokens(userId: string | Types.ObjectId): Promise<IIssueTokensRes> {
     const now = Date.now();
     const accessTokenExpiredAfter = now + this.configService.get('accessTokenExpiresIn');
@@ -132,6 +135,7 @@ export class UsersService {
     };
   }
 
+  @AddressedErrorCatching()
   public async signIn(user: SignInBodyDto): Promise<IResponse<ISignInRes>> {
     const validateUserResponse = await this.validateUser(user);
 
@@ -139,7 +143,7 @@ export class UsersService {
       const emailIsDefined = 'email' in user;
 
       throw new UnauthorizedException(
-        `User with such ${emailIsDefined ? 'email' : 'username'} ${emailIsDefined ? user.email : user.username} and password not found or password is wrong`,
+        `User with such ${ emailIsDefined ? 'email' : 'username' } ${ emailIsDefined ? user.email : user.username } and password not found or password is wrong`,
       );
     }
 
@@ -156,6 +160,7 @@ export class UsersService {
     };
   }
 
+  @AddressedErrorCatching()
   public async verifyAccessToken(data: VerifyAccessTokenBodyDto): Promise<IResponse<IVerifyTokenRes>> {
     if (!data || !data?.accessToken || typeof data.accessToken !== 'string') {
       throw new BadRequestException('Access token missed in the request or has wrong format');
@@ -192,7 +197,7 @@ export class UsersService {
     const user = await this.dbAccessService.findUserById(userId);
 
     if (!user) {
-      throw new PreconditionFailedException(`Cannot get user by Id ${userId}`);
+      throw new PreconditionFailedException(`Cannot get user by Id ${ userId }`);
     }
 
     return {
@@ -205,6 +210,7 @@ export class UsersService {
     };
   }
 
+  @AddressedErrorCatching()
   public async reissueTokens(data: ReissueTokensBodyDto): Promise<IResponse<IIssueTokensRes>> {
     const accessToken = this.jwtService.decode(data?.accessToken);
     const refreshToken = this.jwtService.decode(data?.refreshToken);
@@ -264,6 +270,7 @@ export class UsersService {
     };
   }
 
+  @AddressedErrorCatching()
   public async getUser(data: GetUserBodyDto): Promise<IResponse<{ user: IUser }>> {
     if (!data?._id || !Types.ObjectId.isValid(data._id)) {
       throw new BadRequestException('UserId is not valid ObjectId');
@@ -282,6 +289,7 @@ export class UsersService {
     };
   }
 
+  @AddressedErrorCatching()
   public async logout(data: LogoutBodyDto): Promise<IResponse<null>> {
     const findRefreshTokenResult: IToken | null = await this.dbAccessService.findRefreshToken(data.refreshToken);
 

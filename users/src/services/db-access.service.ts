@@ -1,4 +1,4 @@
-import { BadRequestException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 
@@ -6,14 +6,14 @@ import { createHash } from 'crypto';
 import { Model, Types } from 'mongoose';
 
 import { BEARER_PREFIX, EMAIL_REGEXP, JWT_SECRET_KEY, USERNAME_REGEXP } from '../common/constants';
+import { AddressedErrorCatching, ApplyAddressedErrorCatching } from '../common/decorators';
 import { PartialTokenDto, PartialUserDto } from '../common/dto';
-import { AddressedHttpException } from '../common/exceptions';
-import { createAddressedException } from '../common/helpers';
 import { IToken, ITokenDocument, IUser, IUserDocument } from '../common/types';
 import { DEFAULT_USER_DATA } from '../constants';
 import { IEmailPassword, IUsernamePassword, IValidateUserRes, RefreshTokenData, UserCredentialsReq } from '../types';
 
 
+@ApplyAddressedErrorCatching
 @Injectable()
 export class DbAccessService {
   constructor(
@@ -22,13 +22,10 @@ export class DbAccessService {
   ) {
   }
 
+  @AddressedErrorCatching()
   public async checkUsernameOccupation(username: string): Promise<{ occupied: boolean }> {
     if (typeof username !== 'string' || !USERNAME_REGEXP.test(username)) {
-      throw new AddressedHttpException(
-        'Users >> DBAccessService >> checkUsernameOccupation',
-        'Email is not valid',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException('Email is not valid');
     }
 
     const userDoc = await this.userModel.findOne({ username });
@@ -36,13 +33,10 @@ export class DbAccessService {
     return { occupied: Boolean(userDoc) };
   }
 
+  @AddressedErrorCatching()
   public async checkEmailOccupation(email: string): Promise<{ occupied: boolean }> {
     if (typeof email !== 'string' || !EMAIL_REGEXP.test(email)) {
-      throw new AddressedHttpException(
-        'Users >> DBAccessService >> checkEmailOccupation',
-        'Email is not valid',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException('Email is not valid');
     }
 
     const userDoc = await this.userModel.findOne({ email });
@@ -50,6 +44,7 @@ export class DbAccessService {
     return { occupied: Boolean(userDoc) };
   }
 
+  @AddressedErrorCatching()
   public async validateUser(user: UserCredentialsReq): Promise<IValidateUserRes> {
     const emailDefined = 'email' in user;
 
@@ -72,15 +67,12 @@ export class DbAccessService {
     };
   }
 
+  @AddressedErrorCatching()
   public async saveNewUser(user: PartialUserDto): Promise<{ user: IUser }> {
-    try {
-      const userDoc: IUserDocument = new this.userModel({ ...DEFAULT_USER_DATA, ...user });
-      const savedUserDoc = await userDoc.save();
+    const userDoc: IUserDocument = new this.userModel({ ...DEFAULT_USER_DATA, ...user });
+    const savedUserDoc = await userDoc.save();
 
-      return { user: savedUserDoc.toJSON() as IUser };
-    } catch (e) {
-      createAddressedException('Users >> DBAccessService >> saveNewUser', e);
-    }
+    return { user: savedUserDoc.toJSON() as IUser };
   }
 
   public async saveRefreshToken(token: RefreshTokenData): Promise<{ saved: boolean }> {
@@ -98,53 +90,49 @@ export class DbAccessService {
     }
   }
 
+  @AddressedErrorCatching()
   public async checkAccessToken(accessToken): Promise<{ blacklisted: boolean }> {
-    try {
-      const tokenDoc: ITokenDocument | null = await this.tokenModel
-        .findOne({
-          $or: [
-            { accessToken: accessToken.replace(BEARER_PREFIX, '') },
-            { refreshToken: this.encryptRefreshToken(accessToken) },
-          ],
-        });
-
-      return {
-        blacklisted: tokenDoc
-          ? tokenDoc.blacklisted
-          : false,
-      };
-    } catch (e) {
-      createAddressedException('Users >> DBAccessService >> checkAccessToken', e);
-    }
-  }
-
-  public async findManyUsers(userIds: Array<string | Types.ObjectId>): Promise<IUser[] | null> {
-    try {
-      const ids = userIds.map((userId: string | Types.ObjectId) => new Types.ObjectId(userId));
-      const userDocs: IUserDocument[] = await this.userModel.find({
-        _id: { $in: ids },
+    const tokenDoc: ITokenDocument | null = await this.tokenModel
+      .findOne({
+        $or: [
+          { accessToken: accessToken.replace(BEARER_PREFIX, '') },
+          { refreshToken: this.encryptRefreshToken(accessToken) },
+        ],
       });
 
-      if (!userDocs || !userDocs.length) {
-        return null;
-      }
+    return {
+      blacklisted: tokenDoc
+        ? tokenDoc.blacklisted
+        : false,
+    };
+  }
 
-      return userDocs.map((userDoc: IUserDocument) => userDoc.toJSON());
-    } catch (e) {
-      createAddressedException('Users >> DBAccessService >> findManyUsers', e);
+  @AddressedErrorCatching()
+  public async findManyUsers(userIds: Array<string | Types.ObjectId>): Promise<IUser[] | null> {
+    const ids = userIds.map((userId: string | Types.ObjectId) => new Types.ObjectId(userId));
+    const userDocs: IUserDocument[] = await this.userModel.find({
+      _id: { $in: ids },
+    });
+
+    if (!userDocs || !userDocs.length) {
+      return null;
     }
+
+    return userDocs.map((userDoc: IUserDocument) => userDoc.toJSON());
   }
 
   public async findUserById(userId: string | Types.ObjectId): Promise<IUser | null> {
     return (await this.findManyUsers([userId]))?.[0] ?? null;
   }
 
+  @AddressedErrorCatching()
   private encryptRefreshToken(refreshToken: string): string {
     return createHash('sha256')
       .update(`${JWT_SECRET_KEY}:${refreshToken.replace(BEARER_PREFIX, '')}`)
       .digest('hex') ;
   }
 
+  @AddressedErrorCatching()
   public async findRefreshToken(refreshToken: string): Promise<IToken | null> {
     const encryptedToken = this.encryptRefreshToken(refreshToken);
 
@@ -153,6 +141,7 @@ export class DbAccessService {
     return foundToken ? foundToken.toJSON() as IToken : null;
   }
 
+  @AddressedErrorCatching()
   public async updateToken(filter: PartialTokenDto, updates: PartialTokenDto): Promise<IToken> {
     const updatedFilter: PartialTokenDto = {
       ...filter,
