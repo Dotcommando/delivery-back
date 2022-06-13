@@ -1,3 +1,4 @@
+export * from './bearer-prefix-regexp.constant';
 export * from './defaults.constant';
 export * from './email-regexp.constant';
 export * from './login-origin.enum';

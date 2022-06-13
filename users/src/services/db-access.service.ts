@@ -1,15 +1,16 @@
 import { BadRequestException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 import { createHash } from 'crypto';
 import { Model, Types } from 'mongoose';
 
-import { EMAIL_REGEXP, JWT_SECRET_KEY, USERNAME_REGEXP } from '../common/constants';
+import { BEARER_PREFIX, EMAIL_REGEXP, JWT_SECRET_KEY, USERNAME_REGEXP } from '../common/constants';
 import { PartialTokenDto, PartialUserDto } from '../common/dto';
 import { AddressedHttpException } from '../common/exceptions';
 import { createAddressedException } from '../common/helpers';
 import { IToken, ITokenDocument, IUser, IUserDocument } from '../common/types';
-import { BEARER_PREFIX, DEFAULT_USER_DATA } from '../constants';
+import { DEFAULT_USER_DATA } from '../constants';
 import { IEmailPassword, IUsernamePassword, IValidateUserRes, RefreshTokenData, UserCredentialsReq } from '../types';
 
 
@@ -172,5 +173,10 @@ export class DbAccessService {
     }
 
     return updatedToken.toJSON() as IToken;
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_4AM)
+  private async removeExpiredTokens(): Promise<void> {
+    await this.tokenModel.deleteMany({ expiredAfter: { $lt: new Date() }});
   }
 }

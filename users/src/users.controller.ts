@@ -4,7 +4,14 @@ import { MessagePattern } from '@nestjs/microservices';
 import { USERS_EVENTS } from './common/constants';
 import { TcpCommonExceptionFilter } from './common/filters';
 import { IResponse, IUser } from './common/types';
-import { GetUserBodyDto, RegisterBodyDto, ReissueTokensBodyDto, SignInBodyDto, VerifyAccessTokenBodyDto } from './dto';
+import {
+  GetUserBodyDto,
+  LogoutBodyDto,
+  RegisterBodyDto,
+  ReissueTokensBodyDto,
+  SignInBodyDto,
+  VerifyAccessTokenBodyDto,
+} from './dto';
 import { UsersService } from './services';
 import { IIssueTokensRes, ISignInRes, IVerifyTokenRes } from './types';
 
@@ -37,5 +44,10 @@ export class UsersController {
   @MessagePattern(USERS_EVENTS.USER_REISSUE_TOKENS)
   public async reissueTokens(data: ReissueTokensBodyDto): Promise<IResponse<IIssueTokensRes>> {
     return await this.usersService.reissueTokens(data);
+  }
+
+  @MessagePattern(USERS_EVENTS.USER_LOGOUT)
+  public async logout(data: LogoutBodyDto): Promise<IResponse<null>> {
+    return await this.usersService.logout(data);
   }
 }

@@ -4,7 +4,7 @@ import { Transform, TransformFnParams, Type } from 'class-transformer';
 import { IsBoolean, IsDateString, IsDefined, IsString, MaxLength, MinLength } from 'class-validator';
 import { Types } from 'mongoose';
 
-import { JWT_MAX_TOKEN_LENGTH, JWT_MIN_TOKEN_LENGTH } from '../constants';
+import { BEARER_PREFIX, JWT_MAX_TOKEN_LENGTH, JWT_MIN_TOKEN_LENGTH } from '../constants';
 import { maxLengthStringMessage, minLengthStringMessage, toBoolean, toObjectId } from '../helpers';
 import { IToken } from '../types';
 
@@ -21,6 +21,7 @@ export class TokenDto implements IToken {
   userId: Types.ObjectId;
 
   @IsString({ message: 'Access token must be a string' })
+  @Transform((data: TransformFnParams) => data.value?.replace(BEARER_PREFIX, ''))
   @MinLength(JWT_MIN_TOKEN_LENGTH, {
     message: minLengthStringMessage('Access token', JWT_MIN_TOKEN_LENGTH),
   })
@@ -30,6 +31,7 @@ export class TokenDto implements IToken {
   accessToken: string;
 
   @IsString({ message: 'Refresh token must be a string' })
+  @Transform((data: TransformFnParams) => data.value?.replace(BEARER_PREFIX, ''))
   @MinLength(JWT_MIN_TOKEN_LENGTH, {
     message: minLengthStringMessage('Refresh token', JWT_MIN_TOKEN_LENGTH),
   })

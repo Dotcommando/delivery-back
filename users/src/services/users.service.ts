@@ -19,8 +19,14 @@ import { LOGIN_ORIGIN } from '../common/constants';
 import { PartialTokenDto, PartialUserDto } from '../common/dto';
 import { AddressedHttpException } from '../common/exceptions';
 import { IResponse, IToken, IUser, IUserDocument } from '../common/types';
-import { BEARER_PREFIX } from '../constants';
-import { GetUserBodyDto, RegisterBodyDto, ReissueTokensBodyDto, SignInBodyDto, VerifyAccessTokenBodyDto } from '../dto';
+import {
+  GetUserBodyDto,
+  LogoutBodyDto,
+  RegisterBodyDto,
+  ReissueTokensBodyDto,
+  SignInBodyDto,
+  VerifyAccessTokenBodyDto,
+} from '../dto';
 import { IIssueTokensRes, ISignInRes, IValidateUserRes, IVerifyTokenRes, UserCredentialsReq } from '../types';
 
 
@@ -155,7 +161,7 @@ export class UsersService {
       throw new BadRequestException('Access token missed in the request or has wrong format');
     }
 
-    const accessToken = this.jwtService.decode(data?.accessToken.replace(BEARER_PREFIX, ''));
+    const accessToken = this.jwtService.decode(data?.accessToken);
 
     if (!accessToken) {
       throw new BadRequestException('Access token can not be decoded');
@@ -200,8 +206,8 @@ export class UsersService {
   }
 
   public async reissueTokens(data: ReissueTokensBodyDto): Promise<IResponse<IIssueTokensRes>> {
-    const accessToken = this.jwtService.decode(data?.accessToken.replace(BEARER_PREFIX, ''));
-    const refreshToken = this.jwtService.decode(data?.refreshToken.replace(BEARER_PREFIX, ''));
+    const accessToken = this.jwtService.decode(data?.accessToken);
+    const refreshToken = this.jwtService.decode(data?.refreshToken);
     const userId = new Types.ObjectId(refreshToken?.['sub']);
 
     if (!accessToken && refreshToken) {
@@ -214,14 +220,18 @@ export class UsersService {
 
       throw new BadRequestException('Cannot decode Access token for reissuing');
     } else if (!accessToken && !refreshToken) {
+      // If authentication works fine, there is unreachable code, because the user
+      // got the access via valid refreshToken, which he used as accessToken.
       throw new BadRequestException('Cannot decode tokens for reissuing');
     } else if (accessToken && !refreshToken) {
+      // The same.
       throw new BadRequestException('Cannot decode Refresh token for reissuing');
     }
 
     const getRefreshToken: IToken = await this.dbAccessService.findRefreshToken(data.refreshToken);
 
     if (getRefreshToken.blacklisted) {
+      // The same.
       throw new BadRequestException('Refresh token blacklisted');
     }
 
@@ -268,6 +278,34 @@ export class UsersService {
     return {
       status: HttpStatus.OK,
       data: { user },
+      errors: null,
+    };
+  }
+
+  public async logout(data: LogoutBodyDto): Promise<IResponse<null>> {
+    const findRefreshTokenResult: IToken | null = await this.dbAccessService.findRefreshToken(data.refreshToken);
+
+    if (!findRefreshTokenResult) {
+      throw new BadRequestException('Cannot find such refresh token');
+    }
+
+    const decodedAccessToken = this.jwtService.decode(data.accessToken);
+
+    if (!decodedAccessToken) {
+      throw new BadRequestException('Cannot decode access token');
+    }
+
+    const updatedTokenResponse: IToken = await this.dbAccessService.updateToken(
+      { refreshToken: data.refreshToken },
+      {
+        accessToken: data.accessToken,
+        blacklisted: true,
+      },
+    );
+
+    return {
+      status: HttpStatus.OK,
+      data: null,
       errors: null,
     };
   }

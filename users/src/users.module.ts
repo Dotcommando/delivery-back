@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ScheduleModule } from '@nestjs/schedule';
 
 import { AddressSchema, TokenSchema, UserSchema } from './schemas';
 import { DbAccessService, JwtConfigService, MongoConfigService, UsersService } from './services';
@@ -11,6 +12,7 @@ import { UsersController } from './users.controller';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       load: [configuration],
     }),

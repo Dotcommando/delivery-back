@@ -7,7 +7,7 @@ import { lastValueFrom, timeout } from 'rxjs';
 
 import { MAX_TIME_OF_REQUEST_WAITING, USERS_EVENTS } from './common/constants';
 import { IResponse, IUser } from './common/types';
-import { RegisterBodyDto, ReissueTokensBodyDto, SignInBodyDto } from './dto';
+import { LogoutBodyDto, RegisterBodyDto, ReissueTokensBodyDto, SignInBodyDto } from './dto';
 import { AuthLocalGuard, JwtGuard } from './guards';
 import { AuthService } from './services';
 import { AuthenticatedRequest, AuthorizedRequest, ISignInRes } from './types';
@@ -64,5 +64,18 @@ export class AuthController {
     const refreshToken: string | null = req.headers?.authorization;
 
     return await this.authService.reissueTokens({ user, accessToken, refreshToken });
+  }
+
+  @UseGuards(JwtGuard)
+  @Post('logout')
+  public async logout(
+    @Body() body: LogoutBodyDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const user: IUser | null = req?.user ?? null;
+    const accessToken: string = req.headers?.authorization;
+    const refreshToken: string = body.refreshToken;
+
+    return await this.authService.logout({ user, accessToken, refreshToken });
   }
 }

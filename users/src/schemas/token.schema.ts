@@ -2,9 +2,8 @@ import { createHash } from 'crypto';
 import * as mongoose from 'mongoose';
 import { Schema } from 'mongoose';
 
-import { JWT_SECRET_KEY } from '../common/constants';
+import { BEARER_PREFIX, JWT_SECRET_KEY } from '../common/constants';
 import { ITokenDocument } from '../common/types';
-import { BEARER_PREFIX } from '../constants';
 
 
 function prepareValue(doc, ret: { [key: string]: unknown }) {
