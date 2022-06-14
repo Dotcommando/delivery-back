@@ -14,6 +14,7 @@ import * as morgan from 'morgan';
 import { AppModule } from './app.module';
 import { HttpCommonExceptionFilter } from './common/filters';
 import { PROTOCOL } from './constants';
+import { StatusInterceptor } from './interceptors';
 
 
 async function bootstrap() {
@@ -21,6 +22,7 @@ async function bootstrap() {
 
   app.useGlobalFilters(new HttpCommonExceptionFilter());
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
+  app.useGlobalInterceptors(new StatusInterceptor());
   app.setGlobalPrefix('api/v1');
   app.enableCors({
     origin: process.env.CORS_ORIGIN,

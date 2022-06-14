@@ -1,4 +1,4 @@
-import { PartialType } from '@nestjs/swagger';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
 
 import { Transform, TransformFnParams, Type } from 'class-transformer';
 import {
@@ -47,11 +47,21 @@ import { IUser } from '../types';
 
 
 export class UserDto implements IUser {
+  @ApiProperty({
+    description: 'It matches \'_id\' from collection \'users\' from DB. Valid MongoDB compatible ObjectId',
+    required: true,
+    example: '62a584a2f2fdd2cf95548236',
+  })
   @IsDefined()
   @Transform((data: TransformFnParams) => toObjectId({ value: data.value, key: data.key }))
   @Type(() => Types.ObjectId)
   _id: Types.ObjectId;
 
+  @ApiProperty({
+    description: `First name of user. It must have length from ${NAME_MIN_LENGTH} to ${NAME_MAX_LENGTH} characters`,
+    required: true,
+    example: 'Ray',
+  })
   @IsString({ message: 'First name must be a string' })
   @MinLength(NAME_MIN_LENGTH, {
     message: minLengthStringMessage('First name', NAME_MIN_LENGTH),
@@ -64,6 +74,10 @@ export class UserDto implements IUser {
   })
   firstName: string;
 
+  @ApiProperty({
+    description: `Middle name of user. Optional. It must have length up to ${NAME_MAX_LENGTH} characters`,
+    example: 'Douglas',
+  })
   @IsString({ message: 'Middle name must be a string' })
   @IsOptional()
   @MaxLength(NAME_MAX_LENGTH, {
@@ -74,6 +88,11 @@ export class UserDto implements IUser {
   })
   middleName: string;
 
+  @ApiProperty({
+    description: `Last name of user. It must have length from ${NAME_MIN_LENGTH} to ${NAME_MAX_LENGTH} characters`,
+    required: true,
+    example: 'Bradbury',
+  })
   @IsString({ message: 'Last name must be a string' })
   @MinLength(NAME_MIN_LENGTH, {
     message: minLengthStringMessage('Last name', NAME_MIN_LENGTH),
@@ -86,6 +105,11 @@ export class UserDto implements IUser {
   })
   lastName: string;
 
+  @ApiProperty({
+    description: `Username. Optional. It must have length from ${USERNAME_MIN_LENGTH} to ${USERNAME_MAX_LENGTH} characters`,
+    required: true,
+    example: 'r.bradbury',
+  })
   @IsString({ message: 'Username must be a string' })
   @IsOptional()
   @MinLength(USERNAME_MIN_LENGTH, {
@@ -99,6 +123,11 @@ export class UserDto implements IUser {
   })
   username: string;
 
+  @ApiProperty({
+    description: 'User\'s email. Automatically converts to lowercase',
+    required: true,
+    example: 'ray.bradbury@gmail.com',
+  })
   @IsString({ message: 'Email must be a string' })
   @Transform((data: TransformFnParams) => data.value.toLowerCase())
   @MaxLength(PROPERTY_LENGTH_64, {
@@ -109,12 +138,22 @@ export class UserDto implements IUser {
   })
   email: string;
 
+  @ApiProperty({
+    description: 'BASE64 encoded picture',
+    example: 'data:image/jpeg;base64,/9j/4QAYRXhpZgAASUkqAAgAAAAAAAAAAAAAAP/sA...oOXt+Is/VyzS4pcfYP+RpQuj2MaJRpGxOtZ4x13Hgax9/rMSvr4P',
+  })
   @IsOptional()
   @MaxLength(IMAGE_BASE64_MAX_LENGTH, {
     message: `Avatar must be equal or shorter ${Math.floor(Number(IMAGE_BASE64_MAX_LENGTH) / 1024)} Kbytes`,
   })
   avatar: string;
 
+  @ApiProperty({
+    description: 'Links to user addresses. Array of valid MongoDB compatible ObjectId',
+    required: true,
+    uniqueItems: true,
+    example: [ '62a588187cebf9ce17bea893', '62a826ad1774f165f826923f' ],
+  })
   @IsArray({ message: 'Addresses must be an array' })
   @ValidateNested({ each: true })
   @ArrayMaxSize(ADDRESSES_MAX_SIZE)
@@ -122,6 +161,12 @@ export class UserDto implements IUser {
   @Type(() => Types.ObjectId)
   addresses: Types.ObjectId[];
 
+  @ApiProperty({
+    description: 'Phone numbers array',
+    required: true,
+    uniqueItems: true,
+    example: [ '+37477717509', '+79603313872' ],
+  })
   @IsArray({ message: 'Phone numbers must be an array' })
   @IsString({
     each: true,
@@ -140,6 +185,12 @@ export class UserDto implements IUser {
   })
   phoneNumbers: string[];
 
+  @ApiProperty({
+    description: 'Array of roles of user in the system',
+    enum: ROLE,
+    enumName: 'ROLE',
+    example: [ ROLE.OPERATOR, ROLE.MANAGER ],
+  })
   @IsArray({ message: 'Roles must be an array' })
   @IsEnum(ROLE, {
     each: true,
@@ -150,6 +201,12 @@ export class UserDto implements IUser {
   })
   roles: ROLE[];
 
+  @ApiProperty({
+    description: 'List of user orders. Array of valid MongoDB compatible ObjectId',
+    required: true,
+    uniqueItems: true,
+    example: [ '62a827181774f165f8269247', '62a8277e1774f165f826924f' ],
+  })
   @IsArray()
   @ValidateNested({ each: true })
   @ArrayMaxSize(ORDERS_MAX_SIZE)
@@ -157,10 +214,19 @@ export class UserDto implements IUser {
   @Type(() => Types.ObjectId)
   orders: Types.ObjectId[];
 
+  @ApiProperty({
+    description: 'Is user email confirmed or not',
+    example: true,
+  })
   @IsBoolean()
   @IsOptional()
   isConfirmed: boolean;
 
+  @ApiProperty({
+    description: `Password of user. It must have length from ${PASSWORD_MIN_LENGTH} to ${PASSWORD_MAX_LENGTH} symbols`,
+    required: true,
+    example: 'W746g#thTER%7',
+  })
   @IsString()
   @MinLength(PASSWORD_MIN_LENGTH, {
     message: minLengthStringMessage('Password', PASSWORD_MIN_LENGTH),
@@ -170,6 +236,10 @@ export class UserDto implements IUser {
   })
   password: string;
 
+  @ApiProperty({
+    description: 'Is user deactivated or not',
+    example: true,
+  })
   @IsBoolean()
   @Transform(toBoolean)
   @IsOptional()

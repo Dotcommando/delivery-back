@@ -1,11 +1,17 @@
-import { Body, Controller, HttpStatus, Inject, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpStatus,
+  Inject,
+  Post,
+  Req,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientProxy } from '@nestjs/microservices';
 import { ApiTags } from '@nestjs/swagger';
 
-import { lastValueFrom, timeout } from 'rxjs';
-
-import { MAX_TIME_OF_REQUEST_WAITING, USERS_EVENTS } from './common/constants';
 import { IResponse, IUser } from './common/types';
 import { LogoutBodyDto, RegisterBodyDto, ReissueTokensBodyDto, SignInBodyDto } from './dto';
 import { AuthLocalGuard, JwtGuard } from './guards';
@@ -26,12 +32,8 @@ export class AuthController {
   @Post('register')
   public async register(
     @Body() body: RegisterBodyDto,
-  ): Promise<IResponse<{ user: IUser }>> {
-    return await lastValueFrom(
-      this.userServiceClient
-        .send(USERS_EVENTS.USER_CREATE_USER, body)
-        .pipe(timeout(MAX_TIME_OF_REQUEST_WAITING)),
-    );
+  ): Promise<IResponse<ISignInRes>> {
+    return await this.authService.register(body);
   }
 
   @UseGuards(AuthLocalGuard)

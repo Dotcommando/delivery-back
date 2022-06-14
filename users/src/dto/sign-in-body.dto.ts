@@ -4,6 +4,6 @@ import { PartialUserDto, UserDto } from '../common/dto';
 
 
 export class SignInBodyDto extends IntersectionType(
-  PickType(UserDto, ['password'] as const),
-  PickType(PartialUserDto, [ 'email', 'username' ] as const),
+  PickType(UserDto, ['password']),
+  PickType(PartialUserDto, [ 'email', 'username' ]),
 ) {}

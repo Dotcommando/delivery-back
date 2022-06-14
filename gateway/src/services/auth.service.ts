@@ -4,8 +4,8 @@ import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom, map, timeout } from 'rxjs';
 
 import { MAX_TIME_OF_REQUEST_WAITING, USERS_EVENTS } from '../common/constants';
-import { IResponse } from '../common/types';
-import { SignInBodyDto } from '../dto';
+import { IResponse, IUser } from '../common/types';
+import { RegisterBodyDto, SignInBodyDto } from '../dto';
 import { IIssueTokensRes, ILogoutReq, ILogoutRes, IReissueTokensReq, ISignInRes, IVerifyTokenRes } from '../types';
 
 
@@ -22,6 +22,20 @@ export class AuthService {
         .send(USERS_EVENTS.USER_ISSUE_TOKENS, user)
         .pipe(timeout(MAX_TIME_OF_REQUEST_WAITING)),
     );
+  }
+
+  public async register(user: RegisterBodyDto): Promise<IResponse<ISignInRes>> {
+    const registerResponse: IResponse<{ user: IUser }> = await lastValueFrom(
+      this.userServiceClient
+        .send(USERS_EVENTS.USER_CREATE_USER, user)
+        .pipe(timeout(MAX_TIME_OF_REQUEST_WAITING)),
+    );
+
+    if (registerResponse.status !== HttpStatus.CREATED) {
+      return registerResponse as IResponse<ISignInRes>;
+    }
+
+    return await this.signIn({ email: user.email, password: user.password });
   }
 
   public async verifyAccessToken(accessToken: string): Promise<IResponse<IVerifyTokenRes>> {
