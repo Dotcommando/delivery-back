@@ -13,7 +13,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { ApiTags } from '@nestjs/swagger';
 
 import { IResponse, IUser } from './common/types';
-import { Register, ReissueTokens, SignIn } from './decorators';
+import { Logout, Register, ReissueTokens, SignIn } from './decorators';
 import { LogoutBodyDto, RegisterBodyDto, ReissueTokensBodyDto, SignInBodyDto } from './dto';
 import { AuthLocalGuard, JwtGuard } from './guards';
 import { AuthService } from './services';
@@ -72,6 +72,7 @@ export class AuthController {
     return await this.authService.reissueTokens({ user, accessToken, refreshToken });
   }
 
+  @Logout()
   @UseGuards(JwtGuard)
   @Post('logout')
   public async logout(

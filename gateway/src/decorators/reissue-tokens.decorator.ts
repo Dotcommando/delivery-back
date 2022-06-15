@@ -2,7 +2,7 @@ import { applyDecorators } from '@nestjs/common';
 import { ApiForbiddenResponse, ApiOkResponse, ApiPreconditionFailedResponse } from '@nestjs/swagger';
 
 import {
-  ReissueTokensForbiddenResponseDto,
+  CommonForbiddenResponseDto,
   ReissueTokensPreconditionFailedResponseDto,
   ReissueTokensSuccessResponseDto,
 } from '../dto';
@@ -20,7 +20,7 @@ export function ReissueTokens() {
     }),
     ApiForbiddenResponse({
       description: 'If the refresh token received from the \'authorization\' header is expired.',
-      type: ReissueTokensForbiddenResponseDto,
+      type: CommonForbiddenResponseDto,
     }),
   );
 }

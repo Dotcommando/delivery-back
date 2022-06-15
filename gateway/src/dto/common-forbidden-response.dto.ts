@@ -2,10 +2,9 @@ import { HttpStatus } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 
 import { IResponse } from '../common/types';
-import { ISignInRes } from '../types';
 
 
-export class ReissueTokensForbiddenResponseDto implements IResponse<ISignInRes> {
+export class CommonForbiddenResponseDto implements IResponse<any> {
   @ApiProperty({ example: HttpStatus.FORBIDDEN })
   status: HttpStatus;
 
@@ -13,7 +12,7 @@ export class ReissueTokensForbiddenResponseDto implements IResponse<ISignInRes> 
     example: null,
     nullable: true,
   })
-  data: ISignInRes | null;
+  data: any | null;
 
   @ApiProperty({
     example: ['Forbidden resource'],
