@@ -139,7 +139,7 @@ export class UsersService {
   public async signIn(user: SignInBodyDto): Promise<IResponse<ISignInRes>> {
     const validateUserResponse = await this.validateUser(user);
 
-    if (!validateUserResponse.data?.user) {
+    if (!validateUserResponse.data.userIsValid) {
       const emailIsDefined = 'email' in user;
 
       throw new UnauthorizedException(

@@ -40,4 +40,4 @@ lerna-debug.log*
 .env
 
 # Docker MongoDB non-commitable files
-/db/mongo/data/
+**/db/mongo/data/

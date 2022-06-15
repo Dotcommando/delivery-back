@@ -6,6 +6,7 @@ import {
   IsArray,
   IsBoolean,
   IsDefined,
+  IsEmail,
   IsEnum,
   IsOptional,
   IsString,
@@ -18,7 +19,6 @@ import { Types } from 'mongoose';
 
 import {
   ADDRESSES_MAX_SIZE,
-  EMAIL_REGEXP,
   IMAGE_BASE64_MAX_LENGTH,
   NAME_MAX_LENGTH,
   NAME_MIN_LENGTH,
@@ -129,12 +129,10 @@ export class UserDto implements IUser {
     example: 'ray.bradbury@gmail.com',
   })
   @IsString({ message: 'Email must be a string' })
+  @IsEmail({ message: 'Email must be correct' })
   @Transform((data: TransformFnParams) => data.value.toLowerCase())
   @MaxLength(PROPERTY_LENGTH_64, {
     message: `Email must be equal or shorter than ${PROPERTY_LENGTH_64} symbols`,
-  })
-  @Matches(EMAIL_REGEXP, {
-    message: 'Email must be correct',
   })
   email: string;
 
@@ -227,7 +225,7 @@ export class UserDto implements IUser {
     required: true,
     example: 'W746g#thTER%7',
   })
-  @IsString()
+  @IsString({ message: 'Password must be a string' })
   @MinLength(PASSWORD_MIN_LENGTH, {
     message: minLengthStringMessage('Password', PASSWORD_MIN_LENGTH),
   })

@@ -58,7 +58,7 @@ export class DbAccessService {
     });
 
     const userIsValid = userDoc
-      ? userDoc.compareEncryptedPassword(user.password)
+      ? await userDoc.compareEncryptedPassword(user.password)
       : false;
 
     return {
