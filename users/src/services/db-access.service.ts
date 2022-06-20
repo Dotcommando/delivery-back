@@ -3,13 +3,17 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 
 import { createHash } from 'crypto';
-import { Model, Types } from 'mongoose';
+import { BulkWriteResult } from 'mongodb';
+import { ClientSession, Model, Types } from 'mongoose';
 
 import { BEARER_PREFIX, EMAIL_REGEXP, JWT_SECRET_KEY, USERNAME_REGEXP } from '../common/constants';
 import { AddressedErrorCatching, ApplyAddressedErrorCatching } from '../common/decorators';
-import { PartialTokenDto, PartialUserDto } from '../common/dto';
-import { IToken, ITokenDocument, IUser, IUserDocument } from '../common/types';
+import { AddAddressDto, EditAddressDto, PartialTokenDto, PartialUserDto } from '../common/dto';
+import { pickProperties } from '../common/helpers';
+import { IAddress, IAddressDocument, IToken, ITokenDocument, IUser, IUserDocument } from '../common/types';
 import { DEFAULT_USER_DATA } from '../constants';
+import { EditAddressesBodyDto } from '../dto';
+import { mapUserDocumentToIUser } from '../helpers';
 import { IEmailPassword, IUsernamePassword, IValidateUserRes, RefreshTokenData, UserCredentialsReq } from '../types';
 
 
@@ -17,6 +21,7 @@ import { IEmailPassword, IUsernamePassword, IValidateUserRes, RefreshTokenData, 
 @Injectable()
 export class DbAccessService {
   constructor(
+    @InjectModel('Address') private readonly addressModel: Model<IAddressDocument>,
     @InjectModel('Token') private readonly tokenModel: Model<ITokenDocument>,
     @InjectModel('User') private readonly userModel: Model<IUserDocument>,
   ) {
@@ -162,6 +167,143 @@ export class DbAccessService {
     }
 
     return updatedToken.toJSON() as IToken;
+  }
+
+  @AddressedErrorCatching()
+  public async updateAddresses(
+    addresses: EditAddressDto[],
+    userId: Types.ObjectId,
+    session?: ClientSession,
+  ): Promise<BulkWriteResult> {
+    const updateAddressesQuery = [];
+
+    addresses.forEach((addressUpdates: EditAddressDto) => {
+      const updates: Partial<EditAddressDto> = pickProperties(
+        addressUpdates,
+        'postalCode', 'country', 'region', 'city', 'street', 'building', 'flat',
+      );
+
+      updateAddressesQuery.push({
+        updateOne: {
+          filter: {
+            _id: new Types.ObjectId(addressUpdates._id),
+            userId,
+          },
+          update: {
+            $set: updates,
+          },
+          upsert: false,
+        },
+      });
+    });
+
+    return await this.addressModel.bulkWrite(updateAddressesQuery, session ? { session } : {});
+  }
+
+  @AddressedErrorCatching()
+  public async addAddresses(
+    addresses: AddAddressDto[],
+    userId: Types.ObjectId,
+    session?: ClientSession,
+  ): Promise<[ PromiseSettledResult<IAddressDocument[]>, PromiseSettledResult<IUserDocument> ]> {
+    const addressesDocs = addresses.map((address: AddAddressDto) => new this.addressModel({
+      ...address,
+      userId,
+    }));
+    const opts = session ? { session, new: true } : { new: true };
+
+    return await Promise.allSettled([
+      this.addressModel.insertMany(addressesDocs, opts),
+      this.userModel.findOneAndUpdate(
+        { _id: userId },
+        {
+          $push: {
+            addresses: addressesDocs.map((addressDoc) => addressDoc._id),
+          },
+        },
+        opts,
+      ),
+    ]);
+  }
+
+  @AddressedErrorCatching()
+  public async deleteAddresses(
+    addresses: Types.ObjectId[],
+    userId: Types.ObjectId,
+    session?: ClientSession,
+  ): Promise<[ PromiseSettledResult<{ deletedCount: number }>, PromiseSettledResult<IUserDocument> ]> {
+    const opts = session ? { session, new: true } : { new: true };
+
+    return await Promise.allSettled([
+      this.addressModel.deleteMany({ userId, _id: { $in: addresses }}, opts),
+      this.userModel.findOneAndUpdate(
+        { _id: userId },
+        {
+          $pull: { addresses },
+        },
+        opts,
+      ),
+    ]);
+  }
+
+  @AddressedErrorCatching()
+  public async editAddresses(data: EditAddressesBodyDto, withSession = false): Promise<IUser<IAddress> | null> {
+    const session: ClientSession = withSession ? await this.userModel.startSession() : null;
+    const userId = new Types.ObjectId(data.userId);
+
+    try {
+      const queryOps = [];
+
+      if (withSession) {
+        session.startTransaction();
+      }
+
+      if (data.update?.length) {
+        queryOps.push(this.updateAddresses([...data.update], userId, session));
+      }
+
+      if (data.add?.length) {
+        queryOps.push(this.addAddresses([...data.add], userId, session));
+      }
+
+      if (data.delete?.length) {
+        queryOps.push(this.deleteAddresses([...data.delete], userId, session));
+      }
+
+      await Promise.allSettled(queryOps);
+
+      if (withSession) {
+        await session.commitTransaction();
+        await session.endSession();
+      }
+    } catch (e) {
+      if (withSession) {
+        await session.abortTransaction();
+        await session.endSession();
+      }
+
+      return null;
+    }
+
+    // @ts-ignore
+    const userDoc: IUserDocument<IAddress> = (await this.userModel.aggregate([
+      {
+        $match: { _id: userId },
+      },
+      {
+        $lookup: {
+          from: 'addresses',
+          localField: 'addresses',
+          foreignField: '_id',
+          as: 'addresses',
+        },
+      },
+    ]))?.[0];
+
+    console.dir(userDoc);
+    console.dir(mapUserDocumentToIUser(userDoc));
+
+    return userDoc ? mapUserDocumentToIUser(userDoc) : null;
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_4AM)

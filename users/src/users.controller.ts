@@ -5,6 +5,7 @@ import { USERS_EVENTS } from './common/constants';
 import { TcpCommonExceptionFilter } from './common/filters';
 import { IResponse, IUser } from './common/types';
 import {
+  EditAddressesBodyDto,
   GetUserBodyDto,
   LogoutBodyDto,
   RegisterBodyDto,
@@ -13,7 +14,7 @@ import {
   VerifyAccessTokenBodyDto,
 } from './dto';
 import { UsersService } from './services';
-import { IIssueTokensRes, ISignInRes, IVerifyTokenRes } from './types';
+import { IEditAddresses, IIssueTokensRes, ISignInRes, IVerifyTokenRes } from './types';
 
 
 @UseFilters(new TcpCommonExceptionFilter())
@@ -49,5 +50,10 @@ export class UsersController {
   @MessagePattern(USERS_EVENTS.USER_LOGOUT)
   public async logout(data: LogoutBodyDto): Promise<IResponse<null>> {
     return await this.usersService.logout(data);
+  }
+
+  @MessagePattern(USERS_EVENTS.USER_EDIT_ADDRESSES)
+  public async editAddresses(data: EditAddressesBodyDto): Promise<IResponse<IEditAddresses>> {
+    return await this.usersService.editAddresses(data);
   }
 }

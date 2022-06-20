@@ -1,3 +1,4 @@
+export * from './edit-addresses-res.interface';
 export * from './issue-tokens-res.interface';
 export * from './refresh-token-data.type';
 export * from './sign-in-res.interface';

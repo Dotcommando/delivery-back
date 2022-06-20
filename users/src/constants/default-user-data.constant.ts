@@ -6,9 +6,10 @@ export const DEFAULT_USER_DATA: Omit<IUser, '_id'> = {
   email: '',
   avatar: '',
   addresses: [],
-  phoneNumbers: [],
+  phoneNumber: '',
   roles: [],
   orders: [],
-  isConfirmed: false,
+  isEmailConfirmed: false,
+  isPhoneConfirmed: false,
   deactivated: false,
 };

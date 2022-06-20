@@ -6,6 +6,7 @@ export const NAME_MIN_LENGTH = Number(process.env.NAME_MIN_LENGTH);
 export const NAME_MAX_LENGTH = Number(process.env.NAME_MAX_LENGTH);
 export const IMAGE_BASE64_MAX_LENGTH = Number(process.env.IMAGE_BASE64_MAX_LENGTH);
 export const PROPERTY_LENGTH_1 = Number(process.env.PROPERTY_LENGTH_1);
+export const PROPERTY_LENGTH_4 = Number(process.env.PROPERTY_LENGTH_4);
 export const PROPERTY_LENGTH_8 = Number(process.env.PROPERTY_LENGTH_8);
 export const PROPERTY_LENGTH_16 = Number(process.env.PROPERTY_LENGTH_16);
 export const PROPERTY_LENGTH_24 = Number(process.env.PROPERTY_LENGTH_24);

@@ -9,6 +9,8 @@ import {
   NAME_MIN_LENGTH,
   NAME_REGEXP,
   PASSWORD_MIN_LENGTH,
+  PHONE_NUMBER_MAX_LENGTH,
+  PHONE_NUMBER_MIN_LENGTH,
   PROPERTY_LENGTH_64,
   ROLE,
   USERNAME_MAX_LENGTH,
@@ -73,8 +75,14 @@ export const UserSchema = new Schema<IUserDocument, mongoose.Model<IUserDocument
       type: String,
       validate: optionalRange(0, IMAGE_BASE64_MAX_LENGTH),
     },
-    addresses: [Schema.Types.ObjectId],
-    phoneNumbers: [String],
+    addresses: {
+      type: [Schema.Types.ObjectId],
+      ref: 'Address',
+    },
+    phoneNumber: {
+      type: String,
+      validate: optionalRange(PHONE_NUMBER_MIN_LENGTH, PHONE_NUMBER_MAX_LENGTH),
+    },
     roles: {
       type: [String],
       required: [ true, 'User must have at least one role' ],
@@ -91,9 +99,13 @@ export const UserSchema = new Schema<IUserDocument, mongoose.Model<IUserDocument
     orders: {
       type: [Schema.Types.ObjectId],
     },
-    isConfirmed: {
+    isEmailConfirmed: {
       type: Schema.Types.Boolean,
-      required: [ true, 'Confirmed field can not be empty' ],
+      required: [ true, 'Email confirmation field can not be empty' ],
+    },
+    isPhoneConfirmed: {
+      type: Schema.Types.Boolean,
+      required: [ true, 'Phone confirmation field can not be empty' ],
     },
     password: {
       type: String,

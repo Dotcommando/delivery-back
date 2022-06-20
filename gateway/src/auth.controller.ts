@@ -17,7 +17,7 @@ import { Logout, Register, ReissueTokens, SignIn } from './decorators';
 import { LogoutBodyDto, RegisterBodyDto, ReissueTokensBodyDto, SignInBodyDto } from './dto';
 import { AuthLocalGuard, JwtGuard } from './guards';
 import { AuthService } from './services';
-import { AuthenticatedRequest, AuthorizedRequest, ISignInRes } from './types';
+import { AuthenticatedRequest, AuthorizedRequest, ILogoutRes, ISignInRes } from './types';
 
 
 @Controller('auth')
@@ -78,7 +78,7 @@ export class AuthController {
   public async logout(
     @Body() body: LogoutBodyDto,
     @Req() req: AuthenticatedRequest,
-  ) {
+  ): Promise<IResponse<ILogoutRes>> {
     const user: IUser | null = req?.user ?? null;
     const accessToken: string = req.headers?.authorization;
     const refreshToken: string = body.refreshToken;

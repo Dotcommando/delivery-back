@@ -28,7 +28,6 @@ import {
   PASSWORD_MIN_LENGTH,
   PHONE_NUMBER_MAX_LENGTH,
   PHONE_NUMBER_MIN_LENGTH,
-  PHONE_NUMBERS_MAX_SIZE,
   PROPERTY_LENGTH_64,
   ROLE,
   ROLE_ARRAY,
@@ -160,28 +159,20 @@ export class UserDto implements IUser {
   addresses: Types.ObjectId[];
 
   @ApiProperty({
-    description: 'Phone numbers array',
+    description: 'User phone number',
     required: true,
-    uniqueItems: true,
-    example: [ '+37477717509', '+79603313872' ],
+    example: '+37477717509',
   })
-  @IsArray({ message: 'Phone numbers must be an array' })
   @IsString({
-    each: true,
-    message: 'Each phone number must be a string',
-  })
-  @ArrayMaxSize(PHONE_NUMBERS_MAX_SIZE, {
-    message: `Array of phone numbers must contain not more than ${PHONE_NUMBERS_MAX_SIZE} elements`,
+    message: 'Phone number must be a string',
   })
   @MinLength(PHONE_NUMBER_MIN_LENGTH, {
-    each: true,
     message: `Minimal length for phone number is ${PHONE_NUMBER_MIN_LENGTH} symbols`,
   })
   @MaxLength(PHONE_NUMBER_MAX_LENGTH, {
-    each: true,
     message: `Maximal length for phone number is ${PHONE_NUMBER_MAX_LENGTH} symbols`,
   })
-  phoneNumbers: string[];
+  phoneNumber: string;
 
   @ApiProperty({
     description: 'Array of roles of user in the system',
@@ -218,7 +209,15 @@ export class UserDto implements IUser {
   })
   @IsBoolean()
   @IsOptional()
-  isConfirmed: boolean;
+  isEmailConfirmed: boolean;
+
+  @ApiProperty({
+    description: 'Is user phone number confirmed or not',
+    example: true,
+  })
+  @IsBoolean()
+  @IsOptional()
+  isPhoneConfirmed: boolean;
 
   @ApiProperty({
     description: `Password of user. It must have length from ${PASSWORD_MIN_LENGTH} to ${PASSWORD_MAX_LENGTH} symbols`,

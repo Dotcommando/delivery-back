@@ -5,18 +5,24 @@ import {
   POSTAL_CODE_MAX_LENGTH,
   POSTAL_CODE_MIN_LENGTH,
   PROPERTY_LENGTH_1,
+  PROPERTY_LENGTH_4,
   PROPERTY_LENGTH_64,
 } from '../common/constants';
 import { IAddressDocument } from '../common/types';
+import { optionalRange } from '../validators';
 
 
 export const AddressSchema = new Schema<IAddressDocument, mongoose.Model<IAddressDocument>>(
   {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: [ true, 'UserId field can not be empty' ],
+      index: true,
+    },
     postalCode: {
       type: String,
-      minLength: POSTAL_CODE_MIN_LENGTH,
-      maxLength: POSTAL_CODE_MAX_LENGTH,
-      required: [ true, 'Postal code is required' ],
+      validate: optionalRange(POSTAL_CODE_MIN_LENGTH, POSTAL_CODE_MAX_LENGTH),
     },
     country: {
       type: String,
@@ -26,7 +32,7 @@ export const AddressSchema = new Schema<IAddressDocument, mongoose.Model<IAddres
     },
     region: {
       type: String,
-      maxLength: PROPERTY_LENGTH_64,
+      validate: optionalRange(0, PROPERTY_LENGTH_64),
     },
     city: {
       type: String,
@@ -45,6 +51,10 @@ export const AddressSchema = new Schema<IAddressDocument, mongoose.Model<IAddres
       minLength: PROPERTY_LENGTH_1,
       maxLength: PROPERTY_LENGTH_64,
       required: [ true, 'Building is required' ],
+    },
+    flat: {
+      type: String,
+      validate: optionalRange(PROPERTY_LENGTH_1, PROPERTY_LENGTH_4),
     },
   },
 );

@@ -3,7 +3,7 @@ import { Document, Types } from 'mongoose';
 import { ROLE } from '../constants';
 
 
-export interface IUser {
+export interface IUser<TAddress = Types.ObjectId, TOrder = Types.ObjectId> {
   _id: Types.ObjectId;
   firstName: string;
   middleName?: string;
@@ -11,15 +11,16 @@ export interface IUser {
   username?: string;
   email: string;
   avatar: string;
-  addresses: Types.ObjectId[];
-  phoneNumbers: string[];
+  addresses: TAddress[];
+  phoneNumber: string;
   roles: ROLE[];
-  orders: Types.ObjectId[];
-  isConfirmed: boolean;
+  orders: TOrder[];
+  isEmailConfirmed: boolean;
+  isPhoneConfirmed: boolean;
   deactivated: boolean;
 }
 
-export interface IUserDocument extends Omit<IUser, '_id'>, Document<IUser> {
+export interface IUserDocument<TAddress = Types.ObjectId, TOrder = Types.ObjectId> extends Omit<IUser<TAddress, TOrder>, '_id'>, Document<IUser> {
   password: string;
   compareEncryptedPassword: (password: string) => boolean;
   getEncryptedPassword: (password: string) => string;

@@ -20,6 +20,7 @@ import { AddressedErrorCatching, ApplyAddressedErrorCatching } from '../common/d
 import { PartialTokenDto, PartialUserDto } from '../common/dto';
 import { IResponse, IToken, IUser, IUserDocument } from '../common/types';
 import {
+  EditAddressesBodyDto,
   GetUserBodyDto,
   LogoutBodyDto,
   RegisterBodyDto,
@@ -27,7 +28,14 @@ import {
   SignInBodyDto,
   VerifyAccessTokenBodyDto,
 } from '../dto';
-import { IIssueTokensRes, ISignInRes, IValidateUserRes, IVerifyTokenRes, UserCredentialsReq } from '../types';
+import {
+  IEditAddresses,
+  IIssueTokensRes,
+  ISignInRes,
+  IValidateUserRes,
+  IVerifyTokenRes,
+  UserCredentialsReq,
+} from '../types';
 
 
 @ApplyAddressedErrorCatching
@@ -314,6 +322,23 @@ export class UsersService {
     return {
       status: HttpStatus.OK,
       data: null,
+      errors: null,
+    };
+  }
+
+  @AddressedErrorCatching()
+  public async editAddresses(data: EditAddressesBodyDto): Promise<IResponse<IEditAddresses>> {
+    const updatedUser = await this.dbAccessService.editAddresses(data);
+
+    if (!updatedUser) {
+      throw new PreconditionFailedException('Cannot update addresses');
+    }
+
+    return {
+      status: HttpStatus.OK,
+      data: {
+        user: updatedUser,
+      },
       errors: null,
     };
   }
