@@ -5,7 +5,7 @@ import { ArrayMaxSize, IsArray, IsDefined, IsOptional, ValidateNested } from 'cl
 import { Types } from 'mongoose';
 
 import { ADDRESSES_MAX_SIZE } from '../common/constants';
-import { AddAddressDto, EditAddressDto } from '../common/dto';
+import { AddAddressDto, UpdateAddressDto } from '../common/dto';
 import { toArrayOfObjectIds, toObjectId } from '../common/helpers';
 
 
@@ -52,8 +52,8 @@ export class EditAddressesBodyDto {
   @IsOptional()
   @IsArray({ message: 'Field \'add\' must contain array of user addresses to add' })
   @ValidateNested({ each: true })
-  @Type(() => EditAddressDto)
-  update: EditAddressDto[];
+  @Type(() => UpdateAddressDto)
+  update: UpdateAddressDto[];
 
   @ApiProperty({
     example: [ '62a584a2f2fdd2cf95548236', '62a827c91774f165f8269257' ],

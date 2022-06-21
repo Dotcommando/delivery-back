@@ -1,4 +1,5 @@
-import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { PartialType } from '@nestjs/mapped-types';
+import { ApiProperty } from '@nestjs/swagger';
 
 import { Transform, TransformFnParams, Type } from 'class-transformer';
 import { IsBoolean, IsDateString, IsDefined, IsString, MaxLength, MinLength } from 'class-validator';

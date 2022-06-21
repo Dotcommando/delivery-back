@@ -1,4 +1,4 @@
-import { IntersectionType, PartialType, PickType } from '@nestjs/swagger';
+import { IntersectionType, PartialType, PickType } from '@nestjs/mapped-types';
 
 import { Transform, TransformFnParams, Type } from 'class-transformer';
 import { IsDefined, IsOptional, IsString, Matches, MaxLength, MinLength } from 'class-validator';
@@ -27,7 +27,6 @@ export class AddressDto implements IAddress {
   @Type(() => Types.ObjectId)
   userId: Types.ObjectId;
 
-  @IsOptional()
   @IsString({ message: 'Postal code must be a string' })
   @MinLength(PROPERTY_LENGTH_1, {
     message: minLengthStringMessage('Postal code', POSTAL_CODE_MIN_LENGTH),
@@ -49,7 +48,6 @@ export class AddressDto implements IAddress {
   })
   country: string;
 
-  @IsOptional()
   @IsString({ message: 'Region must be a string' })
   @MaxLength(PROPERTY_LENGTH_64, {
     message: maxLengthStringMessage('Region', PROPERTY_LENGTH_64),
@@ -83,7 +81,6 @@ export class AddressDto implements IAddress {
   })
   building: string;
 
-  @IsOptional()
   @IsString({ message: 'Flat must be a string' })
   @MinLength(PROPERTY_LENGTH_1, {
     message: minLengthStringMessage('Flat', PROPERTY_LENGTH_1),
@@ -96,12 +93,35 @@ export class AddressDto implements IAddress {
 
 export class PartialAddressDto extends PartialType(AddressDto) {}
 
+export class AddressEditableDto extends AddressDto implements Partial<IAddress> {
+  @IsOptional()
+  postalCode: string;
+
+  @IsOptional()
+  country: string;
+
+  @IsOptional()
+  region: string;
+
+  @IsOptional()
+  city: string;
+
+  @IsOptional()
+  street: string;
+
+  @IsOptional()
+  building: string;
+
+  @IsOptional()
+  flat: string;
+}
+
 export class AddAddressDto extends IntersectionType(
-  PickType(AddressDto, [ 'city', 'street', 'building' ]),
-  PickType(PartialAddressDto, [ 'postalCode', 'country', 'region', 'flat' ]),
+  PickType(AddressDto, [ 'city', 'street', 'building' ] as const),
+  PickType(PartialAddressDto, [ 'postalCode', 'country', 'region', 'flat' ] as const),
 ) {}
 
-export class EditAddressDto extends IntersectionType(
-  PickType(AddressDto, ['_id']),
-  PickType(PartialAddressDto, [ 'postalCode', 'country', 'region', 'city', 'street', 'building', 'flat' ]),
+export class UpdateAddressDto extends IntersectionType(
+  PickType(AddressDto, ['_id'] as const),
+  PickType(AddressEditableDto, [ 'postalCode', 'country', 'region', 'city', 'street', 'building', 'flat' ] as const),
 ) {}

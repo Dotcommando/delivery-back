@@ -8,7 +8,7 @@ import { ClientSession, Model, Types } from 'mongoose';
 
 import { BEARER_PREFIX, EMAIL_REGEXP, JWT_SECRET_KEY, USERNAME_REGEXP } from '../common/constants';
 import { AddressedErrorCatching, ApplyAddressedErrorCatching } from '../common/decorators';
-import { AddAddressDto, EditAddressDto, PartialTokenDto, PartialUserDto } from '../common/dto';
+import { AddAddressDto, PartialTokenDto, PartialUserDto, UpdateAddressDto } from '../common/dto';
 import { pickProperties } from '../common/helpers';
 import { IAddress, IAddressDocument, IToken, ITokenDocument, IUser, IUserDocument } from '../common/types';
 import { DEFAULT_USER_DATA } from '../constants';
@@ -171,17 +171,31 @@ export class DbAccessService {
 
   @AddressedErrorCatching()
   public async updateAddresses(
-    addresses: EditAddressDto[],
+    addresses: UpdateAddressDto[],
     userId: Types.ObjectId,
     session?: ClientSession,
   ): Promise<BulkWriteResult> {
     const updateAddressesQuery = [];
 
-    addresses.forEach((addressUpdates: EditAddressDto) => {
-      const updates: Partial<EditAddressDto> = pickProperties(
+    addresses.forEach((addressUpdates: UpdateAddressDto) => {
+      const updates: Partial<UpdateAddressDto> = pickProperties(
         addressUpdates,
         'postalCode', 'country', 'region', 'city', 'street', 'building', 'flat',
       );
+
+      const areFieldsToUpdate = Object.values(updates).filter(Boolean).length > 0;
+      let areFieldsToRemove = false;
+      const valuesToUnset = {};
+      const valuesToSet = {};
+
+      for (const field in updates) {
+        if (updates[field] === null || updates[field] === undefined) {
+          areFieldsToRemove = true;
+          valuesToUnset[field] = '';
+        } else {
+          valuesToSet[field] = updates[field];
+        }
+      }
 
       updateAddressesQuery.push({
         updateOne: {
@@ -190,7 +204,12 @@ export class DbAccessService {
             userId,
           },
           update: {
-            $set: updates,
+            ...(areFieldsToUpdate && {
+              $set: valuesToSet,
+            }),
+            ...(areFieldsToRemove && {
+              $unset: valuesToUnset,
+            }),
           },
           upsert: false,
         },
@@ -239,7 +258,9 @@ export class DbAccessService {
       this.userModel.findOneAndUpdate(
         { _id: userId },
         {
-          $pull: { addresses },
+          $pull: {
+            addresses: { $in: addresses },
+          },
         },
         opts,
       ),
@@ -285,7 +306,6 @@ export class DbAccessService {
       return null;
     }
 
-    // @ts-ignore
     const userDoc: IUserDocument<IAddress> = (await this.userModel.aggregate([
       {
         $match: { _id: userId },
@@ -299,9 +319,6 @@ export class DbAccessService {
         },
       },
     ]))?.[0];
-
-    console.dir(userDoc);
-    console.dir(mapUserDocumentToIUser(userDoc));
 
     return userDoc ? mapUserDocumentToIUser(userDoc) : null;
   }

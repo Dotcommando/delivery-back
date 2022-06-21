@@ -10,5 +10,5 @@ export function pickProperties<T>(object: Partial<T>, ...keys: (keyof T)[]): Par
 }
 
 function pickPropertyFn<T>(object: Partial<T>, key: keyof T): Partial<T> | {} {
-  return object[key] ? { [key]: object[key] } : {};
+  return key in object ? { [key]: object[key] } : {};
 }
