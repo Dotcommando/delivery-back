@@ -12,7 +12,7 @@ import { AddAddressDto, PartialTokenDto, PartialUserDto, UpdateAddressDto } from
 import { pickProperties } from '../common/helpers';
 import { IAddress, IAddressDocument, IToken, ITokenDocument, IUser, IUserDocument } from '../common/types';
 import { DEFAULT_USER_DATA } from '../constants';
-import { EditAddressesBodyDto } from '../dto';
+import { EditAddressesBodyDto, UpdateUserBodyDto, UpdateUserDto } from '../dto';
 import { mapUserDocumentToIUser } from '../helpers';
 import { IEmailPassword, IUsernamePassword, IValidateUserRes, RefreshTokenData, UserCredentialsReq } from '../types';
 
@@ -25,6 +25,24 @@ export class DbAccessService {
     @InjectModel('Token') private readonly tokenModel: Model<ITokenDocument>,
     @InjectModel('User') private readonly userModel: Model<IUserDocument>,
   ) {
+  }
+
+  public async getUserWithAddresses(_id: Types.ObjectId): Promise<IUser<IAddress> | null> {
+    const userDoc: IUserDocument<IAddress> = (await this.userModel.aggregate([
+      {
+        $match: { _id },
+      },
+      {
+        $lookup: {
+          from: 'addresses',
+          localField: 'addresses',
+          foreignField: '_id',
+          as: 'addresses',
+        },
+      },
+    ]))?.[0];
+
+    return userDoc ? mapUserDocumentToIUser(userDoc) : null;
   }
 
   @AddressedErrorCatching()
@@ -270,7 +288,7 @@ export class DbAccessService {
   @AddressedErrorCatching()
   public async editAddresses(data: EditAddressesBodyDto, withSession = false): Promise<IUser<IAddress> | null> {
     const session: ClientSession = withSession ? await this.userModel.startSession() : null;
-    const userId = new Types.ObjectId(data.userId);
+    const userId = data._id;
 
     try {
       const queryOps = [];
@@ -306,21 +324,49 @@ export class DbAccessService {
       return null;
     }
 
-    const userDoc: IUserDocument<IAddress> = (await this.userModel.aggregate([
-      {
-        $match: { _id: userId },
-      },
-      {
-        $lookup: {
-          from: 'addresses',
-          localField: 'addresses',
-          foreignField: '_id',
-          as: 'addresses',
-        },
-      },
-    ]))?.[0];
+    return await this.getUserWithAddresses(userId);
+  }
 
-    return userDoc ? mapUserDocumentToIUser(userDoc) : null;
+  @AddressedErrorCatching()
+  public async updateUser(data: UpdateUserBodyDto): Promise<IUser | null> {
+    const updates: Partial<UpdateUserDto> = pickProperties(
+      data,
+      'firstName', 'middleName', 'lastName', 'username', 'avatar', 'phoneNumber', 'email',
+    );
+
+    let areFieldsToUpdate = false;
+    let areFieldsToRemove = false;
+    const valuesToUnset = {};
+    const valuesToSet = {};
+
+    for (const field in updates) {
+      if (updates[field] === null || updates[field] === undefined) {
+        areFieldsToRemove = true;
+        valuesToUnset[field] = '';
+      } else {
+        areFieldsToUpdate = true;
+        valuesToSet[field] = updates[field];
+      }
+    }
+
+    const updateUserDoc: IUserDocument | null = await this.userModel.findOneAndUpdate(
+      {
+        _id: data._id,
+      },
+      {
+        ...(areFieldsToUpdate && {
+          $set: valuesToSet,
+        }),
+        ...(areFieldsToRemove && {
+          $unset: valuesToUnset,
+        }),
+      },
+      {
+        new: true,
+      },
+    );
+
+    return updateUserDoc ? mapUserDocumentToIUser(updateUserDoc) : null;
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_4AM)

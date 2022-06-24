@@ -7,7 +7,13 @@ import { lastValueFrom, timeout } from 'rxjs';
 
 import { MAX_TIME_OF_REQUEST_WAITING, USERS_EVENTS } from './common/constants';
 import { IResponse, IUser } from './common/types';
-import { EditAddressesBodyDto, EditAddressesParamDto, GetUserParamDto } from './dto';
+import {
+  EditAddressesBodyDto,
+  EditAddressesParamDto,
+  GetUserParamDto,
+  UpdateUserBodyDto,
+  UpdateUserParamDto,
+} from './dto';
 import { JwtGuard } from './guards';
 import { AuthenticatedRequest, IEditAddresses } from './types';
 
@@ -34,6 +40,19 @@ export class UsersController {
   }
 
   @UseGuards(JwtGuard)
+  @Put('one/:_id')
+  public async updateUser(
+    @Param() param: UpdateUserParamDto,
+    @Body() body: UpdateUserBodyDto,
+  ): Promise<IResponse<{ user: IUser }>> {
+    return await lastValueFrom(
+      this.userServiceClient
+        .send(USERS_EVENTS.USER_UPDATE_USER, { ...body, _id: param._id })
+        .pipe(timeout(MAX_TIME_OF_REQUEST_WAITING)),
+    );
+  }
+
+  @UseGuards(JwtGuard)
   @Put('addresses/:_id')
   public async editAddresses(
     @Param() param: EditAddressesParamDto,
@@ -44,7 +63,7 @@ export class UsersController {
 
     return await lastValueFrom(
       this.userServiceClient
-        .send(USERS_EVENTS.USER_EDIT_ADDRESSES, { ...body, userId: user._id })
+        .send(USERS_EVENTS.USER_EDIT_ADDRESSES, { ...body, _id: user._id })
         .pipe(timeout(MAX_TIME_OF_REQUEST_WAITING)),
     );
   }

@@ -26,6 +26,7 @@ import {
   RegisterBodyDto,
   ReissueTokensBodyDto,
   SignInBodyDto,
+  UpdateUserBodyDto,
   VerifyAccessTokenBodyDto,
 } from '../dto';
 import {
@@ -170,10 +171,6 @@ export class UsersService {
 
   @AddressedErrorCatching()
   public async verifyAccessToken(data: VerifyAccessTokenBodyDto): Promise<IResponse<IVerifyTokenRes>> {
-    if (!data || !data?.accessToken || typeof data.accessToken !== 'string') {
-      throw new BadRequestException('Access token missed in the request or has wrong format');
-    }
-
     const accessToken = this.jwtService.decode(data?.accessToken);
 
     if (!accessToken) {
@@ -280,14 +277,25 @@ export class UsersService {
 
   @AddressedErrorCatching()
   public async getUser(data: GetUserBodyDto): Promise<IResponse<{ user: IUser }>> {
-    if (!data?._id || !Types.ObjectId.isValid(data._id)) {
-      throw new BadRequestException('UserId is not valid ObjectId');
-    }
-
     const user: IUser | null = await this.dbAccessService.findUserById(data._id);
 
     if (!user) {
       throw new NotFoundException(`Cannot find user with _id ${data._id}`);
+    }
+
+    return {
+      status: HttpStatus.OK,
+      data: { user },
+      errors: null,
+    };
+  }
+
+  @AddressedErrorCatching()
+  public async updateUser(data: UpdateUserBodyDto): Promise<IResponse<{ user: IUser }>> {
+    const user: IUser | null = await this.dbAccessService.updateUser(data);
+
+    if (!user) {
+      throw new NotFoundException(`Cannot find user with _id ${data._id} to update`);
     }
 
     return {

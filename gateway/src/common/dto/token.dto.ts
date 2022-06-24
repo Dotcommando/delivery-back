@@ -17,7 +17,7 @@ export class TokenDto implements IToken {
     example: '62a584a2f2fdd2cf95548236',
   })
   @IsDefined()
-  @Transform((data: TransformFnParams) => toObjectId({ value: data.value, key: data.key }))
+  @Transform(toObjectId)
   @Type(() => Types.ObjectId)
   _id: Types.ObjectId;
 
@@ -27,7 +27,7 @@ export class TokenDto implements IToken {
     example: '62a584a2f2fdd2cf95548236',
   })
   @IsDefined()
-  @Transform((data: TransformFnParams) => toObjectId({ value: data.value, key: data.key }))
+  @Transform(toObjectId)
   @Type(() => Types.ObjectId)
   userId: Types.ObjectId;
 
@@ -67,7 +67,7 @@ export class TokenDto implements IToken {
     example: '62a827c91774f165f8269257',
   })
   @IsDefined()
-  @Transform((data: TransformFnParams) => toObjectId({ value: data.value, key: data.key }))
+  @Transform(toObjectId)
   @Type(() => Types.ObjectId)
   issuedForUserAgent: Types.ObjectId;
 

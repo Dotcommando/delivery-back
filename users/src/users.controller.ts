@@ -11,6 +11,7 @@ import {
   RegisterBodyDto,
   ReissueTokensBodyDto,
   SignInBodyDto,
+  UpdateUserBodyDto,
   VerifyAccessTokenBodyDto,
 } from './dto';
 import { UsersService } from './services';
@@ -40,6 +41,11 @@ export class UsersController {
   @MessagePattern(USERS_EVENTS.USER_GET_USER)
   public async getUser(data: GetUserBodyDto): Promise<IResponse<{ user: IUser }>> {
     return await this.usersService.getUser(data);
+  }
+
+  @MessagePattern(USERS_EVENTS.USER_UPDATE_USER)
+  public async updateUser(data: UpdateUserBodyDto): Promise<IResponse<{ user: IUser }>> {
+    return await this.usersService.updateUser(data);
   }
 
   @MessagePattern(USERS_EVENTS.USER_REISSUE_TOKENS)

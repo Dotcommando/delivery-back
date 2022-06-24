@@ -7,10 +7,12 @@ export function mapAddressDocumentToIAddress(addressDoc: IAddressDocument | IAdd
     addressDoc,
     '_id',
     'userId',
+    'postalCode',
     'country',
     'region',
     'city',
     'street',
+    'building',
     'flat',
   ) as IAddress;
 }

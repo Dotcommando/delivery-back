@@ -1,7 +1,7 @@
 import { IntersectionType, PartialType, PickType } from '@nestjs/mapped-types';
 
-import { Transform, TransformFnParams, Type } from 'class-transformer';
-import { IsDefined, IsOptional, IsString, Matches, MaxLength, MinLength } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { IsDefined, IsString, Matches, MaxLength, MinLength } from 'class-validator';
 import { Types } from 'mongoose';
 
 import {
@@ -12,18 +12,19 @@ import {
   PROPERTY_LENGTH_4,
   PROPERTY_LENGTH_64,
 } from '../constants';
+import { NotNull, ValidateIfNull } from '../decorators';
 import { maxLengthStringMessage, minLengthStringMessage, toObjectId } from '../helpers';
 import { IAddress } from '../types';
 
 
 export class AddressDto implements IAddress {
   @IsDefined()
-  @Transform((data: TransformFnParams) => toObjectId({ value: data.value, key: data.key }))
+  @Transform(toObjectId)
   @Type(() => Types.ObjectId)
   _id: Types.ObjectId;
 
   @IsDefined()
-  @Transform((data: TransformFnParams) => toObjectId({ value: data.value, key: data.key }))
+  @Transform(toObjectId)
   @Type(() => Types.ObjectId)
   userId: Types.ObjectId;
 
@@ -93,29 +94,6 @@ export class AddressDto implements IAddress {
 
 export class PartialAddressDto extends PartialType(AddressDto) {}
 
-export class AddressEditableDto extends AddressDto implements Partial<IAddress> {
-  @IsOptional()
-  postalCode: string;
-
-  @IsOptional()
-  country: string;
-
-  @IsOptional()
-  region: string;
-
-  @IsOptional()
-  city: string;
-
-  @IsOptional()
-  street: string;
-
-  @IsOptional()
-  building: string;
-
-  @IsOptional()
-  flat: string;
-}
-
 export class AddAddressDto extends IntersectionType(
   PickType(AddressDto, [ 'city', 'street', 'building' ] as const),
   PickType(PartialAddressDto, [ 'postalCode', 'country', 'region', 'flat' ] as const),
@@ -123,5 +101,21 @@ export class AddAddressDto extends IntersectionType(
 
 export class UpdateAddressDto extends IntersectionType(
   PickType(AddressDto, ['_id'] as const),
-  PickType(AddressEditableDto, [ 'postalCode', 'country', 'region', 'city', 'street', 'building', 'flat' ] as const),
-) {}
+  PickType(PartialAddressDto, [ 'postalCode', 'country', 'region', 'city', 'street', 'building', 'flat' ] as const),
+) {
+  @ValidateIfNull()
+  @NotNull()
+  country: string;
+
+  @ValidateIfNull()
+  @NotNull()
+  city: string;
+
+  @ValidateIfNull()
+  @NotNull()
+  street: string;
+
+  @ValidateIfNull()
+  @NotNull()
+  building: string;
+}
