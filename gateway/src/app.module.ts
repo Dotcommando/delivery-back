@@ -3,7 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientProxyFactory } from '@nestjs/microservices';
 
 import { AuthController } from './auth.controller';
-import { AuthService } from './services';
+import { AuthService, UsersService } from './services';
 import configuration from './services/config';
 import { LocalStrategy } from './strategies';
 import { UsersController } from './users.controller';
@@ -21,6 +21,7 @@ import { UsersController } from './users.controller';
   ],
   providers: [
     AuthService,
+    UsersService,
     LocalStrategy,
     {
       provide: 'USER_SERVICE',

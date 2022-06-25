@@ -209,7 +209,7 @@ export class UserDto implements IUser {
   })
   @IsBoolean()
   @IsOptional()
-  isEmailConfirmed: boolean;
+  emailConfirmed: boolean;
 
   @ApiProperty({
     description: 'Is user phone number confirmed or not',
@@ -217,7 +217,7 @@ export class UserDto implements IUser {
   })
   @IsBoolean()
   @IsOptional()
-  isPhoneConfirmed: boolean;
+  phoneConfirmed: boolean;
 
   @ApiProperty({
     description: `Password of user. It must have length from ${PASSWORD_MIN_LENGTH} to ${PASSWORD_MAX_LENGTH} symbols`,

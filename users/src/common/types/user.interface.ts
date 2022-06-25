@@ -15,8 +15,8 @@ export interface IUser<TAddress = Types.ObjectId, TOrder = Types.ObjectId> {
   phoneNumber: string;
   roles: ROLE[];
   orders: TOrder[];
-  isEmailConfirmed: boolean;
-  isPhoneConfirmed: boolean;
+  emailConfirmed: boolean;
+  phoneConfirmed: boolean;
   deactivated: boolean;
 }
 

@@ -20,8 +20,8 @@ export function mapUserDocumentToIUser<TAddress = Types.ObjectId, TOrder = Types
     'phoneNumber',
     'roles',
     'orders',
-    'isEmailConfirmed',
-    'isPhoneConfirmed',
+    'emailConfirmed',
+    'phoneConfirmed',
     'deactivated',
   );
 

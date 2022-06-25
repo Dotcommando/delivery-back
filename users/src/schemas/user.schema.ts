@@ -99,11 +99,11 @@ export const UserSchema = new Schema<IUserDocument, mongoose.Model<IUserDocument
     orders: {
       type: [Schema.Types.ObjectId],
     },
-    isEmailConfirmed: {
+    emailConfirmed: {
       type: Schema.Types.Boolean,
       required: [ true, 'Email confirmation field can not be empty' ],
     },
-    isPhoneConfirmed: {
+    phoneConfirmed: {
       type: Schema.Types.Boolean,
       required: [ true, 'Phone confirmation field can not be empty' ],
     },

@@ -15,6 +15,7 @@ import {
   UpdateUserParamDto,
 } from './dto';
 import { JwtGuard } from './guards';
+import { UsersService } from './services';
 import { AuthenticatedRequest, IEditAddresses } from './types';
 
 
@@ -23,6 +24,7 @@ import { AuthenticatedRequest, IEditAddresses } from './types';
 export class UsersController {
   constructor(
     private readonly configService: ConfigService,
+    private readonly usersService: UsersService,
     @Inject('USER_SERVICE') private readonly userServiceClient: ClientProxy,
   ) {
   }
@@ -44,12 +46,11 @@ export class UsersController {
   public async updateUser(
     @Param() param: UpdateUserParamDto,
     @Body() body: UpdateUserBodyDto,
+    @Req() req: AuthenticatedRequest,
   ): Promise<IResponse<{ user: IUser }>> {
-    return await lastValueFrom(
-      this.userServiceClient
-        .send(USERS_EVENTS.USER_UPDATE_USER, { ...body, _id: param._id })
-        .pipe(timeout(MAX_TIME_OF_REQUEST_WAITING)),
-    );
+    const user: IUser | null = req?.user ?? null;
+
+    return await this.usersService.updateUser({ _id: user._id, body, user });
   }
 
   @UseGuards(JwtGuard)

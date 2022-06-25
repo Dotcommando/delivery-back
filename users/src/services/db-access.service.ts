@@ -201,7 +201,7 @@ export class DbAccessService {
         'postalCode', 'country', 'region', 'city', 'street', 'building', 'flat',
       );
 
-      const areFieldsToUpdate = Object.values(updates).filter(Boolean).length > 0;
+      let areFieldsToUpdate = false;
       let areFieldsToRemove = false;
       const valuesToUnset = {};
       const valuesToSet = {};
@@ -211,6 +211,7 @@ export class DbAccessService {
           areFieldsToRemove = true;
           valuesToUnset[field] = '';
         } else {
+          areFieldsToUpdate = true;
           valuesToSet[field] = updates[field];
         }
       }
@@ -346,6 +347,12 @@ export class DbAccessService {
       } else {
         areFieldsToUpdate = true;
         valuesToSet[field] = updates[field];
+
+        if (field === 'email') {
+          valuesToSet['emailConfirmed'] = false;
+        } else if (field === 'phoneNumber') {
+          valuesToSet['phoneConfirmed'] = false;
+        }
       }
     }
 
