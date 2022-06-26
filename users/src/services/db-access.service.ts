@@ -329,7 +329,7 @@ export class DbAccessService {
   }
 
   @AddressedErrorCatching()
-  public async updateUser(data: UpdateUserBodyDto): Promise<IUser | null> {
+  public async updateUser(data: UpdateUserBodyDto): Promise<IUser<IAddress> | null> {
     const updates: Partial<UpdateUserDto> = pickProperties(
       data,
       'firstName', 'middleName', 'lastName', 'username', 'avatar', 'phoneNumber', 'email',
@@ -356,7 +356,7 @@ export class DbAccessService {
       }
     }
 
-    const updateUserDoc: IUserDocument | null = await this.userModel.findOneAndUpdate(
+    const updateUserDoc: IUserDocument<IAddress> | null = await this.userModel.findOneAndUpdate(
       {
         _id: data._id,
       },
@@ -371,9 +371,10 @@ export class DbAccessService {
       {
         new: true,
       },
-    );
+    )
+      .populate('addresses');
 
-    return updateUserDoc ? mapUserDocumentToIUser(updateUserDoc) : null;
+    return updateUserDoc ? mapUserDocumentToIUser<IAddress>(updateUserDoc) as IUser<IAddress> : null;
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_4AM)

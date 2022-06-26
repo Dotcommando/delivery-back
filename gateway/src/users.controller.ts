@@ -6,7 +6,8 @@ import { ApiTags } from '@nestjs/swagger';
 import { lastValueFrom, timeout } from 'rxjs';
 
 import { MAX_TIME_OF_REQUEST_WAITING, USERS_EVENTS } from './common/constants';
-import { IResponse, IUser } from './common/types';
+import { IAddress, IResponse, IUser } from './common/types';
+import { GetUser } from './decorators';
 import {
   EditAddressesBodyDto,
   EditAddressesParamDto,
@@ -29,11 +30,12 @@ export class UsersController {
   ) {
   }
 
+  @GetUser()
   @UseGuards(JwtGuard)
   @Get('one/:_id')
   public async getUser(
     @Param() param: GetUserParamDto,
-  ): Promise<IResponse<{ user: IUser }>> {
+  ): Promise<IResponse<{ user: IUser<IAddress> }>> {
     return await lastValueFrom(
       this.userServiceClient
         .send(USERS_EVENTS.USER_GET_USER, { _id: param._id })

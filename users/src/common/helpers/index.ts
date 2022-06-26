@@ -1,5 +1,6 @@
 export * from './create-addressed-exception';
 export * from './get-exception-messages';
+export * from './is-valid-object-id';
 export * from './max-length-string-message';
 export * from './min-length-string-message';
 export * from './pick-properties';

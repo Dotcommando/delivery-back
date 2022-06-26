@@ -18,7 +18,7 @@ import { DbAccessService } from './db-access.service';
 import { LOGIN_ORIGIN } from '../common/constants';
 import { AddressedErrorCatching, ApplyAddressedErrorCatching } from '../common/decorators';
 import { PartialTokenDto, PartialUserDto } from '../common/dto';
-import { IResponse, IToken, IUser, IUserDocument } from '../common/types';
+import { IAddress, IResponse, IToken, IUser, IUserDocument } from '../common/types';
 import {
   EditAddressesBodyDto,
   GetUserBodyDto,
@@ -276,8 +276,8 @@ export class UsersService {
   }
 
   @AddressedErrorCatching()
-  public async getUser(data: GetUserBodyDto): Promise<IResponse<{ user: IUser }>> {
-    const user: IUser | null = await this.dbAccessService.findUserById(data._id);
+  public async getUser(data: GetUserBodyDto): Promise<IResponse<{ user: IUser<IAddress> }>> {
+    const user: IUser<IAddress> | null = await this.dbAccessService.getUserWithAddresses(data._id);
 
     if (!user) {
       throw new NotFoundException(`Cannot find user with _id ${data._id}`);
@@ -291,8 +291,8 @@ export class UsersService {
   }
 
   @AddressedErrorCatching()
-  public async updateUser(data: UpdateUserBodyDto): Promise<IResponse<{ user: IUser }>> {
-    const user: IUser | null = await this.dbAccessService.updateUser(data);
+  public async updateUser(data: UpdateUserBodyDto): Promise<IResponse<{ user: IUser<IAddress> }>> {
+    const user: IUser<IAddress> | null = await this.dbAccessService.updateUser(data);
 
     if (!user) {
       throw new NotFoundException(`Cannot find user with _id ${data._id} to update`);

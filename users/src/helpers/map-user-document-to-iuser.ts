@@ -2,7 +2,7 @@ import { Types } from 'mongoose';
 
 import { mapAddressDocumentToIAddress } from './map-address-document-to-iaddress';
 
-import { pickProperties } from '../common/helpers';
+import { isValidObjectId, pickProperties } from '../common/helpers';
 import { IAddress, IAddressDocument, IUser, IUserDocument } from '../common/types';
 
 
@@ -25,7 +25,7 @@ export function mapUserDocumentToIUser<TAddress = Types.ObjectId, TOrder = Types
     'deactivated',
   );
 
-  return clearedUser.addresses?.length && Types.ObjectId.isValid(clearedUser.addresses[0] as any)
+  return clearedUser.addresses?.length && isValidObjectId(clearedUser.addresses[0] as any)
     ? clearedUser as unknown as IUser<TAddress, TOrder>
     : {
       ...clearedUser,

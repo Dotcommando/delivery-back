@@ -3,7 +3,7 @@ import { MessagePattern } from '@nestjs/microservices';
 
 import { USERS_EVENTS } from './common/constants';
 import { TcpCommonExceptionFilter } from './common/filters';
-import { IResponse, IUser } from './common/types';
+import { IAddress, IResponse, IUser } from './common/types';
 import {
   EditAddressesBodyDto,
   GetUserBodyDto,
@@ -39,12 +39,12 @@ export class UsersController {
   }
 
   @MessagePattern(USERS_EVENTS.USER_GET_USER)
-  public async getUser(data: GetUserBodyDto): Promise<IResponse<{ user: IUser }>> {
+  public async getUser(data: GetUserBodyDto): Promise<IResponse<{ user: IUser<IAddress> }>> {
     return await this.usersService.getUser(data);
   }
 
   @MessagePattern(USERS_EVENTS.USER_UPDATE_USER)
-  public async updateUser(data: UpdateUserBodyDto): Promise<IResponse<{ user: IUser }>> {
+  public async updateUser(data: UpdateUserBodyDto): Promise<IResponse<{ user: IUser<IAddress> }>> {
     return await this.usersService.updateUser(data);
   }
 
