@@ -19,7 +19,7 @@ export function SignIn() {
       type: SignInBadRequestResponseDto,
     }),
     ApiUnauthorizedResponse({
-      description: 'If values of field mismatch with their types. For example, if null received instead of string in \'password\' field',
+      description: 'If values of field mismatch with their types. For example, if null received instead of string in \'password\' field.',
       type: SignInUnauthorizedResponseDto,
     }),
   );

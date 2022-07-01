@@ -7,7 +7,7 @@ import { lastValueFrom, timeout } from 'rxjs';
 
 import { MAX_TIME_OF_REQUEST_WAITING, USERS_EVENTS } from './common/constants';
 import { IAddress, IResponse, IUser } from './common/types';
-import { GetUser } from './decorators';
+import { GetUser, UpdateUser } from './decorators';
 import {
   EditAddressesBodyDto,
   EditAddressesParamDto,
@@ -43,16 +43,17 @@ export class UsersController {
     );
   }
 
+  @UpdateUser()
   @UseGuards(JwtGuard)
   @Put('one/:_id')
   public async updateUser(
     @Param() param: UpdateUserParamDto,
     @Body() body: UpdateUserBodyDto,
     @Req() req: AuthenticatedRequest,
-  ): Promise<IResponse<{ user: IUser }>> {
+  ): Promise<IResponse<{ user: IUser<IAddress> }>> {
     const user: IUser | null = req?.user ?? null;
 
-    return await this.usersService.updateUser({ _id: user._id, body, user });
+    return await this.usersService.updateUser({ _id: param._id, body, user });
   }
 
   @UseGuards(JwtGuard)

@@ -374,7 +374,7 @@ export class DbAccessService {
     )
       .populate('addresses');
 
-    return updateUserDoc ? mapUserDocumentToIUser<IAddress>(updateUserDoc) as IUser<IAddress> : null;
+    return updateUserDoc ? mapUserDocumentToIUser<IAddress>(updateUserDoc) : null;
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_4AM)

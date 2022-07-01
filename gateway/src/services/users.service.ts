@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 
 import { lastValueFrom, timeout } from 'rxjs';
@@ -15,6 +15,14 @@ export class UsersService {
   }
 
   public async updateUser(data: IUpdateUserData) {
+    if (data.user && String(data._id) !== String(data.user._id)) {
+      return {
+        status: HttpStatus.FORBIDDEN,
+        data: null,
+        errors: ['You can update yourself only'],
+      };
+    }
+
     if ((!data.body.email && !data.body.phoneNumber) || !Boolean(data.user)) {
       return await lastValueFrom(
         this.userServiceClient

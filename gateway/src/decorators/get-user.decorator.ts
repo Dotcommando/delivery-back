@@ -16,11 +16,11 @@ export function GetUser() {
       type: GetUserSuccessResponseDto,
     }),
     ApiNotFoundResponse({
-      description: 'If such user not found',
+      description: 'If such user not found.',
       type: GetUserNotFoundResponseDto,
     }),
     ApiBadRequestResponse({
-      description: 'If some parameter is not valid',
+      description: 'If some parameter is not valid.',
       type: GetUserBadRequestResponseDto,
     }),
     ApiForbiddenResponse({

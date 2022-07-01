@@ -1,7 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
 
-import { Transform, TransformFnParams, Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   ArrayMaxSize,
   IsArray,
@@ -41,6 +41,7 @@ import {
   minLengthStringMessage,
   toArrayOfObjectIds,
   toBoolean,
+  toLowercase,
   toObjectId,
 } from '../helpers';
 import { IUser } from '../types';
@@ -129,7 +130,7 @@ export class UserDto implements IUser {
   })
   @IsString({ message: 'Email must be a string' })
   @IsEmail({ message: 'Email must be correct' })
-  @Transform((data: TransformFnParams) => data.value.toLowerCase())
+  @Transform(toLowercase)
   @MaxLength(PROPERTY_LENGTH_64, {
     message: `Email must be equal or shorter than ${PROPERTY_LENGTH_64} symbols`,
   })

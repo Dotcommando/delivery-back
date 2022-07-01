@@ -19,5 +19,8 @@ export * from './sign-in-bad-request-response.dto';
 export * from './sign-in-body.dto';
 export * from './sign-in-success-response.dto';
 export * from './sign-in-unauthorized-response.dto';
+export * from './update-user-bad-request-response.dto';
 export * from './update-user-body.dto';
+export * from './update-user-forbidden-response.dto';
 export * from './update-user-param.dto';
+export * from './update-user-success-response.dto';
