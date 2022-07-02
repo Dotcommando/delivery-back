@@ -103,19 +103,47 @@ export class UpdateAddressDto extends IntersectionType(
   PickType(AddressDto, ['_id'] as const),
   PickType(PartialAddressDto, [ 'postalCode', 'country', 'region', 'city', 'street', 'building', 'flat' ] as const),
 ) {
-  @ValidateIfNull()
   @NotNull()
+  @IsString({ message: 'Country must be a string. Cannot be null' })
+  @MinLength(PROPERTY_LENGTH_1, {
+    message: minLengthStringMessage('Country', PROPERTY_LENGTH_1),
+  })
+  @MaxLength(PROPERTY_LENGTH_64, {
+    message: maxLengthStringMessage('Country', PROPERTY_LENGTH_64),
+  })
+  @ValidateIfNull()
   country: string;
 
-  @ValidateIfNull()
   @NotNull()
+  @IsString({ message: 'City must be a string. Cannot be null' })
+  @MinLength(PROPERTY_LENGTH_1, {
+    message: minLengthStringMessage('City', PROPERTY_LENGTH_1),
+  })
+  @MaxLength(PROPERTY_LENGTH_64, {
+    message: maxLengthStringMessage('City', PROPERTY_LENGTH_64),
+  })
+  @ValidateIfNull()
   city: string;
 
-  @ValidateIfNull()
   @NotNull()
+  @IsString({ message: 'Street must be a string. Cannot be null' })
+  @MinLength(PROPERTY_LENGTH_1, {
+    message: minLengthStringMessage('Street', PROPERTY_LENGTH_1),
+  })
+  @MaxLength(PROPERTY_LENGTH_64, {
+    message: maxLengthStringMessage('Street', PROPERTY_LENGTH_64),
+  })
+  @ValidateIfNull()
   street: string;
 
-  @ValidateIfNull()
   @NotNull()
+  @IsString({ message: 'Building must be a string. Cannot be null' })
+  @MinLength(PROPERTY_LENGTH_1, {
+    message: minLengthStringMessage('Building', PROPERTY_LENGTH_1),
+  })
+  @MaxLength(PROPERTY_LENGTH_64, {
+    message: maxLengthStringMessage('Building', PROPERTY_LENGTH_64),
+  })
+  @ValidateIfNull()
   building: string;
 }
