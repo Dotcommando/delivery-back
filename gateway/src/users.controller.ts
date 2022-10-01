@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Param, Put, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Param, Put, Req, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientProxy } from '@nestjs/microservices';
 import { ApiTags } from '@nestjs/swagger';
@@ -9,6 +9,7 @@ import { MAX_TIME_OF_REQUEST_WAITING, USERS_EVENTS } from './common/constants';
 import { IAddress, IResponse, IUser } from './common/types';
 import { GetUser, UpdateUser } from './decorators';
 import {
+  DeleteUserParamDto,
   EditAddressesBodyDto,
   EditAddressesParamDto,
   GetUserParamDto,
@@ -17,7 +18,7 @@ import {
 } from './dto';
 import { JwtGuard } from './guards';
 import { UsersService } from './services';
-import { AuthenticatedRequest, IEditAddresses } from './types';
+import { AuthenticatedRequest, IDeleteUserRes, IEditAddresses } from './types';
 
 
 @Controller('users')
@@ -54,6 +55,17 @@ export class UsersController {
     const user: IUser | null = req?.user ?? null;
 
     return await this.usersService.updateUser({ _id: param._id, body, user });
+  }
+
+  @UseGuards(JwtGuard)
+  @Delete('one/:_id')
+  public async deleteUser(
+    @Param() param: DeleteUserParamDto,
+    @Req() req: AuthenticatedRequest,
+  ): Promise<IResponse<IDeleteUserRes>> {
+    const user: IUser | null = req?.user ?? null;
+
+    return await this.usersService.deleteUser({ _id: user._id, user });
   }
 
   @UseGuards(JwtGuard)

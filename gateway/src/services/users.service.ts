@@ -4,7 +4,8 @@ import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom, timeout } from 'rxjs';
 
 import { MAX_TIME_OF_REQUEST_WAITING, USERS_EVENTS } from '../common/constants';
-import { IUpdateUserData } from '../types';
+import { IResponse } from '../common/types';
+import { IDeleteUserData, ILogoutRes, IUpdateUserData } from '../types';
 
 
 @Injectable()
@@ -45,6 +46,24 @@ export class UsersService {
     return await lastValueFrom(
       this.userServiceClient
         .send(USERS_EVENTS.USER_UPDATE_USER, { ...bodyUpdated, _id })
+        .pipe(timeout(MAX_TIME_OF_REQUEST_WAITING)),
+    );
+  }
+
+  public async deleteUser(data: IDeleteUserData): Promise<IResponse<ILogoutRes>> {
+    const { _id, user } = data;
+
+    if (!user || String(user._id) !== String(user._id)) {
+      return {
+        status: HttpStatus.BAD_REQUEST,
+        data: null,
+        errors: ['Defined id parameter does not match user id'],
+      };
+    }
+
+    return await lastValueFrom(
+      this.userServiceClient
+        .send(USERS_EVENTS.USER_DELETE_USER, { _id })
         .pipe(timeout(MAX_TIME_OF_REQUEST_WAITING)),
     );
   }

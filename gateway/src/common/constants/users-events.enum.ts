@@ -4,6 +4,7 @@ export enum USERS_EVENTS {
   USER_VERIFY_ACCESS_TOKEN = 'user_verify_access_token',
   USER_GET_USER = 'user_get_user',
   USER_UPDATE_USER = 'user_update_user',
+  USER_DELETE_USER = 'user_delete_user',
   USER_REISSUE_TOKENS = 'user_reissue_tokens',
   USER_LOGOUT = 'user_logout',
   USER_EDIT_ADDRESSES = 'USER_EDIT_ADDRESSES',

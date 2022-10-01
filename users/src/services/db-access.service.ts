@@ -12,9 +12,16 @@ import { AddAddressDto, PartialTokenDto, PartialUserDto, UpdateAddressDto } from
 import { pickProperties } from '../common/helpers';
 import { IAddress, IAddressDocument, IToken, ITokenDocument, IUser, IUserDocument } from '../common/types';
 import { DEFAULT_USER_DATA } from '../constants';
-import { EditAddressesBodyDto, UpdateUserBodyDto, UpdateUserDto } from '../dto';
+import { DeleteUserBodyDto, EditAddressesBodyDto, UpdateUserBodyDto, UpdateUserDto } from '../dto';
 import { mapUserDocumentToIUser } from '../helpers';
-import { IEmailPassword, IUsernamePassword, IValidateUserRes, RefreshTokenData, UserCredentialsReq } from '../types';
+import {
+  IEmailPassword,
+  ILogoutRes,
+  IUsernamePassword,
+  IValidateUserRes,
+  RefreshTokenData,
+  UserCredentialsReq,
+} from '../types';
 
 
 @ApplyAddressedErrorCatching
@@ -375,6 +382,24 @@ export class DbAccessService {
       .populate('addresses');
 
     return updateUserDoc ? mapUserDocumentToIUser<IAddress>(updateUserDoc) : null;
+  }
+
+  @AddressedErrorCatching()
+  public async deleteUser(data: DeleteUserBodyDto): Promise<ILogoutRes> {
+    const deletedUserResponse = await this.userModel.findByIdAndRemove(data._id);
+
+    if (!deletedUserResponse) {
+      return null;
+    }
+
+    return {
+      user: {
+        firstName: deletedUserResponse.firstName,
+        ...(deletedUserResponse.middleName && { middleName: deletedUserResponse.middleName }),
+        lastName: deletedUserResponse.lastName,
+        ...(deletedUserResponse.username && { username: deletedUserResponse.username }),
+      },
+    };
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_4AM)
