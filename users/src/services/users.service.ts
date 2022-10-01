@@ -20,6 +20,7 @@ import { AddressedErrorCatching, ApplyAddressedErrorCatching } from '../common/d
 import { PartialTokenDto, PartialUserDto } from '../common/dto';
 import { IAddress, IResponse, IToken, IUser, IUserDocument } from '../common/types';
 import {
+  DeleteUserBodyDto,
   EditAddressesBodyDto,
   GetUserBodyDto,
   LogoutBodyDto,
@@ -32,6 +33,7 @@ import {
 import {
   IEditAddresses,
   IIssueTokensRes,
+  ILogoutRes,
   ISignInRes,
   IValidateUserRes,
   IVerifyTokenRes,
@@ -303,6 +305,23 @@ export class UsersService {
       data: { user },
       errors: null,
     };
+  }
+
+  @AddressedErrorCatching()
+  public async deleteUser(data: DeleteUserBodyDto): Promise<IResponse<ILogoutRes>> {
+    const deleteUserResponse: ILogoutRes | null = await this.dbAccessService.deleteUser(data);
+
+    return deleteUserResponse
+      ? {
+        status: HttpStatus.OK,
+        data: deleteUserResponse,
+        errors: null,
+      }
+      : {
+        status: HttpStatus.NOT_FOUND,
+        data: null,
+        errors: [`User with id ${data._id} not found`],
+      };
   }
 
   @AddressedErrorCatching()

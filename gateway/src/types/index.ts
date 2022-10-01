@@ -1,5 +1,7 @@
 export * from './authenticated-request.type';
 export * from './authorized-request.type';
+export * from './delete-user-data.interface';
+export * from './delete-user-res.interface';
 export * from './edit-addresses-res.interface';
 export * from './issue-tokens-res.interface';
 export * from './logout-req.interface';

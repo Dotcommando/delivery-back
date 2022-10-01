@@ -5,6 +5,7 @@ import { USERS_EVENTS } from './common/constants';
 import { TcpCommonExceptionFilter } from './common/filters';
 import { IAddress, IResponse, IUser } from './common/types';
 import {
+  DeleteUserBodyDto,
   EditAddressesBodyDto,
   GetUserBodyDto,
   LogoutBodyDto,
@@ -15,7 +16,7 @@ import {
   VerifyAccessTokenBodyDto,
 } from './dto';
 import { UsersService } from './services';
-import { IEditAddresses, IIssueTokensRes, ISignInRes, IVerifyTokenRes } from './types';
+import { IEditAddresses, IIssueTokensRes, ILogoutRes, ISignInRes, IVerifyTokenRes } from './types';
 
 
 @UseFilters(new TcpCommonExceptionFilter())
@@ -46,6 +47,11 @@ export class UsersController {
   @MessagePattern(USERS_EVENTS.USER_UPDATE_USER)
   public async updateUser(data: UpdateUserBodyDto): Promise<IResponse<{ user: IUser<IAddress> }>> {
     return await this.usersService.updateUser(data);
+  }
+
+  @MessagePattern(USERS_EVENTS.USER_DELETE_USER)
+  public async deleteUser(data: DeleteUserBodyDto): Promise<IResponse<ILogoutRes>> {
+    return await this.usersService.deleteUser(data);
   }
 
   @MessagePattern(USERS_EVENTS.USER_REISSUE_TOKENS)

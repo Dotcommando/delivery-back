@@ -1,3 +1,4 @@
+export * from './delete-user-body.dto';
 export * from './edit-addresses-body.dto';
 export * from './get-user-body.dto';
 export * from './logout-body.dto';

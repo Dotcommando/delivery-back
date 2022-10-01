@@ -1,4 +1,5 @@
 export * from './common-forbidden-response.dto';
+export * from './delete-user-param.dto';
 export * from './edit-addresses-body.dto';
 export * from './edit-addresses-param.dto';
 export * from './get-user-bad-request-response.dto';
