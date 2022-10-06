@@ -1,0 +1,23 @@
+version: "3"
+services:
+  nest-mongodb:
+    image: mongo:5
+    container_name: delivery-vendors
+    volumes:
+      - ./db/mongo/mongod.conf:/etc/mongod.conf
+      - ./db/mongo/initdb.d/:/docker-entrypoint-initdb.d/
+      - ./db/mongo/data/db/:/data/db/
+      - ./db/mongo/data/log/:/var/log/mongodb/
+    env_file:
+        - ../.env
+    ports:
+      - "27038:27038"
+    command: ["-f", "/etc/mongod.conf"]
+    restart: unless-stopped
+    labels:
+      autoheal: "true"
+    healthcheck:
+      test: curl -sS http://delivery-users:27038 || exit 1
+      interval: 5m
+      timeout: 10s
+      retries: 3

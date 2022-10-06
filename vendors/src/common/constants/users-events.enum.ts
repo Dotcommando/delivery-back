@@ -6,5 +6,5 @@ export enum USERS_EVENTS {
   USER_UPDATE_USER = 'user_update_user',
   USER_REISSUE_TOKENS = 'user_reissue_tokens',
   USER_LOGOUT = 'user_logout',
-  USER_EDIT_ADDRESSES = 'USER_EDIT_ADDRESSES',
+  USER_EDIT_ADDRESSES = 'user_edit_addresses',
 }

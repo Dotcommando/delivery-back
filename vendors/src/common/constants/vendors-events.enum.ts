@@ -1,4 +1,18 @@
 export enum VENDORS_EVENTS {
   VENDOR_CREATE_VENDOR = 'vendor_create_vendor',
   VENDOR_GET_VENDOR = 'vendor_get_vendor',
+  VENDOR_UPDATE_VENDOR = 'vendor_update_vendor',
+  VENDOR_GET_ALL_VENDORS = 'vendor_get_all_vendors',
+  VENDOR_GET_MANY_VENDORS = 'vendor_get_many_vendors',
+  VENDOR_SUSPEND_VENDOR = 'vendor_suspend_vendor',
+  VENDOR_CREATE_USER = 'vendor_create_user',
+  VENDOR_ISSUE_TOKENS = 'vendor_issue_tokens',
+  VENDOR_VERIFY_ACCESS_TOKEN = 'vendor_verify_access_token',
+  VENDOR_GET_USER = 'vendor_get_user',
+  VENDOR_GET_ALL_USERS = 'vendor_get_all_users',
+  VENDOR_GET_MANY_USERS = 'vendor_get_many_users',
+  VENDOR_UPDATE_USER = 'vendor_update_user',
+  VENDOR_DELETE_USER = 'vendor_delete_user',
+  VENDOR_REISSUE_TOKENS = 'vendor_reissue_tokens',
+  VENDOR_LOGOUT_USER = 'vendor_logout_user',
 }

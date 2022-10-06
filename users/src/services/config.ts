@@ -1,7 +1,7 @@
 export default () => ({
   environment: process.env.ENVIRONMENT,
-  baseUri: process.env.BASE_URI,
-  gatewayPort: process.env.API_GATEWAY_PORT,
+  baseUri: process.env.CUSTOMER_BASE_URI,
+  gatewayPort: process.env.CUSTOMER_GATEWAY_PORT,
   host: process.env.USERS_SERVICE_HOST,
   port: process.env.USERS_SERVICE_PORT,
   secretKey: process.env.JWT_SECRET_KEY,
