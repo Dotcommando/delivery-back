@@ -15,6 +15,7 @@ export const PROPERTY_LENGTH_64 = Number(process.env.PROPERTY_LENGTH_64);
 export const POSTAL_CODE_MIN_LENGTH = Number(process.env.POSTAL_CODE_MIN_LENGTH);
 export const POSTAL_CODE_MAX_LENGTH = Number(process.env.POSTAL_CODE_MAX_LENGTH);
 export const ADDRESSES_MAX_SIZE = Number(process.env.ADDRESSES_MAX_SIZE);
+export const COMPANIES_MAX_SIZE = Number(process.env.COMPANIES_MAX_SIZE);
 export const PHONE_NUMBERS_MAX_SIZE = Number(process.env.PHONE_NUMBERS_MAX_SIZE);
 export const PHONE_NUMBER_MIN_LENGTH = Number(process.env.PHONE_NUMBER_MIN_LENGTH);
 export const PHONE_NUMBER_MAX_LENGTH = Number(process.env.PHONE_NUMBER_MAX_LENGTH);

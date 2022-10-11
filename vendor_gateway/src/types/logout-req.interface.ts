@@ -1,8 +1,8 @@
-import { IUser } from '../common/types';
+import { IVendor } from '../common/types';
 
 
 export interface ILogoutReq {
-  user: IUser;
+  user: IVendor;
   accessToken: string;
   refreshToken: string;
 }

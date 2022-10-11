@@ -1,7 +1,7 @@
-import { IUser } from '../common/types';
+import { IVendor } from '../common/types';
 
 export interface IReissueTokensReq {
-  user: IUser;
+  user: IVendor;
   accessToken: string;
   refreshToken: string;
 }

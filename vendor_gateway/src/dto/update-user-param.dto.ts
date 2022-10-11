@@ -1,6 +1,6 @@
 import { PickType } from '@nestjs/mapped-types';
 
-import { UserDto } from '../common/dto';
+import { VendorDto } from '../common/dto';
 
 
-export class UpdateUserParamDto extends PickType(UserDto, ['_id'] as const) {}
+export class UpdateUserParamDto extends PickType(VendorDto, ['_id'] as const) {}

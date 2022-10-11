@@ -7,7 +7,7 @@ import { IAddress, IAddressDocument, IUser, IUserDocument } from '../common/type
 
 
 export function mapUserDocumentToIUser<TAddress = Types.ObjectId, TOrder = Types.ObjectId>(userDoc: IUserDocument<TAddress, TOrder> | IUser<TAddress, TOrder>): IUser<TAddress, TOrder> {
-  const clearedUser= pickProperties<IUser<TAddress, TOrder>>(
+  const clearedUser = pickProperties<IUser<TAddress, TOrder>>(
     userDoc as Partial<IUser<TAddress, TOrder>>,
     '_id',
     'firstName',
@@ -18,7 +18,7 @@ export function mapUserDocumentToIUser<TAddress = Types.ObjectId, TOrder = Types
     'avatar',
     'addresses',
     'phoneNumber',
-    'roles',
+    'role',
     'orders',
     'emailConfirmed',
     'phoneConfirmed',

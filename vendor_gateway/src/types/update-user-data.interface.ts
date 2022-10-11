@@ -1,11 +1,11 @@
 import { Types } from 'mongoose';
 
-import { IUser } from '../common/types';
-import { UpdateUserBodyDto } from '../dto';
+import { IVendor } from '../common/types';
+import { UpdateVendorBodyDto } from '../dto';
 
 
 export interface IUpdateUserData {
-  body: UpdateUserBodyDto;
+  body: UpdateVendorBodyDto;
   _id: Types.ObjectId;
-  user?: IUser | null;
+  user?: IVendor | null;
 }

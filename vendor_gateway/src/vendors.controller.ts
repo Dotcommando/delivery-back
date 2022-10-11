@@ -6,13 +6,13 @@ import { ApiTags } from '@nestjs/swagger';
 import { lastValueFrom, timeout } from 'rxjs';
 
 import { MAX_TIME_OF_REQUEST_WAITING, VENDORS_EVENTS } from './common/constants';
-import { IAddress, IResponse, IUser } from './common/types';
+import { IAddress, IResponse, IVendor } from './common/types';
 import { GetUser, UpdateUser } from './decorators';
 import {
   DeleteUserParamDto,
   GetUserParamDto,
-  UpdateUserBodyDto,
   UpdateUserParamDto,
+  UpdateVendorBodyDto,
 } from './dto';
 import { JwtGuard } from './guards';
 import { VendorsService } from './services';
@@ -34,7 +34,7 @@ export class VendorsController {
   @Get('one/:_id')
   public async getUser(
     @Param() param: GetUserParamDto,
-  ): Promise<IResponse<{ user: IUser<IAddress> }>> {
+  ): Promise<IResponse<{ user: IVendor<IAddress> }>> {
     return await lastValueFrom(
       this.vendorServiceClient
         .send(VENDORS_EVENTS.VENDOR_GET_USER, { _id: param._id })
@@ -47,10 +47,10 @@ export class VendorsController {
   @Put('one/:_id')
   public async updateUser(
     @Param() param: UpdateUserParamDto,
-    @Body() body: UpdateUserBodyDto,
+    @Body() body: UpdateVendorBodyDto,
     @Req() req: AuthenticatedRequest,
-  ): Promise<IResponse<{ user: IUser<IAddress> }>> {
-    const user: IUser | null = req?.user ?? null;
+  ): Promise<IResponse<{ user: IVendor<IAddress> }>> {
+    const user: IVendor | null = req?.user ?? null;
 
     return await this.usersService.updateUser({ _id: param._id, body, user });
   }
@@ -61,7 +61,7 @@ export class VendorsController {
     @Param() param: DeleteUserParamDto,
     @Req() req: AuthenticatedRequest,
   ): Promise<IResponse<IDeleteUserRes>> {
-    const user: IUser | null = req?.user ?? null;
+    const user: IVendor | null = req?.user ?? null;
 
     return await this.usersService.deleteUser({ _id: user._id, user });
   }

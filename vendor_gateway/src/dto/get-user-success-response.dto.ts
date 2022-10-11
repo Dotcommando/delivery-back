@@ -1,10 +1,10 @@
 import { HttpStatus } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 
-import { IAddress, IResponse, IUser } from '../common/types';
+import { IAddress, IResponse, IVendor } from '../common/types';
 
 
-export class GetUserSuccessResponseDto implements IResponse<IUser<IAddress>> {
+export class GetUserSuccessResponseDto implements IResponse<IVendor<IAddress>> {
   @ApiProperty({ example: HttpStatus.OK })
   status: HttpStatus;
 
@@ -50,7 +50,7 @@ export class GetUserSuccessResponseDto implements IResponse<IUser<IAddress>> {
     },
     nullable: true,
   })
-  data: IUser<IAddress> | null;
+  data: IVendor<IAddress> | null;
 
   @ApiProperty({ example: null, nullable: true })
   errors: string[] | null;

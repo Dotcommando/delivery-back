@@ -13,7 +13,7 @@ export interface IUser<TAddress = Types.ObjectId, TOrder = Types.ObjectId> {
   avatar: string;
   addresses: TAddress[];
   phoneNumber: string;
-  roles: ROLE[];
+  role: ROLE;
   orders: TOrder[];
   emailConfirmed: boolean;
   phoneConfirmed: boolean;

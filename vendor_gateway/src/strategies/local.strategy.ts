@@ -6,9 +6,9 @@ import { validateSync, ValidationError } from 'class-validator';
 import { Strategy } from 'passport-local';
 
 import { IResponse } from '../common/types';
-import { SignInBodyDto } from '../dto';
+import { VendorSignInBodyDto } from '../dto';
 import { AuthService } from '../services';
-import { ISignInRes } from '../types';
+import { IVendorSignInRes } from '../types';
 
 
 @Injectable()
@@ -20,8 +20,8 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(email: string, password: string): Promise<ISignInRes | null> {
-    const signInData: SignInBodyDto = plainToClass(SignInBodyDto, { email, password });
+  async validate(email: string, password: string): Promise<IVendorSignInRes | null> {
+    const signInData: VendorSignInBodyDto = plainToClass(VendorSignInBodyDto, { email, password });
     const errors: ValidationError[] = validateSync(signInData);
 
     if (errors.length) {
@@ -31,7 +31,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
       throw new BadRequestException(errorMessages);
     }
 
-    const validateUserResponse: IResponse<ISignInRes> = await this.authService.signIn(signInData);
+    const validateUserResponse: IResponse<IVendorSignInRes> = await this.authService.vendorSignIn(signInData);
 
     if (!validateUserResponse.data?.user) {
       throw new UnauthorizedException('No such pare of email and password found');

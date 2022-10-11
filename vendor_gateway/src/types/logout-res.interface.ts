@@ -1,6 +1,6 @@
-import { IUser } from '../common/types';
+import { IVendor } from '../common/types';
 
 
 export interface ILogoutRes {
-  user: Pick<IUser, 'firstName' | 'middleName' | 'lastName' | 'username'>;
+  user: Pick<IVendor, 'firstName' | 'middleName' | 'lastName'>;
 }

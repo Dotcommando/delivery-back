@@ -4,11 +4,20 @@ import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom, map, timeout } from 'rxjs';
 
 import { MAX_TIME_OF_REQUEST_WAITING, VENDORS_EVENTS } from '../common/constants';
-import { IResponse, IUser } from '../common/types';
-import { RegisterBodyDto, SignInBodyDto } from '../dto';
-import { IIssueTokensRes, ILogoutReq, ILogoutRes, IReissueTokensReq, ISignInRes, IVerifyTokenRes } from '../types';
+import { AddressedErrorCatching, ApplyAddressedErrorCatching } from '../common/decorators';
+import { IResponse, IVendor } from '../common/types';
+import { VendorRegisterBodyDto, VendorSignInBodyDto } from '../dto';
+import {
+  IIssueTokensRes,
+  ILogoutReq,
+  ILogoutRes,
+  IReissueTokensReq,
+  IVendorSignInRes,
+  IVerifyTokenRes,
+} from '../types';
 
 
+@ApplyAddressedErrorCatching
 @Injectable()
 export class AuthService {
   constructor(
@@ -16,7 +25,7 @@ export class AuthService {
   ) {
   }
 
-  public async signIn(user: SignInBodyDto): Promise<IResponse<ISignInRes>> {
+  public async vendorSignIn(user: VendorSignInBodyDto): Promise<IResponse<IVendorSignInRes>> {
     return await lastValueFrom(
       this.vendorServiceClient
         .send(VENDORS_EVENTS.VENDOR_ISSUE_TOKENS, user)
@@ -24,18 +33,19 @@ export class AuthService {
     );
   }
 
-  public async register(user: RegisterBodyDto): Promise<IResponse<ISignInRes>> {
-    const registerResponse: IResponse<{ user: IUser }> = await lastValueFrom(
+  @AddressedErrorCatching()
+  public async vendorRegister(user: VendorRegisterBodyDto): Promise<IResponse<IVendorSignInRes>> {
+    const registerResponse: IResponse<{ user: IVendor }> = await lastValueFrom(
       this.vendorServiceClient
-        .send(VENDORS_EVENTS.VENDOR_CREATE_USER, user)
+        .send(VENDORS_EVENTS.VENDOR_CREATE_VENDOR, user)
         .pipe(timeout(MAX_TIME_OF_REQUEST_WAITING)),
     );
 
     if (registerResponse.status !== HttpStatus.CREATED) {
-      return registerResponse as IResponse<ISignInRes>;
+      return registerResponse as IResponse<IVendorSignInRes>;
     }
 
-    return await this.signIn({ email: user.email, password: user.password });
+    return await this.vendorSignIn({ email: user.email, password: user.password });
   }
 
   public async verifyAccessToken(accessToken: string): Promise<IResponse<IVerifyTokenRes>> {
@@ -46,7 +56,7 @@ export class AuthService {
     );
   }
 
-  public async reissueTokens(request: IReissueTokensReq): Promise<IResponse<ISignInRes>> {
+  public async reissueTokens(request: IReissueTokensReq): Promise<IResponse<IVendorSignInRes>> {
     const { accessToken, refreshToken, user } = request;
 
     return await lastValueFrom(
@@ -56,7 +66,7 @@ export class AuthService {
           refreshToken,
         })
         .pipe(
-          map((response: IResponse<IIssueTokensRes>): IResponse<ISignInRes> => response.status === HttpStatus.OK
+          map((response: IResponse<IIssueTokensRes>): IResponse<IVendorSignInRes> => response.status === HttpStatus.OK
             ? {
               ...response,
               data: {
@@ -64,7 +74,7 @@ export class AuthService {
                 user,
               },
             }
-            : response as IResponse<ISignInRes>,
+            : response as IResponse<IVendorSignInRes>,
           ),
           timeout(MAX_TIME_OF_REQUEST_WAITING),
         ),
@@ -87,7 +97,6 @@ export class AuthService {
                   firstName: user.firstName,
                   middleName: user.middleName,
                   lastName: user.lastName,
-                  ...(user.username && { username: user.username }),
                 },
               },
             }

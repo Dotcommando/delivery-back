@@ -12,12 +12,12 @@ import { ConfigService } from '@nestjs/config';
 import { ClientProxy } from '@nestjs/microservices';
 import { ApiTags } from '@nestjs/swagger';
 
-import { IResponse, IUser } from './common/types';
+import { IResponse, IVendor } from './common/types';
 import { Logout, Register, ReissueTokens, SignIn } from './decorators';
-import { LogoutBodyDto, RegisterBodyDto, ReissueTokensBodyDto, SignInBodyDto } from './dto';
+import { LogoutBodyDto, ReissueTokensBodyDto, VendorRegisterBodyDto, VendorSignInBodyDto } from './dto';
 import { AuthLocalGuard, JwtGuard } from './guards';
 import { AuthService } from './services';
-import { AuthenticatedRequest, AuthorizedRequest, ILogoutRes, ISignInRes } from './types';
+import { AuthenticatedRequest, AuthorizedRequest, ILogoutRes, IVendorSignInRes } from './types';
 
 
 @Controller('auth')
@@ -31,21 +31,21 @@ export class AuthController {
   }
 
   @Register()
-  @Post('register')
-  public async register(
-    @Body() body: RegisterBodyDto,
-  ): Promise<IResponse<ISignInRes>> {
-    return await this.authService.register(body);
+  @Post('vendor-register')
+  public async vendorRegister(
+    @Body() body: VendorRegisterBodyDto,
+  ): Promise<IResponse<IVendorSignInRes>> {
+    return await this.authService.vendorRegister(body);
   }
 
   @SignIn()
   @UseGuards(AuthLocalGuard)
-  @Post('sign-in')
-  public async signIn(
-    @Body() body: SignInBodyDto,
+  @Post('vendor-sign-in')
+  public async vendorSignIn(
+    @Body() body: VendorSignInBodyDto,
     @Req() req: AuthorizedRequest,
-  ): Promise<IResponse<ISignInRes>> {
-    const data: ISignInRes | null = req?.user ?? null;
+  ): Promise<IResponse<IVendorSignInRes>> {
+    const data: IVendorSignInRes | null = req?.user ?? null;
 
     if (!data) {
       throw new UnauthorizedException('User with such pare of email or username and password not found');
@@ -64,8 +64,8 @@ export class AuthController {
   public async reissueTokens(
     @Body() body: ReissueTokensBodyDto,
     @Req() req: AuthenticatedRequest,
-  ): Promise<IResponse<ISignInRes>> {
-    const user: IUser | null = req?.user ?? null;
+  ): Promise<IResponse<IVendorSignInRes>> {
+    const user: IVendor | null = req?.user ?? null;
     const accessToken = body.accessToken;
     const refreshToken: string | null = req.headers?.authorization;
 
@@ -79,7 +79,7 @@ export class AuthController {
     @Body() body: LogoutBodyDto,
     @Req() req: AuthenticatedRequest,
   ): Promise<IResponse<ILogoutRes>> {
-    const user: IUser | null = req?.user ?? null;
+    const user: IVendor | null = req?.user ?? null;
     const accessToken: string = req.headers?.authorization;
     const refreshToken: string = body.refreshToken;
 

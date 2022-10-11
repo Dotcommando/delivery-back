@@ -8,4 +8,5 @@ export * from './postal-code-regexp.constant';
 export * from './role.enum';
 export * from './username-regexp.constant';
 export * from './users-events.enum';
+export * from './vendor-role.enum';
 export * from './vendors-events.enum';

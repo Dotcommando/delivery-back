@@ -1,10 +1,8 @@
 export enum ROLE {
-  GUEST = 'guest',
-  USER = 'user',
-  DELIVERYMAN = 'deliveryman',
-  OPERATOR = 'operator',
-  MANAGER = 'manager',
+  SUPERADMIN = 'superadmin',
   ADMIN = 'admin',
+  USER = 'user',
+  GUEST = 'guest',
 }
 
 export const ROLE_ARRAY = Object.values(ROLE);

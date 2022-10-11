@@ -17,17 +17,16 @@ import {
   USERNAME_REGEXP,
 } from '../common/constants';
 import { NotNull, ValidateIfNull } from '../common/decorators';
-import { PartialUserDto } from '../common/dto';
+import { PartialVendorDto } from '../common/dto';
 import { maxLengthStringMessage, minLengthStringMessage, toLowercase } from '../common/helpers';
 
 
-export class UpdateUserBodyDto extends PickType(
-  PartialUserDto,
+export class UpdateVendorBodyDto extends PickType(
+  PartialVendorDto,
   [
     'firstName',
     'middleName',
     'lastName',
-    'username',
     'avatar',
     'phoneNumber',
     'email',

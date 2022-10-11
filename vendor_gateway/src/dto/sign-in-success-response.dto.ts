@@ -2,10 +2,10 @@ import { HttpStatus } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 
 import { IResponse } from '../common/types';
-import { ISignInRes } from '../types';
+import { IVendorSignInRes } from '../types';
 
 
-export class SignInSuccessResponseDto implements IResponse<ISignInRes> {
+export class SignInSuccessResponseDto implements IResponse<IVendorSignInRes> {
   @ApiProperty({ example: HttpStatus.OK })
   status: HttpStatus;
 
@@ -34,7 +34,7 @@ export class SignInSuccessResponseDto implements IResponse<ISignInRes> {
     },
     nullable: true,
   })
-  data: ISignInRes | null;
+  data: IVendorSignInRes | null;
 
   @ApiProperty({ example: null, nullable: true })
   errors: string[] | null;

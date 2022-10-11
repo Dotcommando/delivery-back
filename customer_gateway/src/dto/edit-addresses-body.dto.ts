@@ -50,7 +50,7 @@ export class EditAddressesBodyDto {
     ],
   })
   @IsOptional()
-  @IsArray({ message: 'Field \'add\' must contain array of user addresses to add' })
+  @IsArray({ message: 'Field \'update\' must contain array of user addresses to add' })
   @ValidateNested({ each: true })
   @Type(() => UpdateAddressDto)
   update: UpdateAddressDto[];

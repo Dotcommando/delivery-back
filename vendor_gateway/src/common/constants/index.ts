@@ -6,5 +6,6 @@ export * from './object-id-regexp.constant';
 export * from './postal-code-regexp.constant';
 export * from './role.enum';
 export * from './username-regexp.constant';
+export * from './vendor-role.enum';
 export * from './vendors-events.enum';
 export * from './vendors-events.enum';

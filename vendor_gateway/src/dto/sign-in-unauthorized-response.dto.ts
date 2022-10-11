@@ -2,10 +2,10 @@ import { HttpStatus } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 
 import { IResponse } from '../common/types';
-import { ISignInRes } from '../types';
+import { IVendorSignInRes } from '../types';
 
 
-export class SignInUnauthorizedResponseDto implements IResponse<ISignInRes> {
+export class SignInUnauthorizedResponseDto implements IResponse<IVendorSignInRes> {
   @ApiProperty({ example: HttpStatus.UNAUTHORIZED })
   status: HttpStatus;
 
@@ -13,7 +13,7 @@ export class SignInUnauthorizedResponseDto implements IResponse<ISignInRes> {
     example: null,
     nullable: true,
   })
-  data: ISignInRes | null;
+  data: IVendorSignInRes | null;
 
   @ApiProperty({
     example: ['Unauthorized'],

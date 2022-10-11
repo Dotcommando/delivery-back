@@ -1,26 +1,31 @@
 import { Document, Types } from 'mongoose';
 
-import { ROLE } from '../constants';
+import { ROLE, VENDOR_ROLE } from '../constants';
 
+export interface IMembership<TGroup = Types.ObjectId> {
+  role: VENDOR_ROLE;
+  group: TGroup;
+}
 
-export interface IUser<TAddress = Types.ObjectId, TOrder = Types.ObjectId> {
+export interface IVendor<TAddress = Types.ObjectId, TCompany = Types.ObjectId> {
   _id: Types.ObjectId;
   firstName: string;
   middleName?: string;
   lastName: string;
-  username?: string;
   email: string;
   avatar: string;
+  role: ROLE;
   addresses: TAddress[];
+  companies: IMembership<TCompany>[];
+  brands: IMembership<TCompany>[];
   phoneNumber: string;
-  roles: ROLE[];
-  orders: TOrder[];
   emailConfirmed: boolean;
   phoneConfirmed: boolean;
   deactivated: boolean;
+  suspended: boolean;
 }
 
-export interface IUserDocument<TAddress = Types.ObjectId, TOrder = Types.ObjectId> extends Omit<IUser<TAddress, TOrder>, '_id'>, Document<IUser> {
+export interface IVendorDocument extends Omit<IVendor, '_id'>, Document<IVendor> {
   password: string;
   compareEncryptedPassword: (password: string) => boolean;
   getEncryptedPassword: (password: string) => string;

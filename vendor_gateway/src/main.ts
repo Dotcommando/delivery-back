@@ -26,7 +26,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(new StatusInterceptor());
   app.setGlobalPrefix('api/v1');
   app.enableCors({
-    origin: process.env.VENDORS_CORS_ORIGIN,
+    origin: process.env.VENDOR_CORS_ORIGIN,
   });
 
   app.register(fastifyCookie);

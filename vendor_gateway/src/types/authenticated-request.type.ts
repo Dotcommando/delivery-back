@@ -1,8 +1,8 @@
 import { FastifyRequest } from 'fastify';
 
-import { IUser } from '../common/types';
+import { IVendor } from '../common/types';
 
 
 export type AuthenticatedRequest = FastifyRequest & {
-  user: IUser;
+  user: IVendor;
 }

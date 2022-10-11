@@ -176,20 +176,15 @@ export class UserDto implements IUser {
   phoneNumber: string;
 
   @ApiProperty({
-    description: 'Array of roles of user in the system',
+    description: 'Role of user in the system',
     enum: ROLE,
     enumName: 'ROLE',
-    example: [ ROLE.OPERATOR, ROLE.MANAGER ],
+    example: ROLE.USER,
   })
-  @IsArray({ message: 'Roles must be an array' })
   @IsEnum(ROLE, {
-    each: true,
-    message: 'Each element of roles array must be valid value of the enum',
+    message: 'The role must be a valid value of the enum',
   })
-  @ArrayMaxSize(ROLE_ARRAY.length - 1, {
-    message: `User can not have role more than ${ROLE_ARRAY.length - 1} at the same time`,
-  })
-  roles: ROLE[];
+  role: ROLE;
 
   @ApiProperty({
     description: 'List of user orders. Array of valid MongoDB compatible ObjectId',

@@ -1,7 +1,4 @@
-import { IUser } from '../common/types';
-
-export interface ISignInRes {
-  user: IUser;
+export interface IIssueTokensRes {
   accessToken: string;
   refreshToken: string;
   accessTokenExpiredAfter: number;

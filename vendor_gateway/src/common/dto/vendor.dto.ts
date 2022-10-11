@@ -18,8 +18,11 @@ import {
 } from 'class-validator';
 import { Types } from 'mongoose';
 
+import { MembershipDto } from './membership.dto';
+
 import {
   ADDRESSES_MAX_SIZE,
+  COMPANIES_MAX_SIZE,
   IMAGE_BASE64_MAX_LENGTH,
   NAME_MAX_LENGTH,
   NAME_MIN_LENGTH,
@@ -31,10 +34,8 @@ import {
   PHONE_NUMBER_MIN_LENGTH,
   PROPERTY_LENGTH_64,
   ROLE,
-  ROLE_ARRAY,
-  USERNAME_MAX_LENGTH,
-  USERNAME_MIN_LENGTH,
-  USERNAME_REGEXP,
+  VENDOR_ROLE,
+  VENDOR_ROLE_ARRAY,
 } from '../constants';
 import {
   maxLengthStringMessage,
@@ -44,12 +45,12 @@ import {
   toLowercase,
   toObjectId,
 } from '../helpers';
-import { IUser } from '../types';
+import { IVendor } from '../types';
 
 
-export class UserDto implements IUser {
+export class VendorDto implements IVendor {
   @ApiProperty({
-    description: 'It matches \'_id\' from collection \'users\' from DB. Valid MongoDB compatible ObjectId',
+    description: 'It matches \'_id\' from collection \'vendors\' from DB. Valid MongoDB compatible ObjectId',
     required: true,
     example: '62a584a2f2fdd2cf95548236',
   })
@@ -107,23 +108,6 @@ export class UserDto implements IUser {
   lastName: string;
 
   @ApiProperty({
-    description: `Username. Optional. It must have length from ${USERNAME_MIN_LENGTH} to ${USERNAME_MAX_LENGTH} characters`,
-    required: true,
-    example: 'r.bradbury',
-  })
-  @IsString({ message: 'Username must be a string' })
-  @MinLength(USERNAME_MIN_LENGTH, {
-    message: minLengthStringMessage('Username', USERNAME_MIN_LENGTH),
-  })
-  @MaxLength(USERNAME_MAX_LENGTH, {
-    message: maxLengthStringMessage('Username', USERNAME_MAX_LENGTH),
-  })
-  @Matches(USERNAME_REGEXP, {
-    message: 'Username can contain just latin symbols, digits, and dots',
-  })
-  username: string;
-
-  @ApiProperty({
     description: 'User\'s email. Automatically converts to lowercase',
     required: true,
     example: 'ray.bradbury@gmail.com',
@@ -160,6 +144,41 @@ export class UserDto implements IUser {
   addresses: Types.ObjectId[];
 
   @ApiProperty({
+    description: 'Role in the system, not in companies or brands',
+    required: true,
+    uniqueItems: true,
+    example: ROLE.USER,
+  })
+  @IsEnum(ROLE, {
+    message: 'Please, choose correct role',
+  })
+  role: ROLE;
+
+  @ApiProperty({
+    description: 'Array of pairs of roles and companies. Where company is Object Id',
+    required: true,
+    uniqueItems: true,
+    example: [ { group: '62a588187cebf9ce17bea893', role: VENDOR_ROLE.OWNER }, { group: '62a826ad1774f165f826923f', role: VENDOR_ROLE.OWNER } ],
+  })
+  @ArrayMaxSize(COMPANIES_MAX_SIZE)
+  @IsArray({ message: 'Field companies must contain pairs of companies\' Object Ids and user\'s roles' })
+  @ValidateNested({ each: true })
+  @Type(() => MembershipDto)
+  companies: MembershipDto[];
+
+  @ApiProperty({
+    description: 'Array of pairs of roles and brands. Where brand is Object Id',
+    required: true,
+    uniqueItems: true,
+    example: [ { group: '62a588187cebf9ce17bea893', role: VENDOR_ROLE.OWNER }, { group: '62a826ad1774f165f826923f', role: VENDOR_ROLE.OWNER } ],
+  })
+  @ArrayMaxSize(COMPANIES_MAX_SIZE)
+  @IsArray({ message: 'Field brands must contain pairs of companies\' Object Ids and user\'s roles' })
+  @ValidateNested({ each: true })
+  @Type(() => MembershipDto)
+  brands: MembershipDto[];
+
+  @ApiProperty({
     description: 'User phone number',
     required: true,
     example: '+37477717509',
@@ -177,19 +196,19 @@ export class UserDto implements IUser {
 
   @ApiProperty({
     description: 'Array of roles of user in the system',
-    enum: ROLE,
+    enum: VENDOR_ROLE,
     enumName: 'ROLE',
-    example: [ ROLE.OPERATOR, ROLE.MANAGER ],
+    example: [ VENDOR_ROLE.OPERATOR, VENDOR_ROLE.MANAGER ],
   })
   @IsArray({ message: 'Roles must be an array' })
-  @IsEnum(ROLE, {
+  @IsEnum(VENDOR_ROLE, {
     each: true,
     message: 'Each element of roles array must be valid value of the enum',
   })
-  @ArrayMaxSize(ROLE_ARRAY.length - 1, {
-    message: `User can not have role more than ${ROLE_ARRAY.length - 1} at the same time`,
+  @ArrayMaxSize(VENDOR_ROLE_ARRAY.length - 1, {
+    message: `User can not have role more than ${VENDOR_ROLE_ARRAY.length - 1} at the same time`,
   })
-  roles: ROLE[];
+  roles: VENDOR_ROLE[];
 
   @ApiProperty({
     description: 'List of user orders. Array of valid MongoDB compatible ObjectId',
@@ -242,6 +261,15 @@ export class UserDto implements IUser {
   @Transform(toBoolean)
   @IsOptional()
   deactivated: boolean;
+
+  @ApiProperty({
+    description: 'Is vendor suspended for violation of the rules of the service',
+    example: false,
+  })
+  @IsBoolean()
+  @Transform(toBoolean)
+  @IsOptional()
+  suspended: boolean;
 }
 
-export class PartialUserDto extends PartialType(UserDto) {}
+export class PartialVendorDto extends PartialType(VendorDto) {}

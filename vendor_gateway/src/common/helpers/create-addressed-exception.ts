@@ -8,15 +8,13 @@ export function createAddressedException(
   e: Error | HttpException | AddressedHttpException | MongoError,
   address: string,
 ): AddressedHttpException {
-  const message = e instanceof MongoError
-    ? process.env.ENVIRONMENT === 'prod'
-      ? 'Database error'
-      : e.message
-    : e.message;
-
   throw new AddressedHttpException(
     (e as HttpException)?.getStatus ? (e as HttpException).getStatus() : HttpStatus.PRECONDITION_FAILED,
     address,
-    message,
+    process.env.ENVIRONMENT === 'prod'
+      ? 'Some internal error happened'
+      : e?.message && typeof e.message === 'string'
+        ? e.message
+        : String(e),
   );
 }
