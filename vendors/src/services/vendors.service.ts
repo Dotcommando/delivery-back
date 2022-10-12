@@ -1,4 +1,11 @@
-import { BadRequestException, ConflictException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  HttpStatus,
+  Injectable,
+  PreconditionFailedException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
@@ -9,10 +16,10 @@ import { DbAccessService } from './db-access.service';
 
 import { LOGIN_ORIGIN } from '../common/constants';
 import { AddressedErrorCatching } from '../common/decorators';
-import { PartialVendorDto } from '../common/dto';
-import { IResponse, IVendor, IVendorDocument } from '../common/types';
-import { RegisterVendorBodyDto, VendorSignInBodyDto } from '../dto';
-import { IIssueTokensRes, IVendorSignInRes } from '../types';
+import { PartialTokenDto, PartialVendorDto } from '../common/dto';
+import { IResponse, IToken, IVendor, IVendorDocument } from '../common/types';
+import { RegisterVendorBodyDto, ReissueTokensBodyDto, VendorSignInBodyDto, VerifyAccessTokenBodyDto } from '../dto';
+import { IEmailPassword, IIssueTokensRes, IValidateVendorRes, IVendorSignInRes, IVerifyTokenRes } from '../types';
 
 
 @Injectable()
@@ -49,12 +56,12 @@ export class VendorsService {
   }
 
   @AddressedErrorCatching()
-  public async validateUser(user: VendorSignInBodyDto): Promise<IResponse<IValidateUserRes>> {
-    if ((!('username' in user) && !('email' in user)) || (!user.username && !user.email)) {
-      throw new BadRequestException('Something one required: email or username');
+  public async validateUser(user: VendorSignInBodyDto): Promise<IResponse<IValidateVendorRes>> {
+    if (!('email' in user)) {
+      throw new BadRequestException('Email required for user validation');
     }
 
-    const validationResult: IValidateUserRes = await this.dbAccessService.validateUser(user as UserCredentialsReq);
+    const validationResult: IValidateVendorRes = await this.dbAccessService.validateUser(user as IEmailPassword);
 
     return {
       status: HttpStatus.OK,
@@ -111,10 +118,8 @@ export class VendorsService {
     const validateUserResponse = await this.validateUser(user);
 
     if (!validateUserResponse.data.userIsValid) {
-      const emailIsDefined = 'email' in user;
-
       throw new UnauthorizedException(
-        `User with such ${ emailIsDefined ? 'email' : 'username' } ${ emailIsDefined ? user.email : user.username } and password not found or password is wrong`,
+        `User with such email ${ user.email } and password not found or password is wrong`,
       );
     }
 
@@ -127,6 +132,111 @@ export class VendorsService {
         user: validUser,
         ...issueTokenResponse,
       },
+      errors: null,
+    };
+  }
+
+  @AddressedErrorCatching()
+  public async verifyAccessToken(data: VerifyAccessTokenBodyDto): Promise<IResponse<IVerifyTokenRes>> {
+    const accessToken = this.jwtService.decode(data?.accessToken);
+
+    if (!accessToken) {
+      throw new BadRequestException('Access token can not be decoded');
+    }
+
+    if (accessToken['exp'] < Date.now()) {
+      throw new BadRequestException('Access token expired');
+    }
+
+    const verified = Boolean(
+      this.jwtService.verify(
+        data.accessToken,
+        { secret: this.configService.get('secretKey') },
+      ),
+    );
+
+    if (!verified) {
+      throw new UnauthorizedException('Access token is not genuine');
+    }
+
+    const checkTokenResult = await this.dbAccessService.checkAccessToken(data.accessToken);
+
+    if (checkTokenResult.blacklisted) {
+      throw new UnauthorizedException('Access token is not genuine');
+    }
+
+    const userId = accessToken['sub'];
+    const user = await this.dbAccessService.findUserById(userId);
+
+    if (!user) {
+      throw new PreconditionFailedException(`Cannot get user by Id ${ userId }`);
+    }
+
+    return {
+      status: HttpStatus.OK,
+      data: {
+        verified,
+        user,
+      },
+      errors: null,
+    };
+  }
+
+  public async reissueTokens(data: ReissueTokensBodyDto): Promise<IResponse<IIssueTokensRes>> {
+    const accessToken = this.jwtService.decode(data?.accessToken);
+    const refreshToken = this.jwtService.decode(data?.refreshToken);
+    const userId = new Types.ObjectId(refreshToken?.['sub']);
+
+    if (!accessToken && refreshToken) {
+      await this.dbAccessService.updateToken({
+        userId,
+        refreshToken: data.refreshToken,
+      }, {
+        blacklisted: true,
+      });
+
+      throw new BadRequestException('Cannot decode Access token for reissuing');
+    } else if (!accessToken && !refreshToken) {
+      // If authentication works fine, there is unreachable code, because the user
+      // got the access via valid refreshToken, which he used as accessToken.
+      throw new BadRequestException('Cannot decode tokens for reissuing');
+    } else if (accessToken && !refreshToken) {
+      // The same.
+      throw new BadRequestException('Cannot decode Refresh token for reissuing');
+    }
+
+    const getRefreshToken: IToken = await this.dbAccessService.findRefreshToken(data.refreshToken);
+
+    if (getRefreshToken.blacklisted) {
+      // The same.
+      throw new BadRequestException('Refresh token blacklisted');
+    }
+
+    if (!refreshToken?.['exp'] || (new Date(refreshToken?.['exp'])).getTime() < Date.now()) {
+      await this.dbAccessService.updateToken({
+        userId,
+        refreshToken: data.refreshToken,
+      }, {
+        accessToken: data.accessToken,
+        blacklisted: true,
+      } as PartialTokenDto);
+
+      throw new BadRequestException('Refresh token is expired or has no expiration date');
+    }
+
+    const issueTokensRes: IIssueTokensRes = await this.issueTokens(userId);
+
+    await this.dbAccessService.updateToken({
+      userId,
+      refreshToken: data.refreshToken,
+    }, {
+      accessToken: data.accessToken,
+      blacklisted: true,
+    } as PartialTokenDto);
+
+    return {
+      status: HttpStatus.OK,
+      data: issueTokensRes,
       errors: null,
     };
   }

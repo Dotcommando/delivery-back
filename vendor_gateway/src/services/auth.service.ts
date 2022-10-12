@@ -56,7 +56,7 @@ export class AuthService {
     );
   }
 
-  public async reissueTokens(request: IReissueTokensReq): Promise<IResponse<IVendorSignInRes>> {
+  public async vendorReissueTokens(request: IReissueTokensReq): Promise<IResponse<IVendorSignInRes>> {
     const { accessToken, refreshToken, user } = request;
 
     return await lastValueFrom(
@@ -81,7 +81,7 @@ export class AuthService {
     );
   }
 
-  public async logout(request: ILogoutReq): Promise<IResponse<ILogoutRes>> {
+  public async vendorLogout(request: ILogoutReq): Promise<IResponse<ILogoutRes>> {
     const { user, accessToken, refreshToken } = request;
 
     return await lastValueFrom(

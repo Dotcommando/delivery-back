@@ -15,7 +15,6 @@ export class LogoutSuccessResponseDto implements IResponse<ILogoutRes> {
         firstName: 'Mikhail',
         middleName: 'Aleksandrovich',
         lastName: 'Filchushkin',
-        username: 'Dotcommando',
       },
     },
     nullable: true,

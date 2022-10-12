@@ -28,6 +28,7 @@ import {
 } from '../dto';
 import { mapIVendorDocumentToIVendor } from '../helpers';
 import {
+  IEmailPassword, IValidateVendorRes,
   // IEmailPassword,
   // ILogoutRes,
   // IValidateUserRes,
@@ -76,28 +77,27 @@ export class DbAccessService {
     return { occupied: Boolean(userDoc) };
   }
 
-  // @AddressedErrorCatching()
-  // public async validateUser(user: UserCredentialsReq): Promise<IValidateUserRes> {
-  //   const emailDefined = 'email' in user;
-  //
-  //   if ((!('username' in user) && !(emailDefined)) || (!(user as IVendornamePassword).username && !(user as IEmailPassword).email)) {
-  //     throw new BadRequestException('Something one required: email or username');
-  //   }
-  //
-  //   const userDoc: IVendorDocument = await this.vendorModel.findOne({
-  //     ...(emailDefined && { email: (user as IEmailPassword).email }),
-  //     ...(!emailDefined && { username: (user as IVendornamePassword).username }),
-  //   });
-  //
-  //   const userIsValid = userDoc
-  //     ? await userDoc.compareEncryptedPassword(user.password)
-  //     : false;
-  //
-  //   return {
-  //     userIsValid,
-  //     ...(userIsValid && { user: userDoc.toJSON() as IVendor }),
-  //   };
-  // }
+  @AddressedErrorCatching()
+  public async validateUser(user: IEmailPassword): Promise<IValidateVendorRes> {
+    const emailDefined = 'email' in user;
+
+    if (!emailDefined || !(user as IEmailPassword).email) {
+      throw new BadRequestException('Something one required: email or username');
+    }
+
+    const userDoc: IVendorDocument = await this.vendorModel.findOne({
+      ...{ email: (user as IEmailPassword).email },
+    });
+
+    const userIsValid = userDoc
+      ? await userDoc.compareEncryptedPassword(user.password)
+      : false;
+
+    return {
+      userIsValid,
+      ...{ user: userDoc.toJSON() as IVendor },
+    };
+  }
 
   @AddressedErrorCatching()
   public async saveNewUser(user: PartialVendorDto): Promise<{ user: IVendor }> {

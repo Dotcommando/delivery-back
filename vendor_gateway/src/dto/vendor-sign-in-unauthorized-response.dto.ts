@@ -5,7 +5,7 @@ import { IResponse } from '../common/types';
 import { IVendorSignInRes } from '../types';
 
 
-export class SignInUnauthorizedResponseDto implements IResponse<IVendorSignInRes> {
+export class VendorSignInUnauthorizedResponseDto implements IResponse<IVendorSignInRes> {
   @ApiProperty({ example: HttpStatus.UNAUTHORIZED })
   status: HttpStatus;
 

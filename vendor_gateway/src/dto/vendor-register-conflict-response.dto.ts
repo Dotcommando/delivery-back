@@ -5,7 +5,7 @@ import { IResponse } from '../common/types';
 import { IVendorSignInRes } from '../types';
 
 
-export class RegisterConflictResponseDto implements IResponse<IVendorSignInRes> {
+export class VendorRegisterConflictResponseDto implements IResponse<IVendorSignInRes> {
   @ApiProperty({ example: HttpStatus.CONFLICT })
   status: HttpStatus;
 

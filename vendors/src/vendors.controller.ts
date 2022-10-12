@@ -4,9 +4,9 @@ import { MessagePattern } from '@nestjs/microservices';
 import { VENDORS_EVENTS } from './common/constants';
 import { TcpCommonExceptionFilter } from './common/filters';
 import { IResponse, IVendor } from './common/types';
-import { RegisterVendorBodyDto, VendorSignInBodyDto } from './dto';
+import { RegisterVendorBodyDto, ReissueTokensBodyDto, VendorSignInBodyDto, VerifyAccessTokenBodyDto } from './dto';
 import { VendorsService } from './services';
-import { IVendorSignInRes } from './types';
+import { IIssueTokensRes, IVendorSignInRes, IVerifyTokenRes } from './types';
 
 
 @UseFilters(new TcpCommonExceptionFilter())
@@ -22,5 +22,15 @@ export class VendorsController {
   @MessagePattern(VENDORS_EVENTS.VENDOR_ISSUE_TOKENS)
   public async vendorSignIn(user: VendorSignInBodyDto): Promise<IResponse<IVendorSignInRes>> {
     return await this.vendorsService.vendorSignIn(user);
+  }
+
+  @MessagePattern(VENDORS_EVENTS.VENDOR_VERIFY_ACCESS_TOKEN)
+  public async verifyAccessToken(data: VerifyAccessTokenBodyDto): Promise<IResponse<IVerifyTokenRes>> {
+    return await this.vendorsService.verifyAccessToken(data);
+  }
+
+  @MessagePattern(VENDORS_EVENTS.VENDOR_REISSUE_TOKENS)
+  public async reissueTokens(data: ReissueTokensBodyDto): Promise<IResponse<IIssueTokensRes>> {
+    return await this.vendorsService.reissueTokens(data);
   }
 }

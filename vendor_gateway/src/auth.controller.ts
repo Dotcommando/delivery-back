@@ -60,8 +60,8 @@ export class AuthController {
 
   @ReissueTokens()
   @UseGuards(JwtGuard)
-  @Post('reissue-tokens')
-  public async reissueTokens(
+  @Post('vendor-reissue-tokens')
+  public async vendorReissueTokens(
     @Body() body: ReissueTokensBodyDto,
     @Req() req: AuthenticatedRequest,
   ): Promise<IResponse<IVendorSignInRes>> {
@@ -69,13 +69,13 @@ export class AuthController {
     const accessToken = body.accessToken;
     const refreshToken: string | null = req.headers?.authorization;
 
-    return await this.authService.reissueTokens({ user, accessToken, refreshToken });
+    return await this.authService.vendorReissueTokens({ user, accessToken, refreshToken });
   }
 
   @Logout()
   @UseGuards(JwtGuard)
-  @Post('logout')
-  public async logout(
+  @Post('vendor-logout')
+  public async vendorLogout(
     @Body() body: LogoutBodyDto,
     @Req() req: AuthenticatedRequest,
   ): Promise<IResponse<ILogoutRes>> {
@@ -83,6 +83,6 @@ export class AuthController {
     const accessToken: string = req.headers?.authorization;
     const refreshToken: string = body.refreshToken;
 
-    return await this.authService.logout({ user, accessToken, refreshToken });
+    return await this.authService.vendorLogout({ user, accessToken, refreshToken });
   }
 }

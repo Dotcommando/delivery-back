@@ -5,7 +5,7 @@ import { IResponse } from '../common/types';
 import { IVendorSignInRes } from '../types';
 
 
-export class SignInBadRequestResponseDto implements IResponse<IVendorSignInRes> {
+export class VendorSignInBadRequestResponseDto implements IResponse<IVendorSignInRes> {
   @ApiProperty({ example: HttpStatus.BAD_REQUEST })
   status: HttpStatus;
 
