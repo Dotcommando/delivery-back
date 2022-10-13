@@ -3,7 +3,7 @@ import { Types } from 'mongoose';
 import { IVendor } from '../common/types';
 
 
-export interface IDeleteUserData {
+export interface IDeleteVendorData {
   _id: Types.ObjectId;
   user: IVendor | null;
 }

@@ -3,8 +3,16 @@ import { MessagePattern } from '@nestjs/microservices';
 
 import { VENDORS_EVENTS } from './common/constants';
 import { TcpCommonExceptionFilter } from './common/filters';
-import { IResponse, IVendor } from './common/types';
-import { RegisterVendorBodyDto, ReissueTokensBodyDto, VendorSignInBodyDto, VerifyAccessTokenBodyDto } from './dto';
+import { IAddress, IResponse, IVendor } from './common/types';
+import {
+  LogoutBodyDto,
+  ReadVendorBodyDto,
+  RegisterVendorBodyDto,
+  ReissueTokensBodyDto,
+  UpdateVendorBodyDto,
+  VendorSignInBodyDto,
+  VerifyAccessTokenBodyDto,
+} from './dto';
 import { VendorsService } from './services';
 import { IIssueTokensRes, IVendorSignInRes, IVerifyTokenRes } from './types';
 
@@ -32,5 +40,20 @@ export class VendorsController {
   @MessagePattern(VENDORS_EVENTS.VENDOR_REISSUE_TOKENS)
   public async reissueTokens(data: ReissueTokensBodyDto): Promise<IResponse<IIssueTokensRes>> {
     return await this.vendorsService.reissueTokens(data);
+  }
+
+  @MessagePattern(VENDORS_EVENTS.VENDOR_LOGOUT_VENDOR)
+  public async logout(data: LogoutBodyDto): Promise<IResponse<null>> {
+    return await this.vendorsService.logout(data);
+  }
+
+  @MessagePattern(VENDORS_EVENTS.VENDOR_READ_VENDOR)
+  public async readVendor(user: ReadVendorBodyDto): Promise<IResponse<{ user: IVendor<IAddress> }>> {
+    return await this.vendorsService.readVendor(user);
+  }
+
+  @MessagePattern(VENDORS_EVENTS.VENDOR_UPDATE_VENDOR)
+  public async updateVendor(data: UpdateVendorBodyDto): Promise<IResponse<{ user: IVendor<IAddress> }>> {
+    return await this.vendorsService.updateVendor(data);
   }
 }

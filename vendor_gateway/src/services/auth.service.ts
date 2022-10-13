@@ -86,7 +86,7 @@ export class AuthService {
 
     return await lastValueFrom(
       this.vendorServiceClient
-        .send(VENDORS_EVENTS.VENDOR_LOGOUT_USER, { accessToken, refreshToken })
+        .send(VENDORS_EVENTS.VENDOR_LOGOUT_VENDOR, { accessToken, refreshToken })
         .pipe(
           timeout(MAX_TIME_OF_REQUEST_WAITING),
           map((response: IResponse<null>) => response.status === HttpStatus.OK

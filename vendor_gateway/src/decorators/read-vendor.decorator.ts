@@ -9,7 +9,7 @@ import {
 } from '../dto';
 
 
-export function GetUser() {
+export function ReadVendor() {
   return applyDecorators(
     ApiOkResponse({
       description: 'Successful Get User response contains full user data.',

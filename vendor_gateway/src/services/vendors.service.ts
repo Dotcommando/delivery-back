@@ -5,7 +5,7 @@ import { lastValueFrom, timeout } from 'rxjs';
 
 import { MAX_TIME_OF_REQUEST_WAITING, VENDORS_EVENTS } from '../common/constants';
 import { IResponse } from '../common/types';
-import { IDeleteUserData, ILogoutRes, IUpdateUserData } from '../types';
+import { IDeleteVendorData, ILogoutRes, IUpdateVendorData } from '../types';
 
 
 @Injectable()
@@ -15,7 +15,7 @@ export class VendorsService {
   ) {
   }
 
-  public async updateUser(data: IUpdateUserData) {
+  public async updateVendor(data: IUpdateVendorData) {
     if (data.user && String(data._id) !== String(data.user._id)) {
       return {
         status: HttpStatus.FORBIDDEN,
@@ -27,7 +27,7 @@ export class VendorsService {
     if ((!data.body.email && !data.body.phoneNumber) || !Boolean(data.user)) {
       return await lastValueFrom(
         this.vendorServiceClient
-          .send(VENDORS_EVENTS.VENDOR_UPDATE_USER, { ...data.body, _id: data._id })
+          .send(VENDORS_EVENTS.VENDOR_UPDATE_VENDOR, { ...data.body, _id: data._id })
           .pipe(timeout(MAX_TIME_OF_REQUEST_WAITING)),
       );
     }
@@ -45,12 +45,12 @@ export class VendorsService {
 
     return await lastValueFrom(
       this.vendorServiceClient
-        .send(VENDORS_EVENTS.VENDOR_UPDATE_USER, { ...bodyUpdated, _id })
+        .send(VENDORS_EVENTS.VENDOR_UPDATE_VENDOR, { ...bodyUpdated, _id })
         .pipe(timeout(MAX_TIME_OF_REQUEST_WAITING)),
     );
   }
 
-  public async deleteUser(data: IDeleteUserData): Promise<IResponse<ILogoutRes>> {
+  public async deleteUser(data: IDeleteVendorData): Promise<IResponse<ILogoutRes>> {
     const { _id, user } = data;
 
     if (!user || String(user._id) !== String(user._id)) {

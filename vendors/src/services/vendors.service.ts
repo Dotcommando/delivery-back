@@ -3,6 +3,7 @@ import {
   ConflictException,
   HttpStatus,
   Injectable,
+  NotFoundException,
   PreconditionFailedException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -17,8 +18,16 @@ import { DbAccessService } from './db-access.service';
 import { LOGIN_ORIGIN } from '../common/constants';
 import { AddressedErrorCatching } from '../common/decorators';
 import { PartialTokenDto, PartialVendorDto } from '../common/dto';
-import { IResponse, IToken, IVendor, IVendorDocument } from '../common/types';
-import { RegisterVendorBodyDto, ReissueTokensBodyDto, VendorSignInBodyDto, VerifyAccessTokenBodyDto } from '../dto';
+import { IAddress, IResponse, IToken, IVendor, IVendorDocument } from '../common/types';
+import {
+  LogoutBodyDto,
+  ReadVendorBodyDto,
+  RegisterVendorBodyDto,
+  ReissueTokensBodyDto,
+  UpdateVendorBodyDto,
+  VendorSignInBodyDto,
+  VerifyAccessTokenBodyDto,
+} from '../dto';
 import { IEmailPassword, IIssueTokensRes, IValidateVendorRes, IVendorSignInRes, IVerifyTokenRes } from '../types';
 
 
@@ -237,6 +246,65 @@ export class VendorsService {
     return {
       status: HttpStatus.OK,
       data: issueTokensRes,
+      errors: null,
+    };
+  }
+
+  @AddressedErrorCatching()
+  public async logout(data: LogoutBodyDto): Promise<IResponse<null>> {
+    const findRefreshTokenResult: IToken | null = await this.dbAccessService.findRefreshToken(data.refreshToken);
+
+    if (!findRefreshTokenResult) {
+      throw new BadRequestException('Cannot find such refresh token');
+    }
+
+    const decodedAccessToken = this.jwtService.decode(data.accessToken);
+
+    if (!decodedAccessToken) {
+      throw new BadRequestException('Cannot decode access token');
+    }
+
+    const updatedTokenResponse: IToken = await this.dbAccessService.updateToken(
+      { refreshToken: data.refreshToken },
+      {
+        accessToken: data.accessToken,
+        blacklisted: true,
+      },
+    );
+
+    return {
+      status: HttpStatus.OK,
+      data: null,
+      errors: null,
+    };
+  }
+
+  @AddressedErrorCatching()
+  public async readVendor(data: ReadVendorBodyDto): Promise<IResponse<{ user: IVendor<IAddress> }>> {
+    const user: IVendor<IAddress> | null = await this.dbAccessService.getUserWithAddresses(data._id);
+
+    if (!user) {
+      throw new NotFoundException(`Cannot find user with _id ${data._id}`);
+    }
+
+    return {
+      status: HttpStatus.OK,
+      data: { user },
+      errors: null,
+    };
+  }
+
+  @AddressedErrorCatching()
+  public async updateVendor(data: UpdateVendorBodyDto): Promise<IResponse<{ user: IVendor<IAddress> }>> {
+    const user: IVendor<IAddress> | null = await this.dbAccessService.updateUser(data);
+
+    if (!user) {
+      throw new NotFoundException(`Cannot find user with _id ${data._id} to update`);
+    }
+
+    return {
+      status: HttpStatus.OK,
+      data: { user },
       errors: null,
     };
   }

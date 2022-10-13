@@ -8,7 +8,7 @@ import {
 } from '../dto';
 
 
-export function UpdateUser() {
+export function UpdateVendor() {
   return applyDecorators(
     ApiOkResponse({
       description: 'Successful Update User response contains full user data.',

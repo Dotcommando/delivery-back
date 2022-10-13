@@ -6,6 +6,6 @@ export * from './issue-tokens-res.interface';
 export * from './logout-req.interface';
 export * from './logout-res.interface';
 export * from './reissue-tokens-req.interface';
-export * from './update-user-data.interface';
+export * from './update-vendor-data.interface';
 export * from './vendor-sign-in-res.interface';
 export * from './verify-token-res.interface';

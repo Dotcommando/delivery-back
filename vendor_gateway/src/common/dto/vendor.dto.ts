@@ -27,7 +27,6 @@ import {
   NAME_MAX_LENGTH,
   NAME_MIN_LENGTH,
   NAME_REGEXP,
-  ORDERS_MAX_SIZE,
   PASSWORD_MAX_LENGTH,
   PASSWORD_MIN_LENGTH,
   PHONE_NUMBER_MAX_LENGTH,
@@ -209,19 +208,6 @@ export class VendorDto implements IVendor {
     message: `User can not have role more than ${VENDOR_ROLE_ARRAY.length - 1} at the same time`,
   })
   roles: VENDOR_ROLE[];
-
-  @ApiProperty({
-    description: 'List of user orders. Array of valid MongoDB compatible ObjectId',
-    required: true,
-    uniqueItems: true,
-    example: [ '62a827181774f165f8269247', '62a8277e1774f165f826924f' ],
-  })
-  @IsArray()
-  @ValidateNested({ each: true })
-  @ArrayMaxSize(ORDERS_MAX_SIZE)
-  @Transform(toArrayOfObjectIds('Orders'))
-  @Type(() => Types.ObjectId)
-  orders: Types.ObjectId[];
 
   @ApiProperty({
     description: 'Is user email confirmed or not',

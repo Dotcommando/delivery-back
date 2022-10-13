@@ -12,16 +12,13 @@ import {
   PHONE_NUMBER_MAX_LENGTH,
   PHONE_NUMBER_MIN_LENGTH,
   PROPERTY_LENGTH_64,
-  USERNAME_MAX_LENGTH,
-  USERNAME_MIN_LENGTH,
-  USERNAME_REGEXP,
 } from '../common/constants';
 import { NotNull, ValidateIfNull } from '../common/decorators';
 import { PartialVendorDto } from '../common/dto';
 import { maxLengthStringMessage, minLengthStringMessage, toLowercase } from '../common/helpers';
 
 
-export class UpdateVendorBodyDto extends PickType(
+export class UpdateVendorDto extends PickType(
   PartialVendorDto,
   [
     'firstName',
@@ -81,24 +78,6 @@ export class UpdateVendorBodyDto extends PickType(
   })
   @ValidateIfNull()
   lastName: string;
-
-  @ApiProperty({
-    description: `Username. Optional. It must have length from ${USERNAME_MIN_LENGTH} to ${USERNAME_MAX_LENGTH} characters. Cannot be null`,
-    example: 'r.bradbury',
-  })
-  @NotNull()
-  @IsString({ message: 'Username must be a string' })
-  @MinLength(USERNAME_MIN_LENGTH, {
-    message: minLengthStringMessage('Username', USERNAME_MIN_LENGTH),
-  })
-  @MaxLength(USERNAME_MAX_LENGTH, {
-    message: maxLengthStringMessage('Username', USERNAME_MAX_LENGTH),
-  })
-  @Matches(USERNAME_REGEXP, {
-    message: 'Username can contain just latin symbols, digits, and dots',
-  })
-  @ValidateIfNull()
-  username: string;
 
   @ApiProperty({
     description: 'BASE64 encoded picture. Can be null',

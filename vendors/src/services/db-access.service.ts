@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 
@@ -23,6 +23,7 @@ import {
   DeleteVendorBodyDto,
   EditAddressesBodyDto,
   EditGroupsBodyDto,
+  UpdateVendorBodyDto,
   // UpdateVendorBodyDto,
   // UpdateVendorDto,
 } from '../dto';
@@ -337,54 +338,62 @@ export class DbAccessService {
     return await this.getUserWithAddresses(userId);
   }
 
-  // @AddressedErrorCatching()
-  // public async updateUser(data: UpdateVendorBodyDto): Promise<IVendor<IAddress> | null> {
-  //   const updates: Partial<UpdateVendorDto> = pickProperties(
-  //     data,
-  //     'firstName', 'middleName', 'lastName', 'username', 'avatar', 'phoneNumber', 'email',
-  //   );
-  //
-  //   let areFieldsToUpdate = false;
-  //   let areFieldsToRemove = false;
-  //   const valuesToUnset = {};
-  //   const valuesToSet = {};
-  //
-  //   for (const field in updates) {
-  //     if (updates[field] === null || updates[field] === undefined) {
-  //       areFieldsToRemove = true;
-  //       valuesToUnset[field] = '';
-  //     } else {
-  //       areFieldsToUpdate = true;
-  //       valuesToSet[field] = updates[field];
-  //
-  //       if (field === 'email') {
-  //         valuesToSet['emailConfirmed'] = false;
-  //       } else if (field === 'phoneNumber') {
-  //         valuesToSet['phoneConfirmed'] = false;
-  //       }
-  //     }
-  //   }
-  //
-  //   const updateUserDoc: IVendorDocument<IAddress> | null = await this.vendorModel.findOneAndUpdate(
-  //     {
-  //       _id: data._id,
-  //     },
-  //     {
-  //       ...(areFieldsToUpdate && {
-  //         $set: valuesToSet,
-  //       }),
-  //       ...(areFieldsToRemove && {
-  //         $unset: valuesToUnset,
-  //       }),
-  //     },
-  //     {
-  //       new: true,
-  //     },
-  //   )
-  //     .populate('addresses');
-  //
-  //   return updateUserDoc ? mapIVendorDocumentToIVendor<IAddress>(updateUserDoc) : null;
-  // }
+  @AddressedErrorCatching()
+  public async updateUser(data: UpdateVendorBodyDto): Promise<IVendor<IAddress> | null> {
+    const updates: Partial<UpdateVendorBodyDto> = pickProperties(
+      data,
+      'firstName', 'middleName', 'lastName', 'avatar', 'phoneNumber', 'email',
+    );
+
+    let areFieldsToUpdate = false;
+    let areFieldsToRemove = false;
+    const valuesToUnset = {};
+    const valuesToSet = {};
+
+    if ('email' in updates) {
+      const checkEmailResult = await this.checkEmailOccupation(updates.email);
+
+      if (checkEmailResult.occupied) {
+        throw new ConflictException(`Email ${updates.email} already in use.`);
+      }
+    }
+
+    for (const field in updates) {
+      if (updates[field] === null || updates[field] === undefined) {
+        areFieldsToRemove = true;
+        valuesToUnset[field] = '';
+      } else {
+        areFieldsToUpdate = true;
+        valuesToSet[field] = updates[field];
+
+        if (field === 'email') {
+          valuesToSet['emailConfirmed'] = false;
+        } else if (field === 'phoneNumber') {
+          valuesToSet['phoneConfirmed'] = false;
+        }
+      }
+    }
+
+    const updateUserDoc: IVendorDocument<IAddress> | null = await this.vendorModel.findOneAndUpdate(
+      {
+        _id: data._id,
+      },
+      {
+        ...(areFieldsToUpdate && {
+          $set: valuesToSet,
+        }),
+        ...(areFieldsToRemove && {
+          $unset: valuesToUnset,
+        }),
+      },
+      {
+        new: true,
+      },
+    )
+      .populate('addresses');
+
+    return updateUserDoc ? mapIVendorDocumentToIVendor<IAddress>(updateUserDoc) : null;
+  }
 
   // @AddressedErrorCatching()
   // public async deleteUser(data: DeleteVendorBodyDto): Promise<ILogoutRes> {
