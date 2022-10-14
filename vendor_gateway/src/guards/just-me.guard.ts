@@ -27,6 +27,10 @@ export class JustMeGuard implements CanActivate {
         return false;
       }
 
+      if (verifyTokenResponse.data?.user?.deactivated || verifyTokenResponse.data?.user?.suspended) {
+        return false;
+      }
+
       req.user = { ...verifyTokenResponse.data.user };
 
       return true;

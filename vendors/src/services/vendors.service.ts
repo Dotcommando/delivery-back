@@ -20,6 +20,7 @@ import { AddressedErrorCatching } from '../common/decorators';
 import { PartialTokenDto, PartialVendorDto } from '../common/dto';
 import { IAddress, IResponse, IToken, IVendor, IVendorDocument } from '../common/types';
 import {
+  DeleteVendorBodyDto,
   LogoutBodyDto,
   ReadVendorBodyDto,
   RegisterVendorBodyDto,
@@ -28,7 +29,14 @@ import {
   VendorSignInBodyDto,
   VerifyAccessTokenBodyDto,
 } from '../dto';
-import { IEmailPassword, IIssueTokensRes, IValidateVendorRes, IVendorSignInRes, IVerifyTokenRes } from '../types';
+import {
+  IEmailPassword,
+  IIssueTokensRes,
+  ILogoutRes,
+  IValidateVendorRes,
+  IVendorSignInRes,
+  IVerifyTokenRes,
+} from '../types';
 
 
 @Injectable()
@@ -307,5 +315,22 @@ export class VendorsService {
       data: { user },
       errors: null,
     };
+  }
+
+  @AddressedErrorCatching()
+  public async deleteVendor(data: DeleteVendorBodyDto): Promise<IResponse<ILogoutRes>> {
+    const deleteUserResponse: ILogoutRes | null = await this.dbAccessService.deleteUser(data);
+
+    return deleteUserResponse
+      ? {
+        status: HttpStatus.OK,
+        data: deleteUserResponse,
+        errors: null,
+      }
+      : {
+        status: HttpStatus.NOT_FOUND,
+        data: null,
+        errors: [`User with id ${data._id} not found`],
+      };
   }
 }

@@ -5,6 +5,7 @@ import { VENDORS_EVENTS } from './common/constants';
 import { TcpCommonExceptionFilter } from './common/filters';
 import { IAddress, IResponse, IVendor } from './common/types';
 import {
+  DeleteVendorBodyDto,
   LogoutBodyDto,
   ReadVendorBodyDto,
   RegisterVendorBodyDto,
@@ -14,7 +15,7 @@ import {
   VerifyAccessTokenBodyDto,
 } from './dto';
 import { VendorsService } from './services';
-import { IIssueTokensRes, IVendorSignInRes, IVerifyTokenRes } from './types';
+import { IIssueTokensRes, ILogoutRes, IVendorSignInRes, IVerifyTokenRes } from './types';
 
 
 @UseFilters(new TcpCommonExceptionFilter())
@@ -55,5 +56,10 @@ export class VendorsController {
   @MessagePattern(VENDORS_EVENTS.VENDOR_UPDATE_VENDOR)
   public async updateVendor(data: UpdateVendorBodyDto): Promise<IResponse<{ user: IVendor<IAddress> }>> {
     return await this.vendorsService.updateVendor(data);
+  }
+
+  @MessagePattern(VENDORS_EVENTS.VENDOR_DELETE_USER)
+  public async deleteVendor(data: DeleteVendorBodyDto): Promise<IResponse<ILogoutRes>> {
+    return await this.vendorsService.deleteVendor(data);
   }
 }

@@ -29,9 +29,10 @@ import {
 } from '../dto';
 import { mapIVendorDocumentToIVendor } from '../helpers';
 import {
-  IEmailPassword, IValidateVendorRes,
+  IEmailPassword,
+  ILogoutRes,
+  IValidateVendorRes,
   // IEmailPassword,
-  // ILogoutRes,
   // IValidateUserRes,
   // IVendornamePassword,
   RefreshTokenData,
@@ -395,22 +396,22 @@ export class DbAccessService {
     return updateUserDoc ? mapIVendorDocumentToIVendor<IAddress>(updateUserDoc) : null;
   }
 
-  // @AddressedErrorCatching()
-  // public async deleteUser(data: DeleteVendorBodyDto): Promise<ILogoutRes> {
-  //   const deletedUserResponse = await this.vendorModel.findByIdAndRemove(data._id);
-  //
-  //   if (!deletedUserResponse) {
-  //     return null;
-  //   }
-  //
-  //   return {
-  //     user: {
-  //       firstName: deletedUserResponse.firstName,
-  //       ...(deletedUserResponse.middleName && { middleName: deletedUserResponse.middleName }),
-  //       lastName: deletedUserResponse.lastName,
-  //     },
-  //   };
-  // }
+  @AddressedErrorCatching()
+  public async deleteUser(data: DeleteVendorBodyDto): Promise<ILogoutRes> {
+    const deletedUserResponse = await this.vendorModel.findByIdAndRemove(data._id);
+
+    if (!deletedUserResponse) {
+      return null;
+    }
+
+    return {
+      user: {
+        firstName: deletedUserResponse.firstName,
+        ...(deletedUserResponse.middleName && { middleName: deletedUserResponse.middleName }),
+        lastName: deletedUserResponse.lastName,
+      },
+    };
+  }
 
   @Cron(CronExpression.EVERY_DAY_AT_4AM)
   private async removeExpiredTokens(): Promise<void> {

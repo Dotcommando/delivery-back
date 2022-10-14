@@ -22,6 +22,10 @@ export class JwtGuard implements CanActivate {
         return false;
       }
 
+      if (verifyTokenResponse.data?.user?.suspended || verifyTokenResponse.data?.user?.deactivated) {
+        return false;
+      }
+
       req.user = { ...verifyTokenResponse.data.user };
 
       return true;
