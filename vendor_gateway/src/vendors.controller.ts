@@ -15,21 +15,17 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { ClientProxy } from '@nestjs/microservices';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 
 import { lastValueFrom, timeout } from 'rxjs';
 
-import { AVATAR_FILE_BYTE_SIZE, MAX_TIME_OF_REQUEST_WAITING, VENDORS_EVENTS } from './common/constants';
+import { AVATAR_FILE_BYTE_SIZE, MAX_TIME_OF_REQUEST_WAITING, MIME_TYPES, VENDORS_EVENTS } from './common/constants';
 import { FileSizeValidationPipe } from './common/helpers';
+import { FileTypeValidationPipe } from './common/helpers/file-type-validation.pipe';
 import { IAddress, IResponse, IVendor } from './common/types';
 import { ReadVendor, UpdateVendor } from './decorators';
-import {
-  DeleteUserParamDto,
-  ReadVendorParamDto,
-  UpdateVendorDto,
-  UpdateVendorParamDto,
-} from './dto';
-import { JustMeGuard, JwtGuard } from './guards';
+import { DeleteUserParamDto, ReadVendorParamDto, UpdateVendorDto, UpdateVendorParamDto } from './dto';
+import { JustMeGuard } from './guards';
 import { VendorsService } from './services';
 import { AuthenticatedRequest, IDeleteUserRes } from './types';
 
@@ -58,6 +54,7 @@ export class VendorsController {
   }
 
   @UpdateVendor()
+  @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('avatar'))
   @UseGuards(JustMeGuard)
   @Put('me/:_id')
@@ -69,17 +66,20 @@ export class VendorsController {
       new ParseFilePipe({
         validators: [
           new FileSizeValidationPipe({ maxFileSize: AVATAR_FILE_BYTE_SIZE }),
+          new FileTypeValidationPipe({ acceptableTypes: [ MIME_TYPES.JPG, MIME_TYPES.PNG, MIME_TYPES.GIF ] }),
         ],
+        fileIsRequired: false,
       }),
-    ) avatar: Express.Multer.File,
+    ) avatar?: Express.Multer.File,
   ): Promise<IResponse<{ user: IVendor<IAddress> }>> {
     const user: IVendor | null = req?.user ?? null;
 
-    console.log(' ');
-    console.log('avatar:');
-    console.log(avatar);
-
-    return await this.vendorsService.updateVendor({ _id: param._id, body, user });
+    return await this.vendorsService.updateVendor({
+      _id: param._id,
+      body,
+      user,
+      ...(Boolean(avatar) && { avatar }),
+    });
   }
 
   @UseGuards(JustMeGuard)

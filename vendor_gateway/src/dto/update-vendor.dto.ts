@@ -30,8 +30,9 @@ export class UpdateVendorDto extends PickType(
   ] as const,
 ) {
   @ApiProperty({
-    description: 'It matches \'_id\' from collection \'users\' from DB. Valid MongoDB compatible ObjectId. Cannot be null',
-    example: '62a584a2f2fdd2cf95548236',
+    description: `First name of user. It must have length from ${NAME_MIN_LENGTH} to ${NAME_MAX_LENGTH} characters. Cannot be null`,
+    example: 'Ray',
+    required: false,
   })
   @NotNull()
   @IsString({ message: 'First name must be a string' })
@@ -50,6 +51,7 @@ export class UpdateVendorDto extends PickType(
   @ApiProperty({
     description: `Middle name of user. Optional. It must have length up to ${NAME_MAX_LENGTH} characters. Can be null`,
     example: 'Douglas',
+    required: false,
   })
   @IsString({ message: 'Middle name must be a string' })
   @IsOptional()
@@ -64,6 +66,7 @@ export class UpdateVendorDto extends PickType(
   @ApiProperty({
     description: `Last name of user. It must have length from ${NAME_MIN_LENGTH} to ${NAME_MAX_LENGTH} characters. Cannot be null`,
     example: 'Bradbury',
+    required: false,
   })
   @NotNull()
   @IsString({ message: 'Last name must be a string' })
@@ -80,18 +83,16 @@ export class UpdateVendorDto extends PickType(
   lastName: string;
 
   @ApiProperty({
-    description: 'BASE64 encoded picture. Can be null',
-    example: 'data:image/jpeg;base64,/9j/4QAYRXhpZgAASUkqAAgAAAAAAAAAAAAAAP/sA...oOXt+Is/VyzS4pcfYP+RpQuj2MaJRpGxOtZ4x13Hgax9/rMSvr4P',
+    description: `It expects avatar image file with size up to ${Number(process.env.AVATAR_FILE_SIZE)} KBytes`,
+    required: false,
   })
   @IsOptional()
-  // @MaxLength(IMAGE_BASE64_MAX_LENGTH, {
-  //   message: `Avatar must be equal or shorter ${Math.floor(Number(IMAGE_BASE64_MAX_LENGTH) / 1024)} Kbytes`,
-  // })
   avatar: Buffer;
 
   @ApiProperty({
     description: 'User phone number. Cannot be null',
     example: '+37477717509',
+    required: false,
   })
   @NotNull()
   @IsString({
@@ -109,6 +110,7 @@ export class UpdateVendorDto extends PickType(
   @ApiProperty({
     description: 'User\'s email. Automatically converts to lowercase. Cannot be null',
     example: 'ray.bradbury@gmail.com',
+    required: false,
   })
   @NotNull()
   @IsString({ message: 'Email must be a string' })

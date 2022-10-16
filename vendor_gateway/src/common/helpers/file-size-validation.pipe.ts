@@ -1,15 +1,19 @@
 import { ArgumentMetadata, FileValidator, Injectable, PipeTransform } from '@nestjs/common';
 
+import { IFileSizeValidatorOptions } from '../types';
+
 
 @Injectable()
-export class FileSizeValidationPipe extends FileValidator<{ maxFileSize: number }> implements PipeTransform {
+export class FileSizeValidationPipe extends FileValidator<IFileSizeValidatorOptions> implements PipeTransform {
   // Size in bytes
-  protected readonly validationOptions: { maxFileSize: number } = { maxFileSize: Number(process.env.AVATAR_FILE_SIZE) * 1024 };
+  protected readonly validationOptions: { maxFileSize: number } = {
+    maxFileSize: Number(process.env.AVATAR_FILE_SIZE) * 1024,
+  };
 
-  constructor(options?: { maxFileSize: number }) {
+  constructor(options?: IFileSizeValidatorOptions) {
     super(options);
 
-    if (typeof options?.maxFileSize === 'number' && !isNaN(options?.maxFileSize)) {
+    if (typeof options?.maxFileSize === 'number' && !isNaN(options.maxFileSize)) {
       this.validationOptions.maxFileSize = options.maxFileSize;
     }
   }

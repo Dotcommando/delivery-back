@@ -3,8 +3,9 @@ import { ClientProxy } from '@nestjs/microservices';
 
 import { lastValueFrom, timeout } from 'rxjs';
 
+import { FileBase64Class } from '../common/classes';
 import { MAX_TIME_OF_REQUEST_WAITING, VENDORS_EVENTS } from '../common/constants';
-import { IResponse } from '../common/types';
+import { FileBase64, IResponse } from '../common/types';
 import { IDeleteVendorData, ILogoutRes, IUpdateVendorData } from '../types';
 
 
@@ -16,12 +17,11 @@ export class VendorsService {
   }
 
   public async updateVendor(data: IUpdateVendorData) {
-    if (data.user && String(data._id) !== String(data.user._id)) {
-      return {
-        status: HttpStatus.FORBIDDEN,
-        data: null,
-        errors: ['You can update yourself only'],
-      };
+    if ('avatar' in data) {
+      const avatarBase64: FileBase64 = new FileBase64Class(data.avatar);
+      console.log(' ');
+      console.log('avatarBase64:');
+      console.log(avatarBase64);
     }
 
     if ((!data.body.email && !data.body.phoneNumber) || !Boolean(data.user)) {
