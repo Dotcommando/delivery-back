@@ -1,8 +1,8 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 
-import { Observable, tap } from 'rxjs';
+import { Response } from 'express';
 
-import { FastifyReply } from 'fastify';
+import { Observable, tap } from 'rxjs';
 
 import { IResponse } from '../common/types';
 
@@ -10,7 +10,7 @@ import { IResponse } from '../common/types';
 @Injectable()
 export class StatusInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    const response = context.switchToHttp().getResponse<FastifyReply>();
+    const response: Response = context.switchToHttp().getResponse();
 
     return next
       .handle()

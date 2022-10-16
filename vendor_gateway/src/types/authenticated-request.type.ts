@@ -1,8 +1,8 @@
-import { FastifyRequest } from 'fastify';
+import { Request } from 'express';
 
 import { IVendor } from '../common/types';
 
 
-export type AuthenticatedRequest = FastifyRequest & {
+export type AuthenticatedRequest = Request & {
   user: IVendor;
 }

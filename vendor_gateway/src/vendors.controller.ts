@@ -1,11 +1,26 @@
-import { Body, Controller, Delete, Get, Inject, Param, Put, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Inject,
+  Param,
+  ParseFilePipe,
+  Put,
+  Req,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientProxy } from '@nestjs/microservices';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 
 import { lastValueFrom, timeout } from 'rxjs';
 
-import { MAX_TIME_OF_REQUEST_WAITING, VENDORS_EVENTS } from './common/constants';
+import { AVATAR_FILE_BYTE_SIZE, MAX_TIME_OF_REQUEST_WAITING, VENDORS_EVENTS } from './common/constants';
+import { FileSizeValidationPipe } from './common/helpers';
 import { IAddress, IResponse, IVendor } from './common/types';
 import { ReadVendor, UpdateVendor } from './decorators';
 import {
@@ -43,14 +58,26 @@ export class VendorsController {
   }
 
   @UpdateVendor()
+  @UseInterceptors(FileInterceptor('avatar'))
   @UseGuards(JustMeGuard)
   @Put('me/:_id')
   public async updateMe(
     @Param() param: UpdateVendorParamDto,
     @Body() body: UpdateVendorDto,
     @Req() req: AuthenticatedRequest,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new FileSizeValidationPipe({ maxFileSize: AVATAR_FILE_BYTE_SIZE }),
+        ],
+      }),
+    ) avatar: Express.Multer.File,
   ): Promise<IResponse<{ user: IVendor<IAddress> }>> {
     const user: IVendor | null = req?.user ?? null;
+
+    console.log(' ');
+    console.log('avatar:');
+    console.log(avatar);
 
     return await this.vendorsService.updateVendor({ _id: param._id, body, user });
   }

@@ -84,10 +84,10 @@ export class UpdateVendorDto extends PickType(
     example: 'data:image/jpeg;base64,/9j/4QAYRXhpZgAASUkqAAgAAAAAAAAAAAAAAP/sA...oOXt+Is/VyzS4pcfYP+RpQuj2MaJRpGxOtZ4x13Hgax9/rMSvr4P',
   })
   @IsOptional()
-  @MaxLength(IMAGE_BASE64_MAX_LENGTH, {
-    message: `Avatar must be equal or shorter ${Math.floor(Number(IMAGE_BASE64_MAX_LENGTH) / 1024)} Kbytes`,
-  })
-  avatar: string;
+  // @MaxLength(IMAGE_BASE64_MAX_LENGTH, {
+  //   message: `Avatar must be equal or shorter ${Math.floor(Number(IMAGE_BASE64_MAX_LENGTH) / 1024)} Kbytes`,
+  // })
+  avatar: Buffer;
 
   @ApiProperty({
     description: 'User phone number. Cannot be null',

@@ -127,7 +127,7 @@ export class VendorDto implements IVendor {
   @MaxLength(IMAGE_BASE64_MAX_LENGTH, {
     message: `Avatar must be equal or shorter ${Math.floor(Number(IMAGE_BASE64_MAX_LENGTH) / 1024)} Kbytes`,
   })
-  avatar: string;
+  avatar: string | Buffer;
 
   @ApiProperty({
     description: 'Links to user addresses. Array of valid MongoDB compatible ObjectId',

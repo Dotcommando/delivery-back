@@ -1,6 +1,6 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
 
-import { FastifyReply } from 'fastify';
+import { Response } from 'express';
 
 import { ErrorResponse } from '../classes';
 import { AddressedHttpException } from '../exceptions';
@@ -14,7 +14,7 @@ export class HttpCommonExceptionFilter implements ExceptionFilter {
       : HttpStatus.INTERNAL_SERVER_ERROR;
 
     const context = host.switchToHttp();
-    const response = context.getResponse<FastifyReply>();
+    const response: Response = context.getResponse();
     const errorResponse = new ErrorResponse(status, getExceptionsMessages(exception));
 
     response

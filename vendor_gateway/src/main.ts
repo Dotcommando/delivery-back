@@ -1,15 +1,12 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import {
-  FastifyAdapter,
-  NestFastifyApplication,
-} from '@nestjs/platform-fastify';
+import { ExpressAdapter } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
-import helmet from '@fastify/helmet';
+import * as express from 'express';
 
-import { fastifyCookie } from 'fastify-cookie';
-import fastifyCsrf from 'fastify-csrf';
+import * as cookieParser from 'cookie-parser';
+import helmet from 'helmet';
 import * as morgan from 'morgan';
 
 import { AppModule } from './app.module';
@@ -19,27 +16,19 @@ import { StatusInterceptor } from './interceptors';
 
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter());
+  const server = express();
+
+  const app = await NestFactory.create(AppModule, new ExpressAdapter(server), { cors: true });
 
   app.useGlobalFilters(new HttpCommonExceptionFilter());
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
   app.useGlobalInterceptors(new StatusInterceptor());
   app.setGlobalPrefix('api/v1');
+
+  app.use(cookieParser());
+  app.use(helmet());
   app.enableCors({
     origin: process.env.VENDOR_CORS_ORIGIN,
-  });
-
-  app.register(fastifyCookie);
-  app.register(fastifyCsrf);
-  app.register(helmet, {
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ['\'self\''],
-        styleSrc: [ '\'self\'', '\'unsafe-inline\'' ],
-        imgSrc: [ '\'self\'', 'data:', 'validator.swagger.io' ],
-        scriptSrc: [ '\'self\'', 'https: \'unsafe-inline\'' ],
-      },
-    },
   });
 
   if (process.env.ENVIRONMENT === 'dev') {

@@ -13,7 +13,7 @@ export interface IVendor<TAddress = Types.ObjectId, TCompany = Types.ObjectId> {
   middleName?: string;
   lastName: string;
   email: string;
-  avatar: string;
+  avatar: string | Buffer;
   role: ROLE;
   addresses: TAddress[];
   companies: IMembership<TCompany>[];
