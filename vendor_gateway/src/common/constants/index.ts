@@ -1,6 +1,7 @@
 export * from './bearer-prefix-regexp.constant';
 export * from './defaults.constant';
 export * from './email-regexp.constant';
+export * from './files-events.enum';
 export * from './mime-types.enum';
 export * from './name-regexp.constant';
 export * from './object-id-regexp.constant';

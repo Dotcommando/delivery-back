@@ -31,6 +31,14 @@ import { VendorsController } from './vendors.controller';
       },
       inject: [ConfigService],
     },
+    {
+      provide: 'FILE_SERVICE',
+      useFactory: (configService: ConfigService) => {
+        const fileServiceOptions = configService.get('fileService');
+        return ClientProxyFactory.create(fileServiceOptions);
+      },
+      inject: [ConfigService],
+    },
   ],
 })
 export class AppModule {}

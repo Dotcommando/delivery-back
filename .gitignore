@@ -41,3 +41,6 @@ lerna-debug.log*
 
 # Docker MongoDB non-commitable files
 **/db/mongo/data/
+
+# Docker Redis non-commitable files
+**/redis/

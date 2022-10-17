@@ -1,0 +1,10 @@
+version: "3"
+services:
+  nest-redis:
+    image: redis:7.0.5-alpine
+    container_name: delivery-specter-redis
+    volumes:
+      - ./redis/conf/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./redis/data:/data
+    ports:
+      - "6379:6379"

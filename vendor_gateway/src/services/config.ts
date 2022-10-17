@@ -12,4 +12,11 @@ export default () => ({
     },
     transport: Transport.TCP,
   },
+  fileService: {
+    options: {
+      port: process.env.FILE_PROCESSING_PORT,
+      host: process.env.FILE_PROCESSING_HOST,
+    },
+    transport: Transport.TCP,
+  },
 });

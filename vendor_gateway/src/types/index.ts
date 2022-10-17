@@ -2,6 +2,8 @@ export * from './authenticated-request.type';
 export * from './authorized-request.type';
 export * from './delete-user-data.interface';
 export * from './delete-user-res.interface';
+export * from './file-fragment-saved-res.interface';
+export * from './file-fragment-to-save-req.interface';
 export * from './issue-tokens-res.interface';
 export * from './logout-req.interface';
 export * from './logout-res.interface';
