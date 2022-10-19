@@ -1,5 +1,7 @@
 import { Document, Types } from 'mongoose';
 
+import { IBasicUserData } from './basic-user-data.interface';
+
 import { ROLE, VENDOR_ROLE } from '../constants';
 
 export interface IMembership<TGroup = Types.ObjectId> {
@@ -7,12 +9,8 @@ export interface IMembership<TGroup = Types.ObjectId> {
   group: TGroup;
 }
 
-export interface IVendor<TAddress = Types.ObjectId, TCompany = Types.ObjectId> {
+export interface IVendor<TAddress = Types.ObjectId, TCompany = Types.ObjectId> extends IBasicUserData {
   _id: Types.ObjectId;
-  firstName: string;
-  middleName?: string;
-  lastName: string;
-  email: string;
   avatar: string | Buffer;
   role: ROLE;
   addresses: TAddress[];

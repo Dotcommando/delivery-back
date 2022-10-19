@@ -3,6 +3,8 @@ import { ClientProxy } from '@nestjs/microservices';
 
 import { lastValueFrom, timeout } from 'rxjs';
 
+import { FileProcessingService } from './file-processing.service';
+
 import { FileBase64Class } from '../common/classes';
 import { FILES_EVENTS, MAX_TIME_OF_REQUEST_WAITING, VENDORS_EVENTS } from '../common/constants';
 import { FileBase64, IResponse } from '../common/types';
@@ -12,37 +14,21 @@ import { IDeleteVendorData, IFileFragmentSavedRes, ILogoutRes, IUpdateVendorData
 @Injectable()
 export class VendorsService {
   constructor(
+    private readonly fileProcessingService: FileProcessingService,
     @Inject('VENDOR_SERVICE') private readonly vendorServiceClient: ClientProxy,
-    @Inject('FILE_SERVICE') private readonly fileServiceClient: ClientProxy,
   ) {
   }
 
   public async updateVendor(data: IUpdateVendorData) {
     if ('avatar' in data) {
-      const avatarBase64: FileBase64 = new FileBase64Class(data.avatar as Express.Multer.File);
-      const avatarInitSavingResponse: IResponse<IFileFragmentSavedRes> = await lastValueFrom(
-        this.fileServiceClient
-          .send(FILES_EVENTS.FILE_INIT_FILE_SAVING, {
-            file: { ...avatarBase64, buffer64: '' },
-          }),
-      );
+      const imageSavingInitedResponse = await this.fileProcessingService
+        .saveImage({ file: data.avatar as Express.Multer.File, user: data.user });
+
+      data.avatar = null;
 
       console.log(' ');
-      console.log('avatarInitSavingResponse');
-      console.log(avatarInitSavingResponse);
-
-      if (avatarInitSavingResponse.status !== HttpStatus.OK) {
-        return {
-          status: avatarInitSavingResponse.status,
-          data: null,
-          errors: [
-            ...avatarInitSavingResponse.errors,
-            'Cannot init saving of the avatar',
-          ],
-        };
-      }
-
-
+      console.log('imageSavingInitedResponse');
+      console.log(imageSavingInitedResponse);
     }
 
     if ((!data.body.email && !data.body.phoneNumber) || !Boolean(data.user)) {

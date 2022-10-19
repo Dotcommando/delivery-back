@@ -1,12 +1,14 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 
+import * as dayjs from 'dayjs';
 import { v4 as uuidv4 } from 'uuid';
 
 import { StoreService } from './store.service';
 
+import { FILE_EXTENSION_REGEXP } from '../common/constants';
 import { AddressedErrorCatching, ApplyAddressedErrorCatching } from '../common/decorators';
 import { FileBase64, IResponse } from '../common/types';
-import { IFileFragmentSavedRes, IFileFragmentToSaveReq } from '../types';
+import { IFileFragmentSavedRes, IFileFragmentToSaveReq, IInitFileSavingReq } from '../types';
 
 
 @ApplyAddressedErrorCatching
@@ -22,8 +24,13 @@ export class FileService {
   }
 
   @AddressedErrorCatching()
-  public async initFileSaving(file: FileBase64): Promise<IResponse<{ sessionUUID: string }>> {
+  public async initFileSaving(data: IInitFileSavingReq): Promise<IResponse<IFileFragmentSavedRes>> {
+    const { file, user } = data;
     const sessionUUID = this.generateUUID();
+    const fileName = this.generateUniqueFilename(file.originalname, sessionUUID);
+
+    file.filename = fileName;
+
     const saveResponse = await this.storeService.set(sessionUUID, file);
 
     if (!saveResponse.done) {
@@ -34,15 +41,19 @@ export class FileService {
       };
     }
 
-    console.log(' ');
-    console.log('saveResponse');
-    console.log(saveResponse);
-
     return {
       status: HttpStatus.CREATED,
-      data: { sessionUUID },
+      data: { sessionUUID, fileName },
       errors: null,
     };
+  }
+
+  @AddressedErrorCatching()
+  public generateUniqueFilename(prevName: string, sessionUUID): string {
+    const nameWithoutExtension = prevName.replace(FILE_EXTENSION_REGEXP, '');
+    const extension = FILE_EXTENSION_REGEXP.exec(prevName)[1];
+
+    return `${nameWithoutExtension}-${dayjs().format('YYYY-MM-DD-HH-mm-ss-SSS')}-${sessionUUID.substring(sessionUUID.length - 6)}${Boolean(extension) ? extension : '.undf'}`;
   }
 
   @AddressedErrorCatching()
@@ -62,6 +73,7 @@ export class FileService {
 
     file.buffer64 += fragment.part;
     fragment.part = '';
+    console.log('Saved symbols: ', file.buffer64.length);
 
     const saveResponse = await this.storeService.set(sessionUUID, file);
 
@@ -76,7 +88,7 @@ export class FileService {
     return {
       status: HttpStatus.OK,
       data: {
-        saved: true,
+        fileName: file.filename,
         sessionUUID,
       },
       errors: null,

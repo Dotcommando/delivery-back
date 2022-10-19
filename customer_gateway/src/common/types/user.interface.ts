@@ -1,15 +1,13 @@
 import { Document, Types } from 'mongoose';
 
+import { IBasicUserData } from './basic-user-data.interface';
+
 import { ROLE } from '../constants';
 
 
-export interface IUser<TAddress = Types.ObjectId, TOrder = Types.ObjectId> {
+export interface IUser<TAddress = Types.ObjectId, TOrder = Types.ObjectId> extends IBasicUserData {
   _id: Types.ObjectId;
-  firstName: string;
-  middleName?: string;
-  lastName: string;
   username?: string;
-  email: string;
   avatar: string;
   addresses: TAddress[];
   phoneNumber: string;

@@ -19,4 +19,8 @@ export default () => ({
     },
     transport: Transport.TCP,
   },
+  ttl: parseInt(process.env.IN_MEMORY_STORAGE_NOTE_TTL), // minutes
+  ttlForHoldingFileSavingResult: parseInt(process.env.IN_MEMORY_STORAGE_FILE_SAVING_RESULT), // minutes
+  fileFragmentMaxLength: parseInt(process.env.MAX_TCP_FILE_FRAGMENT_LENGTH) * 1024, // bytes
+  maxFailedAttempts: parseInt(process.env.MAX_FAILED_ATTEMPTS),
 });

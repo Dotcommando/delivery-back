@@ -1,3 +1,4 @@
+export * from './basic-user-data.interface';
 export * from './file-base64.interface';
 export * from './response.interface';
 export * from './storage-action-status.interface';

@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientProxyFactory } from '@nestjs/microservices';
+import { ScheduleModule } from '@nestjs/schedule';
 
 import { AuthController } from './auth.controller';
-import { AuthService, VendorsService } from './services';
+import { AuthService, FileProcessingService, StoreService, VendorsService } from './services';
 import configuration from './services/config';
 import { LocalStrategy } from './strategies';
 import { VendorsController } from './vendors.controller';
@@ -14,6 +15,7 @@ import { VendorsController } from './vendors.controller';
     ConfigModule.forRoot({
       load: [configuration],
     }),
+    ScheduleModule.forRoot(),
   ],
   controllers: [
     AuthController,
@@ -21,6 +23,8 @@ import { VendorsController } from './vendors.controller';
   ],
   providers: [
     AuthService,
+    FileProcessingService,
+    StoreService,
     VendorsService,
     LocalStrategy,
     {
