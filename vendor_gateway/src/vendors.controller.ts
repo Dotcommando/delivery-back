@@ -24,10 +24,16 @@ import { FileSizeValidationPipe } from './common/helpers';
 import { FileTypeValidationPipe } from './common/helpers/file-type-validation.pipe';
 import { IAddress, IResponse, IVendor } from './common/types';
 import { ReadVendor, UpdateVendor } from './decorators';
-import { DeleteUserParamDto, ReadVendorParamDto, UpdateVendorDto, UpdateVendorParamDto } from './dto';
+import {
+  DeleteUserParamDto,
+  GetAvatarDataParamDto,
+  ReadVendorParamDto,
+  UpdateVendorDto,
+  UpdateVendorParamDto,
+} from './dto';
 import { JustMeGuard } from './guards';
 import { VendorsService } from './services';
-import { AuthenticatedRequest, IDeleteUserRes } from './types';
+import { AuthenticatedRequest, IDeleteUserRes, IGetAvatarDataRes, IUpdateVendorRes } from './types';
 
 
 @Controller('vendors')
@@ -71,7 +77,7 @@ export class VendorsController {
         fileIsRequired: false,
       }),
     ) avatar?: Express.Multer.File,
-  ): Promise<IResponse<{ user: IVendor<IAddress> }>> {
+  ): Promise<IResponse<IUpdateVendorRes>> {
     const user: IVendor | null = req?.user ?? null;
 
     return await this.vendorsService.updateVendor({
@@ -91,5 +97,12 @@ export class VendorsController {
     const user: IVendor | null = req?.user ?? null;
 
     return await this.vendorsService.deleteUser({ _id: user._id, user });
+  }
+
+  @Get('avatar/:sessionUUID')
+  public async getAvatarData(
+    @Param() param: GetAvatarDataParamDto,
+  ): Promise<IResponse<IGetAvatarDataRes>> {
+    return this.vendorsService.getAvatarData(param.sessionUUID);
   }
 }

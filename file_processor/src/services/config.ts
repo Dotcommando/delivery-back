@@ -5,4 +5,5 @@ export default () => ({
   host: process.env.FILE_PROCESSING_HOST,
   port: process.env.FILE_PROCESSING_PORT,
   ttl: parseInt(process.env.IN_MEMORY_STORAGE_NOTE_TTL),
+  ttlAfterSaving: parseInt(process.env.IN_MEMORY_STORAGE_FILE_SAVING_RESULT),
 });

@@ -5,7 +5,7 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 
 import { lastValueFrom } from 'rxjs';
 
-import { Blob } from 'buffer';
+import { TextEncoder } from 'util';
 
 import { StoreService } from './store.service';
 
@@ -84,7 +84,7 @@ export class FileProcessingService {
       };
     }
 
-    this.initSerialTransferOfFileFragments(sessionUUID);
+    this.initSerialTransferOfFileFragments(sessionUUID, user);
 
     return {
       status: HttpStatus.OK,
@@ -97,7 +97,7 @@ export class FileProcessingService {
   }
 
   @AddressedErrorCatching()
-  private initSerialTransferOfFileFragments(sessionUUID: string): void {
+  private initSerialTransferOfFileFragments(sessionUUID: string, user?: IVendor | null): void {
     const schedulerJobId = this.schedulerJobPrefix + sessionUUID;
 
     const deleteFileInfo = async () => {
@@ -106,14 +106,26 @@ export class FileProcessingService {
     };
 
     const continueFileTransfer = async () => {
-      console.log(' ');
-      console.log('   ===  continueFileTransfer  ===');
       const fileDataStoreResponse: IStorageData = this.storeService.get(sessionUUID);
       const fileData = fileDataStoreResponse.data as IFileDataStore;
-      // console.log(fileData.file.buffer64);
 
       if (fileData.status !== FILE_TRANSFER_STATUS.COMPLETED && fileData.file.buffer64.length === 0) {
-        console.log('   ===  CANCELLED  ===');
+        const fileTransferCompletedResponse = await lastValueFrom(
+          this.fileServiceClient.send(FILES_EVENTS.FILE_TRANSFER_COMPLETED, { sessionUUID }),
+        );
+
+        if (fileTransferCompletedResponse.status !== HttpStatus.CREATED) {
+          fileData.iterations.failedAttempts += 1;
+          fileData.status = FILE_TRANSFER_STATUS.TRANSFER;
+          this.clearPlannedJobs(sessionUUID);
+
+          const failedAttempt = setTimeout(continueFileTransfer, 0);
+
+          this.schedulerRegistry.addTimeout(schedulerJobId, failedAttempt);
+
+          return;
+        }
+
         fileData.completed = true;
         fileData.status = FILE_TRANSFER_STATUS.COMPLETED;
 
@@ -124,7 +136,8 @@ export class FileProcessingService {
         return;
       }
 
-      const bytesPerSymbol: number = new Blob([String.fromCharCode(fileData.file.buffer64.charCodeAt(0))]).size;
+      const encoder = new TextEncoder();
+      const bytesPerSymbol: number = encoder.encode(fileData.file.buffer64.substring(0, 1)).length;
       const charsNumberInFragment = Math.floor(this.fileFragmentMaxLength / bytesPerSymbol);
       const fragmentToSend = fileData.file.buffer64.substring(0, charsNumberInFragment);
 
@@ -133,7 +146,6 @@ export class FileProcessingService {
       );
 
       if (saveFragmentResponse.status === HttpStatus.OK) {
-        console.log('FILE PART SUCCESSFULLY TRANSFERRED');
         fileData.iterations.failedAttempts = 0;
         fileData.file.buffer64 = fileData.file.buffer64.substring(charsNumberInFragment);
         fileData.iterations.current += 1;
@@ -144,7 +156,6 @@ export class FileProcessingService {
 
         this.schedulerRegistry.addTimeout(schedulerJobId, continueSaving);
       } else if (fileData.iterations.failedAttempts === this.maxFailedAttempts) {
-        console.log('MAX FAILED ATTEMPTS NUMBER REACHED');
         fileData.status = FILE_TRANSFER_STATUS.FAILED;
         fileData.completed = false;
         fileData.file.buffer64 = '';
@@ -154,7 +165,6 @@ export class FileProcessingService {
 
         this.schedulerRegistry.addTimeout(schedulerJobId, deletingAfterMaxFailedAttempts);
       } else {
-        console.log('FAILED ATTEMPT');
         fileData.iterations.failedAttempts += 1;
         fileData.status = FILE_TRANSFER_STATUS.TRANSFER;
         this.clearPlannedJobs(sessionUUID);
@@ -167,7 +177,6 @@ export class FileProcessingService {
       this.storeService.set(sessionUUID, fileData);
     };
 
-    console.log('First call of continueFileTransfer');
     const continueSaving = setTimeout(continueFileTransfer, 0);
     this.schedulerRegistry.addTimeout(schedulerJobId, continueSaving);
   }
@@ -186,5 +195,9 @@ export class FileProcessingService {
     if (this.schedulerRegistry.doesExist('cron', schedulerJobId)) {
       this.schedulerRegistry.deleteCronJob(schedulerJobId);
     }
+  }
+
+  public getStorageNote(sessionUUID: string): IStorageData {
+    return this.storeService.get(sessionUUID);
   }
 }

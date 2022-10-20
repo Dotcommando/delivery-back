@@ -1,16 +1,26 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 
-import { lastValueFrom, timeout } from 'rxjs';
+import { lastValueFrom, map, timeout } from 'rxjs';
 
 import { FileProcessingService } from './file-processing.service';
 
-import { FileBase64Class } from '../common/classes';
-import { FILES_EVENTS, MAX_TIME_OF_REQUEST_WAITING, VENDORS_EVENTS } from '../common/constants';
-import { FileBase64, IResponse } from '../common/types';
-import { IDeleteVendorData, IFileFragmentSavedRes, ILogoutRes, IUpdateVendorData } from '../types';
+import { MAX_TIME_OF_REQUEST_WAITING, VENDORS_EVENTS } from '../common/constants';
+import { AddressedErrorCatching, ApplyAddressedErrorCatching } from '../common/decorators';
+import { IAddress, IResponse, IStorageData, IVendor } from '../common/types';
+import { FILE_TRANSFER_STATUS } from '../constants';
+import {
+  IDeleteVendorData,
+  IFileDataStore,
+  IGetAvatarDataRes,
+  IImageSavingInited,
+  ILogoutRes,
+  IUpdateVendorData,
+  IUpdateVendorRes,
+} from '../types';
 
 
+@ApplyAddressedErrorCatching
 @Injectable()
 export class VendorsService {
   constructor(
@@ -19,23 +29,45 @@ export class VendorsService {
   ) {
   }
 
-  public async updateVendor(data: IUpdateVendorData) {
+  public async updateVendor(data: IUpdateVendorData): Promise<IResponse<IUpdateVendorRes>> {
+    let fileData: IImageSavingInited;
+
     if ('avatar' in data) {
-      const imageSavingInitedResponse = await this.fileProcessingService
+      const imageSavingInitedResponse: IResponse<IImageSavingInited> = await this.fileProcessingService
         .saveImage({ file: data.avatar as Express.Multer.File, user: data.user });
 
       data.avatar = null;
 
-      console.log(' ');
-      console.log('imageSavingInitedResponse');
-      console.log(imageSavingInitedResponse);
+      if (imageSavingInitedResponse.status !== HttpStatus.OK) {
+        return {
+          status: HttpStatus.PRECONDITION_FAILED,
+          data: null,
+          errors: [
+            ...(Array.isArray(imageSavingInitedResponse.errors) ? imageSavingInitedResponse.errors : []),
+            'Cannot save avatar file',
+          ],
+        };
+      }
+
+      fileData = imageSavingInitedResponse.data;
     }
 
     if ((!data.body.email && !data.body.phoneNumber) || !Boolean(data.user)) {
       return await lastValueFrom(
         this.vendorServiceClient
           .send(VENDORS_EVENTS.VENDOR_UPDATE_VENDOR, { ...data.body, _id: data._id })
-          .pipe(timeout(MAX_TIME_OF_REQUEST_WAITING)),
+          .pipe(
+            timeout(MAX_TIME_OF_REQUEST_WAITING),
+            map((response: IResponse<{ user: IVendor<IAddress> }>) => ({
+              ...response,
+              data: Boolean(response.data)
+                ? {
+                  user: response.data.user,
+                  ...(Boolean(fileData) && { fileData }),
+                } as IUpdateVendorRes
+                : null,
+            })),
+          ),
       );
     }
 
@@ -53,7 +85,18 @@ export class VendorsService {
     return await lastValueFrom(
       this.vendorServiceClient
         .send(VENDORS_EVENTS.VENDOR_UPDATE_VENDOR, { ...bodyUpdated, _id })
-        .pipe(timeout(MAX_TIME_OF_REQUEST_WAITING)),
+        .pipe(
+          timeout(MAX_TIME_OF_REQUEST_WAITING),
+          map((response: IResponse<{ user: IVendor<IAddress> }>) => ({
+            ...response,
+            data: Boolean(response.data)
+              ? {
+                user: response.data.user,
+                ...(Boolean(fileData) && { fileData }),
+              } as IUpdateVendorRes
+              : null,
+          })),
+        ),
     );
   }
 
@@ -73,5 +116,42 @@ export class VendorsService {
         .send(VENDORS_EVENTS.VENDOR_DELETE_USER, { _id })
         .pipe(timeout(MAX_TIME_OF_REQUEST_WAITING)),
     );
+  }
+
+  @AddressedErrorCatching()
+  public async getAvatarData(sessionUUID: string): Promise<IResponse<IGetAvatarDataRes>> {
+    const fileData: IStorageData = this.fileProcessingService.getStorageNote(sessionUUID);
+
+    if (!fileData.data) {
+      return {
+        status: HttpStatus.NOT_FOUND,
+        data: null,
+        errors: [`No entries with UUID ${sessionUUID} found`],
+      };
+    }
+
+    const data = fileData.data as IFileDataStore;
+
+    if (data?.status !== FILE_TRANSFER_STATUS.FAILED && data?.status !== FILE_TRANSFER_STATUS.COMPLETED) {
+      return {
+        status: HttpStatus.ACCEPTED,
+        data: {
+          fileName: data.fileName,
+          sessionUUID,
+          status: data.status,
+        },
+        errors: null,
+      };
+    }
+
+    return {
+      status: HttpStatus.OK,
+      data: {
+        fileName: data.fileName,
+        sessionUUID,
+        status: data.status,
+      },
+      errors: null,
+    };
   }
 }

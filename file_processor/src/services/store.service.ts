@@ -4,11 +4,9 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 
 import * as cloneDeep from 'lodash.clonedeep';
 
-import { AddressedErrorCatching, ApplyAddressedErrorCatching } from '../common/decorators';
 import { IStorageActionStatus, IStorageData } from '../common/types';
 
 
-@ApplyAddressedErrorCatching
 @Injectable()
 export class StoreService {
   private inMemoryStorage = new Map<string, unknown>();
@@ -78,12 +76,10 @@ export class StoreService {
   private addTimeoutForJobRemoving(jobId: string, milliseconds: number): void {
     const callback = () => {
       this.delete(jobId);
-      console.log(`${jobId}    removed`);
     };
 
     const timeout = setTimeout(callback, milliseconds);
     this.schedulerRegistry.addTimeout(this.schedulerJobPrefix + jobId, timeout);
-    console.log(`${jobId}    set`);
   }
 
   private prolongTimeoutForJobRemoving(jobId: string, minutes = this.defaultTTL): void {
@@ -94,7 +90,6 @@ export class StoreService {
     if (jobExists) {
       this.schedulerRegistry.deleteTimeout(schedulerJobId);
       this.addTimeoutForJobRemoving(jobId, runInTime);
-      console.log(`${jobId}    time reset`);
 
       return;
     }

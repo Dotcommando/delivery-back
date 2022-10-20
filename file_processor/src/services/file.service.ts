@@ -1,4 +1,5 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 import * as dayjs from 'dayjs';
 import { v4 as uuidv4 } from 'uuid';
@@ -8,16 +9,24 @@ import { StoreService } from './store.service';
 import { FILE_EXTENSION_REGEXP } from '../common/constants';
 import { AddressedErrorCatching, ApplyAddressedErrorCatching } from '../common/decorators';
 import { FileBase64, IResponse } from '../common/types';
-import { IFileFragmentSavedRes, IFileFragmentToSaveReq, IInitFileSavingReq } from '../types';
+import {
+  IFileFragmentSavedRes,
+  IFileFragmentToSaveReq,
+  IFileTransferCompletedReq,
+  IFileTransferCompletedRes,
+  IInitFileSavingReq,
+} from '../types';
 
 
 @ApplyAddressedErrorCatching
 @Injectable()
 export class FileService {
   constructor(
+    private readonly configService: ConfigService,
     private readonly storeService: StoreService,
   ) {
   }
+  private ttlAfterSaving = this.configService.get('ttlAfterSaving');
 
   private generateUUID(): string {
     return uuidv4();
@@ -50,10 +59,10 @@ export class FileService {
 
   @AddressedErrorCatching()
   public generateUniqueFilename(prevName: string, sessionUUID): string {
-    const nameWithoutExtension = prevName.replace(FILE_EXTENSION_REGEXP, '');
     const extension = FILE_EXTENSION_REGEXP.exec(prevName)[1];
+    const nameWithoutExtension = prevName.replace(extension, '');
 
-    return `${nameWithoutExtension}-${dayjs().format('YYYY-MM-DD-HH-mm-ss-SSS')}-${sessionUUID.substring(sessionUUID.length - 6)}${Boolean(extension) ? extension : '.undf'}`;
+    return `${nameWithoutExtension ? nameWithoutExtension : 'file'}-${dayjs().format('YYYY-MM-DD-HH-mm-ss-SSS')}-${sessionUUID.substring(sessionUUID.length - 6)}${Boolean(extension) ? extension : '.undf'}`;
   }
 
   @AddressedErrorCatching()
@@ -73,7 +82,6 @@ export class FileService {
 
     file.buffer64 += fragment.part;
     fragment.part = '';
-    console.log('Saved symbols: ', file.buffer64.length);
 
     const saveResponse = await this.storeService.set(sessionUUID, file);
 
@@ -91,6 +99,37 @@ export class FileService {
         fileName: file.filename,
         sessionUUID,
       },
+      errors: null,
+    };
+  }
+
+  @AddressedErrorCatching()
+  public async fileTransferCompleted(data: IFileTransferCompletedReq): Promise<IResponse<IFileTransferCompletedRes>> {
+    const { sessionUUID } = data;
+    const noteFromStorage = this.storeService.get(sessionUUID);
+    const file = noteFromStorage.data as FileBase64;
+
+    if (!noteFromStorage) {
+      return {
+        status: HttpStatus.PRECONDITION_FAILED,
+        data: null,
+        errors: [`Cannot save the fragment. Such entry in InMemory storage is absent. SessionUUID: ${sessionUUID}`],
+      };
+    }
+
+    const saveResponse = await this.storeService.set(sessionUUID, file, { ttl: this.ttlAfterSaving });
+
+    if (!saveResponse.done) {
+      return {
+        status: HttpStatus.PRECONDITION_FAILED,
+        data: null,
+        errors: [`Cannot complete file saving. SessionUUID: ${sessionUUID}`],
+      };
+    }
+
+    return {
+      status: HttpStatus.CREATED,
+      data: { sessionUUID },
       errors: null,
     };
   }
