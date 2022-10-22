@@ -1,8 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { PutObjectCommandOutput } from '@aws-sdk/client-s3';
+import {
+  DeleteObjectCommand,
+  DeleteObjectCommandOutput,
+  GetObjectCommand,
+  PutObjectCommand,
+  PutObjectCommandOutput,
+  S3Client,
+} from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 import { AddressedErrorCatching, ApplyAddressedErrorCatching } from '../common/decorators';
@@ -29,5 +35,14 @@ export class S3Service {
     };
 
     return await this.s3Client.send(new PutObjectCommand(uploadParams));
+  }
+
+  public async deleteFile(fileName: string): Promise<DeleteObjectCommandOutput> {
+    const deleteParams = {
+      Bucket: this.imageStorageName,
+      Key: fileName,
+    };
+
+    return await this.s3Client.send(new DeleteObjectCommand(deleteParams));
   }
 }

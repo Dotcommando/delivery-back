@@ -6,6 +6,7 @@ import { TcpCommonExceptionFilter } from './common/filters';
 import { IResponse } from './common/types';
 import { FileService } from './services';
 import {
+  IDeleteFileRes,
   IFileFragmentSavedRes,
   IFileFragmentToSaveReq,
   IFileTransferCompletedReq,
@@ -32,5 +33,10 @@ export class FileController {
   @MessagePattern(FILES_EVENTS.FILE_TRANSFER_COMPLETED)
   public async fileTransferCompleted(data: IFileTransferCompletedReq): Promise<IResponse<IFileTransferCompletedRes>> {
     return await this.fileService.fileTransferCompleted(data);
+  }
+
+  @MessagePattern(FILES_EVENTS.FILE_DELETE_FILE)
+  public async deleteFile(data: { fileName: string }): Promise<IResponse<IDeleteFileRes>> {
+    return await this.fileService.deleteFile(data);
   }
 }

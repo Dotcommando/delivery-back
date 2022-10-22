@@ -11,6 +11,7 @@ import { FILE_EXTENSION_REGEXP } from '../common/constants';
 import { AddressedErrorCatching, ApplyAddressedErrorCatching } from '../common/decorators';
 import { FileBase64, IResponse } from '../common/types';
 import {
+  IDeleteFileRes,
   IFileFragmentSavedRes,
   IFileFragmentToSaveReq,
   IFileTransferCompletedReq,
@@ -122,7 +123,7 @@ export class FileService {
     const saveToS3Result = await this.s3Service
       .uploadFile(Buffer.from(file.buffer64, 'base64'), file.filename, file.mimetype);
 
-    if (saveToS3Result.$metadata.httpStatusCode !== HttpStatus.OK) {
+    if (saveToS3Result.$metadata?.httpStatusCode !== HttpStatus.OK) {
       return {
         status: HttpStatus.PRECONDITION_FAILED,
         data: null,
@@ -135,6 +136,26 @@ export class FileService {
     return {
       status: HttpStatus.CREATED,
       data: { sessionUUID },
+      errors: null,
+    };
+  }
+
+  @AddressedErrorCatching()
+  public async deleteFile(data: { fileName: string }): Promise<IResponse<IDeleteFileRes>> {
+    const { fileName } = data;
+    const deleteFileResponse = await this.s3Service.deleteFile(fileName);
+
+    if (deleteFileResponse.$metadata?.httpStatusCode !== HttpStatus.NO_CONTENT) {
+      return {
+        status: HttpStatus.PRECONDITION_FAILED,
+        data: null,
+        errors: [`Cannot delete file ${fileName}`],
+      };
+    }
+
+    return {
+      status: HttpStatus.OK,
+      data: { fileName },
       errors: null,
     };
   }

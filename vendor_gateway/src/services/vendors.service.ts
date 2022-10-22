@@ -5,7 +5,7 @@ import { lastValueFrom, map, timeout } from 'rxjs';
 
 import { FileProcessingService } from './file-processing.service';
 
-import { MAX_TIME_OF_REQUEST_WAITING, VENDORS_EVENTS } from '../common/constants';
+import { FILES_EVENTS, MAX_TIME_OF_REQUEST_WAITING, VENDORS_EVENTS } from '../common/constants';
 import { AddressedErrorCatching, ApplyAddressedErrorCatching } from '../common/decorators';
 import { IAddress, IResponse, IStorageData, IVendor } from '../common/types';
 import { FILE_TRANSFER_STATUS } from '../constants';
@@ -25,8 +25,10 @@ import {
 export class VendorsService {
   constructor(
     private readonly fileProcessingService: FileProcessingService,
+    @Inject('FILE_SERVICE') private readonly fileServiceClient: ClientProxy,
     @Inject('VENDOR_SERVICE') private readonly vendorServiceClient: ClientProxy,
   ) {
+    this.changeUserAvatar = this.changeUserAvatar.bind(this);
   }
 
   public async updateVendor(data: IUpdateVendorData): Promise<IResponse<IUpdateVendorRes>> {
@@ -34,7 +36,7 @@ export class VendorsService {
 
     if ('avatar' in data) {
       const imageSavingInitedResponse: IResponse<IImageSavingInited> = await this.fileProcessingService
-        .saveImage({ file: data.avatar as Express.Multer.File, user: data.user });
+        .saveImage({ file: data.avatar as Express.Multer.File, user: data.user }, this.changeUserAvatar(data.user));
 
       data.avatar = null;
 
@@ -152,6 +154,25 @@ export class VendorsService {
         status: data.status,
       },
       errors: null,
+    };
+  }
+
+  private changeUserAvatar(user: IVendor): { (fileName: string): Promise<void> } {
+    return async (fileName: string): Promise<void> => {
+      if (Boolean(user.avatar)) {
+        const deleteOldAvatarFromAWSResponse = await lastValueFrom(
+          this.fileServiceClient.send(FILES_EVENTS.FILE_DELETE_FILE, { fileName: user.avatar }),
+        );
+      }
+
+      const updateVendorResponse = await lastValueFrom(
+        this.vendorServiceClient.send(VENDORS_EVENTS.VENDOR_UPDATE_VENDOR, {
+          _id: user._id,
+          avatar: fileName,
+        }),
+      );
+
+      return;
     };
   }
 }
