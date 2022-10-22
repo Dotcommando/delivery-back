@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import * as dayjs from 'dayjs';
 import { v4 as uuidv4 } from 'uuid';
 
+import { S3Service } from './s3.service';
 import { StoreService } from './store.service';
 
 import { FILE_EXTENSION_REGEXP } from '../common/constants';
@@ -23,6 +24,7 @@ import {
 export class FileService {
   constructor(
     private readonly configService: ConfigService,
+    private readonly s3Service: S3Service,
     private readonly storeService: StoreService,
   ) {
   }
@@ -107,7 +109,6 @@ export class FileService {
   public async fileTransferCompleted(data: IFileTransferCompletedReq): Promise<IResponse<IFileTransferCompletedRes>> {
     const { sessionUUID } = data;
     const noteFromStorage = this.storeService.get(sessionUUID);
-    const file = noteFromStorage.data as FileBase64;
 
     if (!noteFromStorage) {
       return {
@@ -117,15 +118,19 @@ export class FileService {
       };
     }
 
-    const saveResponse = await this.storeService.set(sessionUUID, file, { ttl: this.ttlAfterSaving });
+    const file = noteFromStorage.data as FileBase64;
+    const saveToS3Result = await this.s3Service
+      .uploadFile(Buffer.from(file.buffer64, 'base64'), file.filename, file.mimetype);
 
-    if (!saveResponse.done) {
+    if (saveToS3Result.$metadata.httpStatusCode !== HttpStatus.OK) {
       return {
         status: HttpStatus.PRECONDITION_FAILED,
         data: null,
-        errors: [`Cannot complete file saving. SessionUUID: ${sessionUUID}`],
+        errors: [`Cannot complete file saving due to AWS error. SessionUUID: ${sessionUUID}`],
       };
     }
+
+    this.storeService.delete(sessionUUID);
 
     return {
       status: HttpStatus.CREATED,
