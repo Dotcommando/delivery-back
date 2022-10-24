@@ -19,7 +19,7 @@ export function UpdateVendor() {
       type: UpdateUserBadRequestResponseDto,
     }),
     ApiForbiddenResponse({
-      description: 'If the access token is expired.',
+      description: 'If user tried to update anybody else.',
       type: UpdateUserForbiddenResponseDto,
     }),
   );

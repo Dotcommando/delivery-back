@@ -1,3 +1,5 @@
+export * from './delete-vendor.decorator';
+export * from './get-avatar-data.decorator';
 export * from './logout.decorator';
 export * from './read-vendor.decorator';
 export * from './register.decorator';

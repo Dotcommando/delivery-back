@@ -6,6 +6,7 @@ export * from './file-data-store.interface';
 export * from './file-fragment-saved-res.interface';
 export * from './file-fragment-to-save-req.interface';
 export * from './get-avatar-data-res.interface';
+export * from './get-file-link-res.interface';
 export * from './image-saving-inited.interface';
 export * from './issue-tokens-res.interface';
 export * from './logout-req.interface';

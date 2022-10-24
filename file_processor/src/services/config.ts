@@ -14,4 +14,5 @@ export default () => ({
     },
   },
   imageStorageName: process.env.S3_BUCKET_NAME,
+  avatarStorageTime: process.env.AVATAR_STORAGE_TIME,
 });

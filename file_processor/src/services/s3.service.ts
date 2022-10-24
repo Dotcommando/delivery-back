@@ -18,6 +18,7 @@ import { AddressedErrorCatching, ApplyAddressedErrorCatching } from '../common/d
 @Injectable()
 export class S3Service {
   private readonly imageStorageName = this.configService.get('imageStorageName');
+  private readonly avatarStorageTime = this.configService.get('avatarStorageTime');
 
   constructor(
     private readonly configService: ConfigService,
@@ -37,6 +38,7 @@ export class S3Service {
     return await this.s3Client.send(new PutObjectCommand(uploadParams));
   }
 
+  @AddressedErrorCatching()
   public async deleteFile(fileName: string): Promise<DeleteObjectCommandOutput> {
     const deleteParams = {
       Bucket: this.imageStorageName,
@@ -44,5 +46,44 @@ export class S3Service {
     };
 
     return await this.s3Client.send(new DeleteObjectCommand(deleteParams));
+  }
+
+  @AddressedErrorCatching()
+  public async getFileSignedUrl(fileName: string): Promise<string> {
+    const params = {
+      Bucket: this.imageStorageName,
+      Key: fileName,
+    };
+
+    const command = new GetObjectCommand(params);
+
+    return await getSignedUrl(this.s3Client, command, { expiresIn: this.avatarStorageTime });
+  }
+
+  private streamToString(stream): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const chunks = [];
+
+      stream.on('data', (chunk) => chunks.push(chunk));
+      stream.on('error', reject);
+      stream.on('end', () => resolve(Buffer.concat(chunks).toString('base64')));
+    });
+  }
+
+  public async getFile(fileName: string): Promise<string | null> {
+    try {
+      const params = {
+        Bucket: this.imageStorageName,
+        Key: fileName,
+      };
+
+      const data = await this.s3Client.send(new GetObjectCommand(params));
+
+      return data
+        ? await this.streamToString(data.Body)
+        : null;
+    } catch (e) {
+      return null;
+    }
   }
 }

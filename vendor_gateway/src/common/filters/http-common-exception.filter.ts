@@ -46,5 +46,5 @@ export function getExceptionsMessages(exception: HttpException | Error): string[
     }
   }
 
-  return  errorMessages;
+  return errorMessages.flat();
 }

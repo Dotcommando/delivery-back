@@ -16,6 +16,8 @@ import {
   IFileFragmentToSaveReq,
   IFileTransferCompletedReq,
   IFileTransferCompletedRes,
+  IGetFileLinkRes,
+  IGetFileRes,
   IInitFileSavingReq,
 } from '../types';
 
@@ -136,6 +138,52 @@ export class FileService {
     return {
       status: HttpStatus.CREATED,
       data: { sessionUUID },
+      errors: null,
+    };
+  }
+
+  @AddressedErrorCatching()
+  public async getFileLink(data: { fileName: string }): Promise<IResponse<IGetFileLinkRes>> {
+    const { fileName } = data;
+    const fileLink: string = await this.s3Service.getFileSignedUrl(fileName);
+
+    if (!fileLink) {
+      return {
+        status: HttpStatus.PRECONDITION_FAILED,
+        data: null,
+        errors: [`Cannot get link for file ${fileName}`],
+      };
+    }
+
+    return {
+      status: HttpStatus.OK,
+      data: {
+        fileName,
+        fileLink,
+      },
+      errors: null,
+    };
+  }
+
+  @AddressedErrorCatching()
+  public async getFileBuffer64(data: { fileName: string }): Promise<IResponse<IGetFileRes>> {
+    const { fileName } = data;
+    const getFileResponse: string = await this.s3Service.getFile(fileName);
+
+    if (!getFileResponse) {
+      return {
+        status: HttpStatus.NOT_FOUND,
+        data: null,
+        errors: [`File ${fileName} not found`],
+      };
+    }
+
+    return {
+      status: HttpStatus.OK,
+      data: {
+        fileName,
+        buffer64: getFileResponse,
+      },
       errors: null,
     };
   }

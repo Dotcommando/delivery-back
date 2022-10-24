@@ -11,6 +11,8 @@ import {
   IFileFragmentToSaveReq,
   IFileTransferCompletedReq,
   IFileTransferCompletedRes,
+  IGetFileLinkRes,
+  IGetFileRes,
   IInitFileSavingReq,
 } from './types';
 
@@ -33,6 +35,16 @@ export class FileController {
   @MessagePattern(FILES_EVENTS.FILE_TRANSFER_COMPLETED)
   public async fileTransferCompleted(data: IFileTransferCompletedReq): Promise<IResponse<IFileTransferCompletedRes>> {
     return await this.fileService.fileTransferCompleted(data);
+  }
+
+  @MessagePattern(FILES_EVENTS.FILE_GET_FILE_LINK)
+  public async getFileLink(data: { fileName: string }): Promise<IResponse<IGetFileLinkRes>> {
+    return await this.fileService.getFileLink(data);
+  }
+
+  @MessagePattern(FILES_EVENTS.FILE_GET_FILE_BUFFER64)
+  public async getFileBuffer64(data: { fileName: string }): Promise<IResponse<IGetFileRes>> {
+    return await this.fileService.getFileBuffer64(data);
   }
 
   @MessagePattern(FILES_EVENTS.FILE_DELETE_FILE)

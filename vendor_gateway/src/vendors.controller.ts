@@ -23,7 +23,7 @@ import { AVATAR_FILE_BYTE_SIZE, MAX_TIME_OF_REQUEST_WAITING, MIME_TYPES, VENDORS
 import { FileSizeValidationPipe } from './common/helpers';
 import { FileTypeValidationPipe } from './common/helpers/file-type-validation.pipe';
 import { IAddress, IResponse, IVendor } from './common/types';
-import { ReadVendor, UpdateVendor } from './decorators';
+import { DeleteVendor, GetAvatarData, ReadVendor, UpdateVendor } from './decorators';
 import {
   DeleteUserParamDto,
   GetAvatarDataParamDto,
@@ -88,6 +88,7 @@ export class VendorsController {
     });
   }
 
+  @DeleteVendor()
   @UseGuards(JustMeGuard)
   @Delete('me/:_id')
   public async deleteMe(
@@ -99,7 +100,8 @@ export class VendorsController {
     return await this.vendorsService.deleteUser({ _id: user._id, user });
   }
 
-  @Get('avatar/:sessionUUID')
+  @GetAvatarData()
+  @Get('avatar-status/:sessionUUID')
   public async getAvatarData(
     @Param() param: GetAvatarDataParamDto,
   ): Promise<IResponse<IGetAvatarDataRes>> {

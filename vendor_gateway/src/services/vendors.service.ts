@@ -13,6 +13,7 @@ import {
   IDeleteVendorData,
   IFileDataStore,
   IGetAvatarDataRes,
+  IGetFileLinkRes,
   IImageSavingInited,
   ILogoutRes,
   IUpdateVendorData,
@@ -139,6 +140,7 @@ export class VendorsService {
         status: HttpStatus.ACCEPTED,
         data: {
           fileName: data.fileName,
+          fileLink: null,
           sessionUUID,
           status: data.status,
         },
@@ -146,10 +148,26 @@ export class VendorsService {
       };
     }
 
+    const fileLinkResponse: IResponse<IGetFileLinkRes> = await lastValueFrom(
+      this.fileServiceClient.send(FILES_EVENTS.FILE_GET_FILE_LINK, { fileName: data.fileName }),
+    );
+
+    if (fileLinkResponse.status !== HttpStatus.OK) {
+      return {
+        status: HttpStatus.PRECONDITION_FAILED,
+        data: null,
+        errors: [
+          'Cannot get avatar URL',
+          ...(Array.isArray(fileLinkResponse.errors) ? fileLinkResponse.errors : []),
+        ],
+      };
+    }
+
     return {
       status: HttpStatus.OK,
       data: {
         fileName: data.fileName,
+        fileLink: fileLinkResponse.data.fileLink,
         sessionUUID,
         status: data.status,
       },

@@ -41,6 +41,7 @@ export class GetUserSuccessResponseDto implements IResponse<IVendor<IAddress>> {
           },
         ],
         phoneNumber: '+374 77 717-509',
+        avatar: 'bipolar-bear-2022-10-24-11-51-02-606-3a01a0.jpeg',
         roles: [],
         orders: [],
         emailConfirmed: true,
