@@ -16,7 +16,6 @@ export interface IVendor<TAddress = Types.ObjectId, TCompany = Types.ObjectId, T
   addresses: TAddress[];
   companies: IMembership<TCompany>[];
   brands: IMembership<TBrand>[];
-  phoneNumber: string;
   emailConfirmed: boolean;
   phoneConfirmed: boolean;
   deactivated: boolean;

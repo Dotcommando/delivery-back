@@ -22,7 +22,7 @@ import { MembershipDto } from './membership.dto';
 
 import {
   ADDRESSES_MAX_SIZE,
-  COMPANIES_MAX_SIZE,
+  COMPANIES_MAX_SIZE, IMAGE_ADDRESS_MAX_LENGTH,
   IMAGE_BASE64_MAX_LENGTH,
   NAME_MAX_LENGTH,
   NAME_MIN_LENGTH,
@@ -120,14 +120,14 @@ export class VendorDto implements IVendor {
   email: string;
 
   @ApiProperty({
-    description: 'BASE64 encoded picture',
-    example: 'data:image/jpeg;base64,/9j/4QAYRXhpZgAASUkqAAgAAAAAAAAAAAAAAP/sA...oOXt+Is/VyzS4pcfYP+RpQuj2MaJRpGxOtZ4x13Hgax9/rMSvr4P',
+    description: 'Filename with extension',
+    example: 'mikhail-filchushkin-2022-10-24-12-53-04-097-9800fc.jpg',
   })
   @IsOptional()
-  @MaxLength(IMAGE_BASE64_MAX_LENGTH, {
-    message: `Avatar must be equal or shorter ${Math.floor(Number(IMAGE_BASE64_MAX_LENGTH) / 1024)} Kbytes`,
+  @MaxLength(IMAGE_ADDRESS_MAX_LENGTH, {
+    message: `Avatar filename length must be equal or shorter ${IMAGE_ADDRESS_MAX_LENGTH} characters`,
   })
-  avatar: string | Buffer;
+  avatar: string;
 
   @ApiProperty({
     description: 'Links to user addresses. Array of valid MongoDB compatible ObjectId',

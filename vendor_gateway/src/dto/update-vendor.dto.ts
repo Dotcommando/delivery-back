@@ -5,7 +5,6 @@ import { Transform } from 'class-transformer';
 import { IsEmail, IsOptional, IsString, Matches, MaxLength, MinLength } from 'class-validator';
 
 import {
-  IMAGE_BASE64_MAX_LENGTH,
   NAME_MAX_LENGTH,
   NAME_MIN_LENGTH,
   NAME_REGEXP,
@@ -24,7 +23,6 @@ export class UpdateVendorDto extends PickType(
     'firstName',
     'middleName',
     'lastName',
-    'avatar',
     'phoneNumber',
     'email',
   ] as const,

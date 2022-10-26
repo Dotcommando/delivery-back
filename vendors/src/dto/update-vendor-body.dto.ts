@@ -5,7 +5,7 @@ import { Transform } from 'class-transformer';
 import { IsEmail, IsOptional, IsString, Matches, MaxLength, MinLength } from 'class-validator';
 
 import {
-  IMAGE_BASE64_MAX_LENGTH,
+  IMAGE_ADDRESS_MAX_LENGTH,
   NAME_MAX_LENGTH,
   NAME_MIN_LENGTH,
   NAME_REGEXP,
@@ -80,12 +80,12 @@ export class UpdateVendorDto extends PickType(
   lastName: string;
 
   @ApiProperty({
-    description: 'BASE64 encoded picture. Can be null',
-    example: 'data:image/jpeg;base64,/9j/4QAYRXhpZgAASUkqAAgAAAAAAAAAAAAAAP/sA...oOXt+Is/VyzS4pcfYP+RpQuj2MaJRpGxOtZ4x13Hgax9/rMSvr4P',
+    description: 'Filename with extension. Can be null',
+    example: 'mikhail-filchushkin-2022-10-24-12-53-04-097-9800fc.jpg',
   })
   @IsOptional()
-  @MaxLength(IMAGE_BASE64_MAX_LENGTH, {
-    message: `Avatar must be equal or shorter ${Math.floor(Number(IMAGE_BASE64_MAX_LENGTH) / 1024)} Kbytes`,
+  @MaxLength(IMAGE_ADDRESS_MAX_LENGTH, {
+    message: `Avatar file name length must be equal or shorter ${IMAGE_ADDRESS_MAX_LENGTH} characters`,
   })
   avatar: string;
 

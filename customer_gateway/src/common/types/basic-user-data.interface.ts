@@ -3,4 +3,5 @@ export interface IBasicUserData {
   middleName?: string;
   lastName: string;
   email: string;
+  phoneNumber: string;
 }

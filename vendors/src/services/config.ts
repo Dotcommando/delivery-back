@@ -10,4 +10,6 @@ export default () => ({
   audience: process.env.JWT_AUDIENCE,
   issuer: process.env.JWT_ISSUER,
   authorizedParty: process.env.JWT_AUTHORIZED_PARTY,
+  minCompanyNameLength: process.env.COMPANY_NAME_MIN_LENGTH,
+  maxCompanyNameLength: process.env.COMPANY_NAME_MAX_LENGTH,
 });

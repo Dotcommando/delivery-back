@@ -1,3 +1,4 @@
+export * from './armenian-company-name-regexp.constant';
 export * from './bearer-prefix-regexp.constant';
 export * from './defaults.constant';
 export * from './email-regexp.constant';

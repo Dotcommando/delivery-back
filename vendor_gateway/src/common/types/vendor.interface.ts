@@ -11,12 +11,11 @@ export interface IMembership<TGroup = Types.ObjectId> {
 
 export interface IVendor<TAddress = Types.ObjectId, TCompany = Types.ObjectId> extends IBasicUserData {
   _id: Types.ObjectId;
-  avatar: string | Buffer;
+  avatar: string;
   role: ROLE;
   addresses: TAddress[];
   companies: IMembership<TCompany>[];
   brands: IMembership<TCompany>[];
-  phoneNumber: string;
   emailConfirmed: boolean;
   phoneConfirmed: boolean;
   deactivated: boolean;

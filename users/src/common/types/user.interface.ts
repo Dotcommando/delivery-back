@@ -10,7 +10,6 @@ export interface IUser<TAddress = Types.ObjectId, TOrder = Types.ObjectId> exten
   username?: string;
   avatar: string;
   addresses: TAddress[];
-  phoneNumber: string;
   role: ROLE;
   orders: TOrder[];
   emailConfirmed: boolean;

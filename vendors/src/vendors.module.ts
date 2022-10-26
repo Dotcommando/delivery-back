@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 
-import { AddressSchema, TokenSchema, VendorSchema } from './schemas';
+import { AddressSchema, BrandSchema, CompanySchema, TokenSchema, VendorSchema } from './schemas';
 import { DbAccessService, JwtConfigService, MongoConfigService, VendorsService } from './services';
 import configuration from './services/config';
 import { VendorsController } from './vendors.controller';
@@ -39,6 +39,20 @@ import { VendorsController } from './vendors.controller';
         name: 'Address',
         schema: AddressSchema,
         collection: 'addresses',
+      },
+    ]),
+    MongooseModule.forFeature([
+      {
+        name: 'Company',
+        schema: CompanySchema,
+        collection: 'companies',
+      },
+    ]),
+    MongooseModule.forFeature([
+      {
+        name: 'Brand',
+        schema: BrandSchema,
+        collection: 'brands',
       },
     ]),
   ],

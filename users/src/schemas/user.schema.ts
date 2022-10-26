@@ -4,7 +4,7 @@ import { Schema } from 'mongoose';
 
 import {
   EMAIL_REGEXP,
-  IMAGE_BASE64_MAX_LENGTH,
+  IMAGE_ADDRESS_MAX_LENGTH,
   NAME_MAX_LENGTH,
   NAME_MIN_LENGTH,
   NAME_REGEXP,
@@ -75,7 +75,7 @@ export const UserSchema = new Schema<IUserDocument, mongoose.Model<IUserDocument
     },
     avatar: {
       type: String,
-      validate: optionalRange(0, IMAGE_BASE64_MAX_LENGTH),
+      validate: optionalRange(0, IMAGE_ADDRESS_MAX_LENGTH),
     },
     addresses: {
       type: [Schema.Types.ObjectId],
