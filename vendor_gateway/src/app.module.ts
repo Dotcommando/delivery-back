@@ -4,7 +4,9 @@ import { ClientProxyFactory } from '@nestjs/microservices';
 import { ScheduleModule } from '@nestjs/schedule';
 
 import { AuthController } from './auth.controller';
-import { AuthService, FileProcessingService, StoreService, VendorsService } from './services';
+import { BrandsController } from './brands.controller';
+import { CompaniesController } from './companies.controller';
+import { AuthService, BrandsService, FileProcessingService, StoreService, VendorsService } from './services';
 import configuration from './services/config';
 import { LocalStrategy } from './strategies';
 import { VendorsController } from './vendors.controller';
@@ -20,9 +22,12 @@ import { VendorsController } from './vendors.controller';
   controllers: [
     AuthController,
     VendorsController,
+    BrandsController,
+    CompaniesController,
   ],
   providers: [
     AuthService,
+    BrandsService,
     FileProcessingService,
     StoreService,
     VendorsService,

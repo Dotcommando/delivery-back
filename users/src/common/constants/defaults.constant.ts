@@ -41,3 +41,4 @@ export const BRAND_TITLE_EN_MAX_LENGTH = parseInt(process.env.BRAND_TITLE_EN_MAX
 export const BRAND_SHORT_DESCRIPTION_EN_MAX_LENGTH = parseInt(process.env.BRAND_SHORT_DESCRIPTION_EN_MAX_LENGTH);
 export const BRAND_KEYWORDS_EN_MAX_LENGTH = parseInt(process.env.BRAND_KEYWORDS_EN_MAX_LENGTH);
 export const BRAND_DESCRIPTION_EN_MAX_LENGTH = parseInt(process.env.BRAND_DESCRIPTION_EN_MAX_LENGTH);
+export const MANAGER_NUMBER = parseInt(process.env.MANAGER_NUMBER);

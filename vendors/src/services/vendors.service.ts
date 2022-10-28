@@ -333,4 +333,21 @@ export class VendorsService {
         errors: [`User with id ${data._id} not found`],
       };
   }
+
+  @AddressedErrorCatching()
+  public async createBrand(data) {
+    const createBrandResponse = await this.dbAccessService.saveNewBrand(data);
+
+    if (!createBrandResponse?.brand) {
+      throw new BadRequestException('Some internal error happened while creating the brand');
+    }
+
+    return {
+      status: HttpStatus.CREATED,
+      data: {
+        brand: createBrandResponse.brand,
+      },
+      errors: null,
+    };
+  }
 }

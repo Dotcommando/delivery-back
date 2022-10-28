@@ -15,12 +15,12 @@ import {
   BRAND_TITLE_HY_MAX_LENGTH,
   BRAND_TITLE_RU_MAX_LENGTH,
   IMAGE_ADDRESS_MAX_LENGTH,
+  SUPPORTED_LANGUAGES,
+  SUPPORTED_LANGUAGES_ARRAY,
 } from '../common/constants';
 import {
   IBrandDocument,
   IBrandMultilingualFieldSetDoc,
-  ILangFieldSetDoc,
-  SUPPORTED_LANGUAGES,
 } from '../common/types';
 import { optionalRange } from '../validators';
 
@@ -44,9 +44,9 @@ export const BrandSchema = new Schema<IBrandDocument, mongoose.Model<IBrandDocum
       validate: optionalRange(0, IMAGE_ADDRESS_MAX_LENGTH),
     },
     translations: [
-      translationFn(SUPPORTED_LANGUAGES.HY),
-      translationFn(SUPPORTED_LANGUAGES.RU),
-      translationFn(SUPPORTED_LANGUAGES.EN),
+      BrandFieldSetFn(SUPPORTED_LANGUAGES.HY),
+      BrandFieldSetFn(SUPPORTED_LANGUAGES.RU),
+      BrandFieldSetFn(SUPPORTED_LANGUAGES.EN),
     ],
   },
   {
@@ -58,21 +58,19 @@ export const BrandSchema = new Schema<IBrandDocument, mongoose.Model<IBrandDocum
   },
 );
 
+export const BrandModel = mongoose.model<IBrandDocument, mongoose.Model<IBrandDocument>>('Brand', BrandSchema);
+
 function prepareValue(doc, ret: { [key: string]: unknown }) {
   delete ret.id;
-}
-
-function translationFn(lang: SUPPORTED_LANGUAGES): Schema<ILangFieldSetDoc, mongoose.Model<ILangFieldSetDoc>> {
-  return new Schema<ILangFieldSetDoc, mongoose.Model<ILangFieldSetDoc>>(
-    {
-      [lang]: BrandFieldSetFn(lang),
-    },
-  );
 }
 
 function BrandFieldSetFn(lang: SUPPORTED_LANGUAGES): Schema<IBrandMultilingualFieldSetDoc, mongoose.Model<IBrandMultilingualFieldSetDoc>> {
   return new Schema<IBrandMultilingualFieldSetDoc, mongoose.Model<IBrandMultilingualFieldSetDoc>>(
     {
+      lang: {
+        type: String,
+        enum: [...SUPPORTED_LANGUAGES_ARRAY],
+      },
       fullName: fullNameFn(lang),
       shortName: shortNameFn(lang),
       title: titleFn(lang),

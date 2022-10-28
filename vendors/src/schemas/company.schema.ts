@@ -7,11 +7,13 @@ import {
   COMPANY_NAME_MAX_LENGTH,
   COMPANY_NAME_MIN_LENGTH,
   EMAIL_REGEXP,
+  LEGAL_ENTITY,
+  LEGAL_ENTITY_ARRAY,
   PHONE_NUMBER_MAX_LENGTH,
   PHONE_NUMBER_MIN_LENGTH,
   PROPERTY_LENGTH_64,
 } from '../common/constants';
-import { ICompanyDocument, LEGAL_ENTITY } from '../common/types';
+import { ICompanyDocument } from '../common/types';
 import { optionalRange } from '../validators';
 
 
@@ -20,10 +22,7 @@ export const CompanySchema = new Schema<ICompanyDocument, mongoose.Model<ICompan
     legalEntity: {
       type: String,
       default: LEGAL_ENTITY.SOLE_PROPRIETORSHIP,
-      enum: [
-        LEGAL_ENTITY.SOLE_PROPRIETORSHIP,
-        LEGAL_ENTITY.LLC,
-      ],
+      enum: [...LEGAL_ENTITY_ARRAY],
     },
     fullName: {
       type: String,
@@ -81,3 +80,5 @@ export const CompanySchema = new Schema<ICompanyDocument, mongoose.Model<ICompan
     },
   },
 );
+
+export const CompanyModel = mongoose.model<ICompanyDocument, mongoose.Model<ICompanyDocument>>('Company', CompanySchema);

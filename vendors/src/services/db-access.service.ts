@@ -13,6 +13,8 @@ import { pickProperties } from '../common/helpers';
 import {
   IAddress,
   IAddressDocument,
+  IBrand,
+  IBrandDocument,
   IToken,
   ITokenDocument,
   IVendor,
@@ -24,19 +26,13 @@ import {
   EditAddressesBodyDto,
   EditGroupsBodyDto,
   UpdateVendorBodyDto,
-  // UpdateVendorBodyDto,
-  // UpdateVendorDto,
 } from '../dto';
 import { mapIVendorDocumentToIVendor } from '../helpers';
 import {
   IEmailPassword,
   ILogoutRes,
   IValidateVendorRes,
-  // IEmailPassword,
-  // IValidateUserRes,
-  // IVendornamePassword,
   RefreshTokenData,
-  // UserCredentialsReq,
 } from '../types';
 
 
@@ -45,6 +41,7 @@ import {
 export class DbAccessService {
   constructor(
     @InjectModel('Address') private readonly addressModel: Model<IAddressDocument>,
+    @InjectModel('Brand') private readonly brandModel: Model<IBrandDocument>,
     @InjectModel('Token') private readonly tokenModel: Model<ITokenDocument>,
     @InjectModel('Vendor') private readonly vendorModel: Model<IVendorDocument>,
   ) {
@@ -411,6 +408,14 @@ export class DbAccessService {
         lastName: deletedUserResponse.lastName,
       },
     };
+  }
+
+  @AddressedErrorCatching()
+  public async saveNewBrand(brand) {
+    const brandDoc: IBrandDocument = new this.brandModel({ ...brand });
+    const savedBrandDoc = await brandDoc.save();
+
+    return { brand: savedBrandDoc.toJSON() as IBrand };
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_4AM)

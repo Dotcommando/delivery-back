@@ -3,8 +3,6 @@ export * from './basic-multilingual-field-set.interface';
 export * from './basic-user-data.interface';
 export * from './brand.interface';
 export * from './company.interface';
-export * from './legal-entity.enum';
 export * from './response.interface';
-export * from './supported-languages.enum';
 export * from './token.interface';
 export * from './vendor.interface';

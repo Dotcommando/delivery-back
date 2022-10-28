@@ -62,4 +62,9 @@ export class VendorsController {
   public async deleteVendor(data: DeleteVendorBodyDto): Promise<IResponse<ILogoutRes>> {
     return await this.vendorsService.deleteVendor(data);
   }
+
+  @MessagePattern(VENDORS_EVENTS.VENDOR_CREATE_BRAND)
+  public async createBrand(data) {
+    return await this.vendorsService.createBrand(data);
+  }
 }

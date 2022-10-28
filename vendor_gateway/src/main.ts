@@ -40,6 +40,8 @@ async function bootstrap() {
     .addServer(process.env.ENVIRONMENT === 'prod' ? PROTOCOL.HTTPS : PROTOCOL.HTTP)
     .addTag('auth')
     .addTag('vendors')
+    .addTag('brands')
+    .addTag('companies')
     .setVersion('1.0')
     .build();
 
