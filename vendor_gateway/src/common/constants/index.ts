@@ -1,4 +1,5 @@
 export * from './bearer-prefix-regexp.constant';
+export * from './brand-regexp.constant';
 export * from './defaults.constant';
 export * from './email-regexp.constant';
 export * from './files-events.enum';
@@ -9,6 +10,7 @@ export * from './object-id-regexp.constant';
 export * from './postal-code-regexp.constant';
 export * from './role.enum';
 export * from './supported-languages.enum';
+export * from './translation-prop-length.constant';
 export * from './username-regexp.constant';
 export * from './vendor-role.enum';
 export * from './vendors-events.enum';

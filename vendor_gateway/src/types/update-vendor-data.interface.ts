@@ -1,11 +1,11 @@
 import { Types } from 'mongoose';
 
 import { IVendor } from '../common/types';
-import { UpdateVendorDto } from '../dto';
+import { UpdateVendorBodyDto } from '../dto';
 
 
 export interface IUpdateVendorData {
-  body: UpdateVendorDto;
+  body: UpdateVendorBodyDto;
   _id: Types.ObjectId;
   avatar?: Express.Multer.File | string;
   user?: IVendor | null;

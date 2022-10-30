@@ -2,6 +2,7 @@ import { Body, Controller, Inject, Post, Req } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApiTags } from '@nestjs/swagger';
 
+import { CreateBrandBodyDto } from './dto';
 import { BrandsService } from './services';
 import { AuthenticatedRequest } from './types';
 
@@ -17,7 +18,7 @@ export class BrandsController {
 
   @Post('/one')
   public async createBrand(
-    @Body() body,
+    @Body() body: CreateBrandBodyDto,
     @Req() req: AuthenticatedRequest,
   ) {
     return await this.brandsService.createBrand(body);

@@ -28,7 +28,7 @@ import {
   DeleteUserParamDto,
   GetAvatarDataParamDto,
   ReadVendorParamDto,
-  UpdateVendorDto,
+  UpdateVendorBodyDto,
   UpdateVendorParamDto,
 } from './dto';
 import { JustMeGuard } from './guards';
@@ -66,7 +66,7 @@ export class VendorsController {
   @Put('me/:_id')
   public async updateMe(
     @Param() param: UpdateVendorParamDto,
-    @Body() body: UpdateVendorDto,
+    @Body() body: UpdateVendorBodyDto,
     @Req() req: AuthenticatedRequest,
     @UploadedFile(
       new ParseFilePipe({

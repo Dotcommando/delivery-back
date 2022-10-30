@@ -17,7 +17,7 @@ import { PartialVendorDto } from '../common/dto';
 import { maxLengthStringMessage, minLengthStringMessage, toLowercase } from '../common/helpers';
 
 
-export class UpdateVendorDto extends PickType(
+export class UpdateVendorBodyDto extends PickType(
   PartialVendorDto,
   [
     'firstName',

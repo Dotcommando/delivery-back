@@ -1,4 +1,5 @@
 export * from './common-forbidden-response.dto';
+export * from './create-brand-body.dto';
 export * from './delete-user-param.dto';
 export * from './delete-user-success-response.dto';
 export * from './get-avatar-data-accepted-response.dto';
@@ -19,7 +20,7 @@ export * from './reissue-tokens-success-response.dto';
 export * from './update-user-bad-request-response.dto';
 export * from './update-user-forbidden-response.dto';
 export * from './update-user-success-response.dto';
-export * from './update-vendor.dto';
+export * from './update-vendor-body.dto';
 export * from './update-vendor-param.dto';
 export * from './vendor-register-bad-request-response.dto';
 export * from './vendor-register-body.dto';
