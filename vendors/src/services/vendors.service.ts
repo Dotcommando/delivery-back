@@ -13,7 +13,7 @@ import { InjectModel } from '@nestjs/mongoose';
 
 import { Model, Types } from 'mongoose';
 
-import { DbAccessService } from './db-access.service';
+import { VendorDbAccessService } from './vendor-db-access.service';
 
 import { LOGIN_ORIGIN } from '../common/constants';
 import { AddressedErrorCatching } from '../common/decorators';
@@ -44,13 +44,13 @@ export class VendorsService {
   constructor(
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
-    private dbAccessService: DbAccessService,
+    private vendorDbAccessService: VendorDbAccessService,
     @InjectModel('Vendor') private readonly vendorModel: Model<IVendorDocument>,
   ) {
   }
 
   public async checkEmail(user: PartialVendorDto): Promise<{ occupied: boolean }> {
-    return this.dbAccessService.checkEmailOccupation(user.email);
+    return this.vendorDbAccessService.checkEmailOccupation(user.email);
   }
 
   @AddressedErrorCatching()
@@ -61,7 +61,7 @@ export class VendorsService {
       throw new ConflictException('Email already in use');
     }
 
-    const newUserResponse: { user: IVendor } = await this.dbAccessService.saveNewUser(user);
+    const newUserResponse: { user: IVendor } = await this.vendorDbAccessService.saveNewUser(user);
 
     return {
       status: HttpStatus.CREATED,
@@ -78,7 +78,7 @@ export class VendorsService {
       throw new BadRequestException('Email required for user validation');
     }
 
-    const validationResult: IValidateVendorRes = await this.dbAccessService.validateUser(user as IEmailPassword);
+    const validationResult: IValidateVendorRes = await this.vendorDbAccessService.validateUser(user as IEmailPassword);
 
     return {
       status: HttpStatus.OK,
@@ -113,7 +113,7 @@ export class VendorsService {
     const accessToken = this.issueToken(userId, now, 'access');
     const refreshToken = this.issueToken(userId, now, 'refresh');
 
-    await this.dbAccessService.saveRefreshToken({
+    await this.vendorDbAccessService.saveRefreshToken({
       userId: new Types.ObjectId(userId),
       refreshToken: refreshToken,
       issuedForUserAgent: new Types.ObjectId(),
@@ -176,14 +176,14 @@ export class VendorsService {
       throw new UnauthorizedException('Access token is not genuine');
     }
 
-    const checkTokenResult = await this.dbAccessService.checkAccessToken(data.accessToken);
+    const checkTokenResult = await this.vendorDbAccessService.checkAccessToken(data.accessToken);
 
     if (checkTokenResult.blacklisted) {
       throw new UnauthorizedException('Access token is not genuine');
     }
 
     const userId = accessToken['sub'];
-    const user = await this.dbAccessService.findUserById(userId);
+    const user = await this.vendorDbAccessService.findUserById(userId);
 
     if (!user) {
       throw new PreconditionFailedException(`Cannot get user by Id ${ userId }`);
@@ -205,7 +205,7 @@ export class VendorsService {
     const userId = new Types.ObjectId(refreshToken?.['sub']);
 
     if (!accessToken && refreshToken) {
-      await this.dbAccessService.updateToken({
+      await this.vendorDbAccessService.updateToken({
         userId,
         refreshToken: data.refreshToken,
       }, {
@@ -222,7 +222,7 @@ export class VendorsService {
       throw new BadRequestException('Cannot decode Refresh token for reissuing');
     }
 
-    const getRefreshToken: IToken = await this.dbAccessService.findRefreshToken(data.refreshToken);
+    const getRefreshToken: IToken = await this.vendorDbAccessService.findRefreshToken(data.refreshToken);
 
     if (getRefreshToken.blacklisted) {
       // The same.
@@ -230,7 +230,7 @@ export class VendorsService {
     }
 
     if (!refreshToken?.['exp'] || (new Date(refreshToken?.['exp'])).getTime() < Date.now()) {
-      await this.dbAccessService.updateToken({
+      await this.vendorDbAccessService.updateToken({
         userId,
         refreshToken: data.refreshToken,
       }, {
@@ -243,7 +243,7 @@ export class VendorsService {
 
     const issueTokensRes: IIssueTokensRes = await this.issueTokens(userId);
 
-    await this.dbAccessService.updateToken({
+    await this.vendorDbAccessService.updateToken({
       userId,
       refreshToken: data.refreshToken,
     }, {
@@ -260,7 +260,7 @@ export class VendorsService {
 
   @AddressedErrorCatching()
   public async logout(data: LogoutBodyDto): Promise<IResponse<null>> {
-    const findRefreshTokenResult: IToken | null = await this.dbAccessService.findRefreshToken(data.refreshToken);
+    const findRefreshTokenResult: IToken | null = await this.vendorDbAccessService.findRefreshToken(data.refreshToken);
 
     if (!findRefreshTokenResult) {
       throw new BadRequestException('Cannot find such refresh token');
@@ -272,7 +272,7 @@ export class VendorsService {
       throw new BadRequestException('Cannot decode access token');
     }
 
-    const updatedTokenResponse: IToken = await this.dbAccessService.updateToken(
+    const updatedTokenResponse: IToken = await this.vendorDbAccessService.updateToken(
       { refreshToken: data.refreshToken },
       {
         accessToken: data.accessToken,
@@ -289,7 +289,7 @@ export class VendorsService {
 
   @AddressedErrorCatching()
   public async readVendor(data: ReadVendorBodyDto): Promise<IResponse<{ user: IVendor<IAddress> }>> {
-    const user: IVendor<IAddress> | null = await this.dbAccessService.getUserWithAddresses(data._id);
+    const user: IVendor<IAddress> | null = await this.vendorDbAccessService.getUserWithAddresses(data._id);
 
     if (!user) {
       throw new NotFoundException(`Cannot find user with _id ${data._id}`);
@@ -304,7 +304,7 @@ export class VendorsService {
 
   @AddressedErrorCatching()
   public async updateVendor(data: UpdateVendorBodyDto): Promise<IResponse<{ user: IVendor<IAddress> }>> {
-    const user: IVendor<IAddress> | null = await this.dbAccessService.updateUser(data);
+    const user: IVendor<IAddress> | null = await this.vendorDbAccessService.updateUser(data);
 
     if (!user) {
       throw new NotFoundException(`Cannot find user with _id ${data._id} to update`);
@@ -319,7 +319,7 @@ export class VendorsService {
 
   @AddressedErrorCatching()
   public async deleteVendor(data: DeleteVendorBodyDto): Promise<IResponse<ILogoutRes>> {
-    const deleteUserResponse: ILogoutRes | null = await this.dbAccessService.deleteUser(data);
+    const deleteUserResponse: ILogoutRes | null = await this.vendorDbAccessService.deleteUser(data);
 
     return deleteUserResponse
       ? {
@@ -332,22 +332,5 @@ export class VendorsService {
         data: null,
         errors: [`User with id ${data._id} not found`],
       };
-  }
-
-  @AddressedErrorCatching()
-  public async createBrand(data) {
-    const createBrandResponse = await this.dbAccessService.saveNewBrand(data);
-
-    if (!createBrandResponse?.brand) {
-      throw new BadRequestException('Some internal error happened while creating the brand');
-    }
-
-    return {
-      status: HttpStatus.CREATED,
-      data: {
-        brand: createBrandResponse.brand,
-      },
-      errors: null,
-    };
   }
 }

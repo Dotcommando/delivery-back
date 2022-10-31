@@ -1,3 +1,4 @@
+export * from './create-brand-res.interface';
 export * from './email-password.interface';
 export * from './issue-tokens-res.interface';
 export * from './logout-res.interface';

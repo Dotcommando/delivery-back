@@ -1,5 +1,6 @@
 export * from './common-forbidden-response.dto';
 export * from './create-brand-body.dto';
+export * from './create-brand-success-response.dto';
 export * from './delete-user-param.dto';
 export * from './delete-user-success-response.dto';
 export * from './get-avatar-data-accepted-response.dto';

@@ -13,8 +13,6 @@ import { pickProperties } from '../common/helpers';
 import {
   IAddress,
   IAddressDocument,
-  IBrand,
-  IBrandDocument,
   IToken,
   ITokenDocument,
   IVendor,
@@ -24,7 +22,6 @@ import { DEFAULT_VENDOR_DATA } from '../constants';
 import {
   DeleteVendorBodyDto,
   EditAddressesBodyDto,
-  EditGroupsBodyDto,
   UpdateVendorBodyDto,
 } from '../dto';
 import { mapIVendorDocumentToIVendor } from '../helpers';
@@ -38,10 +35,9 @@ import {
 
 @ApplyAddressedErrorCatching
 @Injectable()
-export class DbAccessService {
+export class VendorDbAccessService {
   constructor(
     @InjectModel('Address') private readonly addressModel: Model<IAddressDocument>,
-    @InjectModel('Brand') private readonly brandModel: Model<IBrandDocument>,
     @InjectModel('Token') private readonly tokenModel: Model<ITokenDocument>,
     @InjectModel('Vendor') private readonly vendorModel: Model<IVendorDocument>,
   ) {
@@ -408,14 +404,6 @@ export class DbAccessService {
         lastName: deletedUserResponse.lastName,
       },
     };
-  }
-
-  @AddressedErrorCatching()
-  public async saveNewBrand(brand) {
-    const brandDoc: IBrandDocument = new this.brandModel({ ...brand });
-    const savedBrandDoc = await brandDoc.save();
-
-    return { brand: savedBrandDoc.toJSON() as IBrand };
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_4AM)

@@ -15,13 +15,19 @@ import {
   VerifyAccessTokenBodyDto,
 } from './dto';
 import { VendorsService } from './services';
-import { IIssueTokensRes, ILogoutRes, IVendorSignInRes, IVerifyTokenRes } from './types';
+import {
+  IIssueTokensRes,
+  ILogoutRes,
+  IVendorSignInRes,
+  IVerifyTokenRes,
+} from './types';
 
 
 @UseFilters(new TcpCommonExceptionFilter())
 @Controller('vendors')
 export class VendorsController {
-  constructor(private readonly vendorsService: VendorsService) {}
+  constructor(private readonly vendorsService: VendorsService) {
+  }
 
   @MessagePattern(VENDORS_EVENTS.VENDOR_CREATE_VENDOR)
   public async vendorRegister(user: RegisterVendorBodyDto): Promise<IResponse<{ user: IVendor }>> {
@@ -61,10 +67,5 @@ export class VendorsController {
   @MessagePattern(VENDORS_EVENTS.VENDOR_DELETE_USER)
   public async deleteVendor(data: DeleteVendorBodyDto): Promise<IResponse<ILogoutRes>> {
     return await this.vendorsService.deleteVendor(data);
-  }
-
-  @MessagePattern(VENDORS_EVENTS.VENDOR_CREATE_BRAND)
-  public async createBrand(data) {
-    return await this.vendorsService.createBrand(data);
   }
 }

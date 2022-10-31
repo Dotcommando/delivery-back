@@ -5,9 +5,9 @@ import { IBasicMultilingualFieldSet } from './basic-multilingual-field-set.inter
 import { SUPPORTED_LANGUAGES } from '../constants';
 
 
-export interface IBrand {
-  _id: Types.ObjectId;
-  company: Types.ObjectId;
+export interface IBrand<T_id = Types.ObjectId, TCompany = Types.ObjectId> {
+  _id: T_id;
+  company: TCompany;
   backgroundLight: string;
   backgroundDark: string;
   logo: string;
@@ -23,5 +23,6 @@ export interface IBrandMultilingualFieldSet extends IBasicMultilingualFieldSet {
 export interface IBrandMultilingualFieldSetDoc extends Omit<IBrandMultilingualFieldSet, '_id'>, Document<IBrandMultilingualFieldSet> {
 }
 
-export interface IBrandDocument extends Omit<IBrand, '_id'>, Document<IBrand> {
+export interface IBrandDocument extends Omit<IBrand, '_id' | 'translations'>, Document<IBrand> {
+  translations: IBrandMultilingualFieldSetDoc[];
 }
