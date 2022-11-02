@@ -27,7 +27,7 @@ export class BrandBodyDto {
     required: true,
     example: '62a584a2f2fdd2cf95548236',
   })
-  @IsDefined()
+  @IsDefined({ message: 'Each brand must be related with a company' })
   @Transform(toObjectId)
   @Type(() => Types.ObjectId)
   company: Types.ObjectId;

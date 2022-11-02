@@ -1,4 +1,6 @@
 export const AVATAR_FILE_BYTE_SIZE = Number(process.env.AVATAR_FILE_SIZE) * 1024;
+export const BRAND_BGRD_SIZE = Number(process.env.BRAND_BGRD_SIZE) * 1024;
+export const BRAND_LOGO_SIZE = Number(process.env.BRAND_LOGO_SIZE) * 1024;
 export const PASSWORD_MIN_LENGTH = Number(process.env.PASSWORD_MIN_LENGTH);
 export const PASSWORD_MAX_LENGTH = Number(process.env.PASSWORD_MAX_LENGTH);
 export const USERNAME_MIN_LENGTH = Number(process.env.USERNAME_MIN_LENGTH);

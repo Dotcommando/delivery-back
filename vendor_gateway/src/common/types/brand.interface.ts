@@ -8,9 +8,9 @@ import { SUPPORTED_LANGUAGES } from '../constants';
 export interface IBrand<T_id = Types.ObjectId, TCompany = Types.ObjectId> {
   _id: T_id;
   company: TCompany;
-  backgroundLight: string;
-  backgroundDark: string;
-  logo: string;
+  backgroundLight?: string;
+  backgroundDark?: string;
+  logo?: string;
   translations: IBrandMultilingualFieldSet[];
 }
 

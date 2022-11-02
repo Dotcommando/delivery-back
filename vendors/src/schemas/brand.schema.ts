@@ -30,6 +30,7 @@ export const BrandSchema = new Schema<IBrandDocument, mongoose.Model<IBrandDocum
     company: {
       type: Schema.Types.ObjectId,
       ref: 'Company',
+      required: [ true, 'Each brand must be related with a company' ],
     },
     backgroundLight: {
       type: String,
@@ -70,6 +71,7 @@ function BrandFieldSetFn(lang: SUPPORTED_LANGUAGES): Schema<IBrandMultilingualFi
       lang: {
         type: String,
         enum: [...SUPPORTED_LANGUAGES_ARRAY],
+        required: [ true, 'Each translation set must related with a language' ],
       },
       fullName: fullNameFn(lang),
       shortName: shortNameFn(lang),

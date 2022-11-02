@@ -19,9 +19,13 @@ import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 
 import { lastValueFrom, timeout } from 'rxjs';
 
-import { AVATAR_FILE_BYTE_SIZE, MAX_TIME_OF_REQUEST_WAITING, MIME_TYPES, VENDORS_EVENTS } from './common/constants';
-import { FileSizeValidationPipe } from './common/helpers';
-import { FileTypeValidationPipe } from './common/helpers/file-type-validation.pipe';
+import {
+  AVATAR_FILE_BYTE_SIZE,
+  MAX_TIME_OF_REQUEST_WAITING,
+  MIME_TYPES,
+  VENDORS_EVENTS,
+} from './common/constants';
+import { FileSizePipe, FileTypePipe } from './common/pipes';
 import { IAddress, IResponse, IVendor } from './common/types';
 import { DeleteVendor, GetAvatarData, ReadVendor, UpdateVendor } from './decorators';
 import {
@@ -71,8 +75,8 @@ export class VendorsController {
     @UploadedFile(
       new ParseFilePipe({
         validators: [
-          new FileSizeValidationPipe({ maxFileSize: AVATAR_FILE_BYTE_SIZE }),
-          new FileTypeValidationPipe({ acceptableTypes: [ MIME_TYPES.JPG, MIME_TYPES.PNG, MIME_TYPES.GIF ] }),
+          new FileSizePipe({ maxFileSize: AVATAR_FILE_BYTE_SIZE }),
+          new FileTypePipe({ acceptableTypes: [ MIME_TYPES.JPG, MIME_TYPES.PNG, MIME_TYPES.GIF ] }),
         ],
         fileIsRequired: false,
       }),

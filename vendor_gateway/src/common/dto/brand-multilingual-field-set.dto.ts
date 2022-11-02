@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 import { Transform, TransformFnParams } from 'class-transformer';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsDefined, IsEnum, IsOptional, IsString } from 'class-validator';
 import * as sanitizeHtml from 'sanitize-html';
 
 import {
@@ -18,6 +18,7 @@ export class BrandMultilingualFieldSetDto implements IBrandMultilingualFieldSet 
     required: true,
     example: SUPPORTED_LANGUAGES.HY,
   })
+  @IsDefined({ message: 'Each translation set must have a defined language in \'lang\' field' })
   @IsEnum(SUPPORTED_LANGUAGES, {
     message: `The role must be a valid value of the enum: ${SUPPORTED_LANGUAGES_ARRAY.join(', ')}`,
   })

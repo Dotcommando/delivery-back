@@ -1,5 +1,4 @@
 export * from './create-addressed-exception';
-export * from './file-size-validation.pipe';
 export * from './is-valid-object-id';
 export * from './max-length-string-message';
 export * from './min-length-string-message';

@@ -3,16 +3,16 @@ import { FileValidator, Injectable } from '@nestjs/common';
 import fileType from 'file-type';
 
 import { MIME_TYPES, MIME_TYPES_ARRAY } from '../constants';
-import { IFileTypeValidatorOptions } from '../types';
+import { IFileTypeOptions } from '../types';
 
 
 @Injectable()
-export class FileTypeValidationPipe extends FileValidator<IFileTypeValidatorOptions> {
+export class FileTypePipe extends FileValidator<IFileTypeOptions> {
   protected readonly validationOptions: { acceptableTypes: MIME_TYPES[] } = {
     acceptableTypes: [ MIME_TYPES.JPG, MIME_TYPES.PNG, MIME_TYPES.GIF ],
   };
 
-  constructor(options?: IFileTypeValidatorOptions) {
+  constructor(options: IFileTypeOptions) {
     super(options);
 
     if (!options || (!Array.isArray(options.acceptableTypes) && typeof options.acceptableTypes !== 'string')) {
