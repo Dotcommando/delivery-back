@@ -2,6 +2,7 @@ export * from './address.interface';
 export * from './basic-multilingual-field-set.interface';
 export * from './basic-user-data.interface';
 export * from './brand.interface';
+export * from './combine-request.interface';
 export * from './company.interface';
 export * from './file-base64.interface';
 export * from './file-size-options.interface';

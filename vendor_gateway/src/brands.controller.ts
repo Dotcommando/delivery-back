@@ -12,14 +12,16 @@ import { ConfigService } from '@nestjs/config';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 
+import { Types } from 'mongoose';
+
 import { BRAND_BGRD_SIZE, BRAND_LOGO_SIZE, MIME_TYPES } from './common/constants';
 import { FilesSizePipe, FilesTypePipe } from './common/pipes';
-import { IResponse } from './common/types';
+import { IBrand, IResponse } from './common/types';
 import { CreateBrand } from './decorators';
 import { CreateBrandBodyDto } from './dto';
 import { JwtGuard } from './guards';
-import { BrandsService } from './services';
-import { AuthenticatedRequest, ICreateBrandRes } from './types';
+import { BrandsService, CommonService } from './services';
+import { AuthenticatedRequest, ICreateBrandRes, ISaveBrandImagesReq, ISaveBrandImagesRes } from './types';
 
 
 @Controller('brands')
@@ -27,6 +29,7 @@ import { AuthenticatedRequest, ICreateBrandRes } from './types';
 export class BrandsController {
   constructor(
     private readonly configService: ConfigService,
+    private readonly commonService: CommonService,
     private readonly brandsService: BrandsService,
   ) {
   }
@@ -63,12 +66,20 @@ export class BrandsController {
         fileIsRequired: false,
       }),
     ) files: {
-      logo?: Express.Multer.File[];
-      backgroundLight?: Express.Multer.File[];
-      backgroundDark?: Express.Multer.File[];
+      logo?: [Express.Multer.File];
+      backgroundLight?: [Express.Multer.File];
+      backgroundDark?: [Express.Multer.File];
     },
     @Req() req: AuthenticatedRequest,
-  ): Promise<IResponse<ICreateBrandRes>> {
-    return await this.brandsService.createBrand(body);
+  ): Promise<IResponse<| ICreateBrandRes | ISaveBrandImagesRes>> {
+    const _id = new Types.ObjectId();
+    const brand = { ...body, _id };
+
+    return Object.keys(files).length
+      ? await this.commonService.parallelCombineRequests<IBrand, ICreateBrandRes, ISaveBrandImagesReq, ISaveBrandImagesRes>([
+        { fn: this.brandsService.createBrand, args: brand },
+        { fn: this.brandsService.saveBrandImages, args: { files, brand }},
+      ])
+      : await this.brandsService.createBrand(brand);
   }
 }

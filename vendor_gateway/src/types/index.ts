@@ -13,6 +13,8 @@ export * from './issue-tokens-res.interface';
 export * from './logout-req.interface';
 export * from './logout-res.interface';
 export * from './reissue-tokens-req.interface';
+export * from './save-brand-images-req.interface';
+export * from './save-brand-images-res.interface';
 export * from './update-vendor-data.interface';
 export * from './update-vendor-res.interface';
 export * from './vendor-sign-in-res.interface';

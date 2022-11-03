@@ -6,7 +6,14 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { AuthController } from './auth.controller';
 import { BrandsController } from './brands.controller';
 import { CompaniesController } from './companies.controller';
-import { AuthService, BrandsService, FileProcessingService, StoreService, VendorsService } from './services';
+import {
+  AuthService,
+  BrandsService,
+  CommonService,
+  FileProcessingService,
+  StoreService,
+  VendorsService,
+} from './services';
 import configuration from './services/config';
 import { LocalStrategy } from './strategies';
 import { VendorsController } from './vendors.controller';
@@ -27,6 +34,7 @@ import { VendorsController } from './vendors.controller';
   ],
   providers: [
     AuthService,
+    CommonService,
     BrandsService,
     FileProcessingService,
     StoreService,

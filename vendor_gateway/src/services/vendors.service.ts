@@ -177,20 +177,23 @@ export class VendorsService {
 
   private changeUserAvatar(user: IVendor): { (fileName: string): Promise<void> } {
     return async (fileName: string): Promise<void> => {
-      if (Boolean(user.avatar)) {
-        const deleteOldAvatarFromAWSResponse = await lastValueFrom(
-          this.fileServiceClient.send(FILES_EVENTS.FILE_DELETE_FILE, { fileName: user.avatar }),
+      try {
+        if (Boolean(user.avatar)) {
+          const deleteOldAvatarFromAWSResponse = await lastValueFrom(
+            this.fileServiceClient.send(FILES_EVENTS.FILE_DELETE_FILE, { fileName: user.avatar }),
+          );
+        }
+
+        const updateVendorResponse = await lastValueFrom(
+          this.vendorServiceClient.send(VENDORS_EVENTS.VENDOR_UPDATE_VENDOR, {
+            _id: user._id,
+            avatar: fileName,
+          }),
         );
+
+        return;
+      } catch (e) {
       }
-
-      const updateVendorResponse = await lastValueFrom(
-        this.vendorServiceClient.send(VENDORS_EVENTS.VENDOR_UPDATE_VENDOR, {
-          _id: user._id,
-          avatar: fileName,
-        }),
-      );
-
-      return;
     };
   }
 }

@@ -1,9 +1,10 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
 
-import { Transform, Type } from 'class-transformer';
-import { IsArray, IsDefined, IsOptional, MaxLength, ValidateNested } from 'class-validator';
+import { Transform, TransformFnParams, Type } from 'class-transformer';
+import { IsArray, IsDefined, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
 import { Types } from 'mongoose';
+import * as sanitizeHtml from 'sanitize-html';
 
 import { BrandMultilingualFieldSetDto } from './brand-multilingual-field-set.dto';
 
@@ -37,9 +38,11 @@ export class BrandBodyDto {
     example: 'light-background-2022-10-24-12-53-04-097-9800fc.jpg',
   })
   @IsOptional()
+  @IsString({ message: 'Light background filename must be a string' })
   @MaxLength(IMAGE_ADDRESS_MAX_LENGTH, {
     message: `Light background filename length must be equal or shorter ${IMAGE_ADDRESS_MAX_LENGTH} characters`,
   })
+  @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
   backgroundLight: string;
 
   @ApiProperty({
@@ -47,9 +50,11 @@ export class BrandBodyDto {
     example: 'dark-background-2022-10-24-12-53-04-097-9800fc.jpg',
   })
   @IsOptional()
+  @IsString({ message: 'Dark background filename must be a string' })
   @MaxLength(IMAGE_ADDRESS_MAX_LENGTH, {
     message: `Dark background filename length must be equal or shorter ${IMAGE_ADDRESS_MAX_LENGTH} characters`,
   })
+  @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
   backgroundDark: string;
 
   @ApiProperty({
@@ -57,9 +62,11 @@ export class BrandBodyDto {
     example: 'logo-2022-10-24-12-53-04-097-9800fc.jpg',
   })
   @IsOptional()
+  @IsString({ message: 'Logo filename must be a string' })
   @MaxLength(IMAGE_ADDRESS_MAX_LENGTH, {
     message: `Logotype filename length must be equal or shorter ${IMAGE_ADDRESS_MAX_LENGTH} characters`,
   })
+  @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
   logo: string;
 
   @ApiProperty({
