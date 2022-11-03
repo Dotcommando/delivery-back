@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   ParseFilePipe,
+  Patch,
   Post,
   Req,
   UploadedFiles,
@@ -17,7 +18,7 @@ import { Types } from 'mongoose';
 import { BRAND_BGRD_SIZE, BRAND_LOGO_SIZE, MIME_TYPES } from './common/constants';
 import { FilesSizePipe, FilesTypePipe } from './common/pipes';
 import { IBrand, IResponse } from './common/types';
-import { CreateBrand } from './decorators';
+import { CreateBrand, UpdateBrand } from './decorators';
 import { CreateBrandBodyDto } from './dto';
 import { JwtGuard } from './guards';
 import { BrandsService, CommonService } from './services';
@@ -44,6 +45,55 @@ export class BrandsController {
   ]))
   @Post('/one')
   public async createBrand(
+    @Body() body: CreateBrandBodyDto,
+    @UploadedFiles(
+      new ParseFilePipe({
+        validators: [
+          new FilesSizePipe({
+            sizes: [
+              { logo: BRAND_LOGO_SIZE },
+              { backgroundLight: BRAND_BGRD_SIZE },
+              { backgroundDark: BRAND_BGRD_SIZE },
+            ],
+          }),
+          new FilesTypePipe({
+            types: [
+              { logo: [ MIME_TYPES.JPG, MIME_TYPES.PNG, MIME_TYPES.GIF ] },
+              { backgroundLight: [ MIME_TYPES.JPG, MIME_TYPES.PNG, MIME_TYPES.GIF ] },
+              { backgroundDark: [ MIME_TYPES.JPG, MIME_TYPES.PNG, MIME_TYPES.GIF ] },
+            ],
+          }),
+        ],
+        fileIsRequired: false,
+      }),
+    ) files: {
+      logo?: [Express.Multer.File];
+      backgroundLight?: [Express.Multer.File];
+      backgroundDark?: [Express.Multer.File];
+    },
+    @Req() req: AuthenticatedRequest,
+  ): Promise<IResponse<| ICreateBrandRes | ISaveBrandImagesRes>> {
+    const _id = new Types.ObjectId();
+    const brand = { ...body, _id };
+
+    return Object.keys(files).length
+      ? await this.commonService.parallelCombineRequests<IBrand, ICreateBrandRes, ISaveBrandImagesReq, ISaveBrandImagesRes>([
+        { fn: this.brandsService.createBrand, args: brand },
+        { fn: this.brandsService.saveBrandImages, args: { files, brand }},
+      ])
+      : await this.brandsService.createBrand(brand);
+  }
+
+  @UpdateBrand()
+  @ApiConsumes('multipart/form-data')
+  @UseGuards(JwtGuard)
+  @UseInterceptors(FileFieldsInterceptor([
+    { name: 'logo', maxCount: 1 },
+    { name: 'backgroundLight', maxCount: 1 },
+    { name: 'backgroundDark', maxCount: 1 },
+  ]))
+  @Patch('/one')
+  public async updateBrand(
     @Body() body: CreateBrandBodyDto,
     @UploadedFiles(
       new ParseFilePipe({

@@ -17,7 +17,7 @@ export class BrandsService {
   }
 
   @AddressedErrorCatching()
-  public async createBrand(data): Promise<IResponse<ICreateBrandRes>> {
+  public async createBrand(data: IBrand): Promise<IResponse<ICreateBrandRes>> {
     const createBrandResponse: { brand: IBrand } = await this.brandDbAccessService.saveNewBrand(data);
 
     if (!createBrandResponse?.brand) {
@@ -26,9 +26,7 @@ export class BrandsService {
 
     return {
       status: HttpStatus.CREATED,
-      data: {
-        brand: createBrandResponse.brand,
-      },
+      data: { brand: createBrandResponse.brand },
       errors: null,
     };
   }

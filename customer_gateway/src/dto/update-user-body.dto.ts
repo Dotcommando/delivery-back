@@ -6,7 +6,6 @@ import { IsEmail, IsOptional, IsString, Matches, MaxLength, MinLength } from 'cl
 
 import {
   IMAGE_ADDRESS_MAX_LENGTH,
-  IMAGE_BASE64_MAX_LENGTH,
   NAME_MAX_LENGTH,
   NAME_MIN_LENGTH,
   NAME_REGEXP,
@@ -19,7 +18,13 @@ import {
 } from '../common/constants';
 import { NotNull, ValidateIfNull } from '../common/decorators';
 import { PartialUserDto } from '../common/dto';
-import { maxLengthStringMessage, minLengthStringMessage, toLowercase } from '../common/helpers';
+import {
+  maxLengthStringMessage,
+  minLengthStringMessage,
+  sanitizeString,
+  sanitizeStringIfNotNull,
+  toLowercase,
+} from '../common/helpers';
 
 
 export class UpdateUserBodyDto extends PickType(
@@ -50,6 +55,7 @@ export class UpdateUserBodyDto extends PickType(
     message: 'First name can contain just latin symbols, digits, underscores and single quotes',
   })
   @ValidateIfNull()
+  @Transform(sanitizeString)
   firstName: string;
 
   @ApiProperty({
@@ -64,6 +70,7 @@ export class UpdateUserBodyDto extends PickType(
   @Matches(NAME_REGEXP, {
     message: 'Middle name can contain just latin symbols, digits, underscores and single quotes',
   })
+  @Transform(sanitizeStringIfNotNull)
   middleName: string;
 
   @ApiProperty({
@@ -82,6 +89,7 @@ export class UpdateUserBodyDto extends PickType(
     message: 'Last name can contain just latin symbols, digits, underscores and single quotes',
   })
   @ValidateIfNull()
+  @Transform(sanitizeString)
   lastName: string;
 
   @ApiProperty({
@@ -100,16 +108,18 @@ export class UpdateUserBodyDto extends PickType(
     message: 'Username can contain just latin symbols, digits, and dots',
   })
   @ValidateIfNull()
+  @Transform(sanitizeString)
   username: string;
 
   @ApiProperty({
-    description: 'Filename with extension',
+    description: 'Filename with extension. Can be null',
     example: 'mikhail-filchushkin-2022-10-24-12-53-04-097-9800fc.jpg',
   })
   @IsOptional()
   @MaxLength(IMAGE_ADDRESS_MAX_LENGTH, {
     message: `Avatar file name length must be equal or shorter ${IMAGE_ADDRESS_MAX_LENGTH} characters`,
   })
+  @Transform(sanitizeStringIfNotNull)
   avatar: string;
 
   @ApiProperty({

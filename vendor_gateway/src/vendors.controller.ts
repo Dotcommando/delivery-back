@@ -6,7 +6,7 @@ import {
   Inject,
   Param,
   ParseFilePipe,
-  Put,
+  Patch,
   Req,
   UploadedFile,
   UseGuards,
@@ -36,8 +36,16 @@ import {
   UpdateVendorParamDto,
 } from './dto';
 import { JustMeGuard } from './guards';
-import { VendorsService } from './services';
-import { AuthenticatedRequest, IDeleteUserRes, IGetAvatarDataRes, IUpdateVendorRes } from './types';
+import { CommonService, VendorsService } from './services';
+import {
+  AuthenticatedRequest,
+  IDeleteUserRes,
+  IGetAvatarDataRes,
+  IImageSavingInited,
+  IUpdateVendorData,
+  IUpdateVendorImagesReq,
+  IUpdateVendorRes,
+} from './types';
 
 
 @Controller('vendors')
@@ -45,6 +53,7 @@ import { AuthenticatedRequest, IDeleteUserRes, IGetAvatarDataRes, IUpdateVendorR
 export class VendorsController {
   constructor(
     private readonly configService: ConfigService,
+    private readonly commonService: CommonService,
     private readonly vendorsService: VendorsService,
     @Inject('VENDOR_SERVICE') private readonly vendorServiceClient: ClientProxy,
   ) {
@@ -67,7 +76,7 @@ export class VendorsController {
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('avatar'))
   @UseGuards(JustMeGuard)
-  @Put('me/:_id')
+  @Patch('me/:_id')
   public async updateMe(
     @Param() param: UpdateVendorParamDto,
     @Body() body: UpdateVendorBodyDto,
@@ -81,15 +90,19 @@ export class VendorsController {
         fileIsRequired: false,
       }),
     ) avatar?: Express.Multer.File,
-  ): Promise<IResponse<IUpdateVendorRes>> {
-    const user: IVendor | null = req?.user ?? null;
+  ): Promise<IResponse<| IUpdateVendorRes | IImageSavingInited>> {
+    const user: IVendor = req.user;
 
-    return await this.vendorsService.updateVendor({
-      _id: param._id,
-      body,
-      user,
-      ...(Boolean(avatar) && { avatar }),
-    });
+    return Boolean(avatar) || 'avatar' in body
+      ? await this.commonService.parallelCombineRequests<IUpdateVendorData, IUpdateVendorRes, IUpdateVendorImagesReq, IImageSavingInited>([
+        { fn: this.vendorsService.updateVendor, args: { _id: param._id, body, user }},
+        { fn: this.vendorsService.updateVendorImages, args: { user, avatar: 'avatar' in body && !body.avatar ? null : avatar }},
+      ])
+      : await this.vendorsService.updateVendor({
+        _id: param._id,
+        body,
+        user,
+      });
   }
 
   @DeleteVendor()
@@ -105,10 +118,10 @@ export class VendorsController {
   }
 
   @GetAvatarData()
-  @Get('avatar-status/:sessionUUID')
-  public async getAvatarData(
+  @Get('image-status/:sessionUUID')
+  public async getImageStatus(
     @Param() param: GetAvatarDataParamDto,
   ): Promise<IResponse<IGetAvatarDataRes>> {
-    return this.vendorsService.getAvatarData(param.sessionUUID);
+    return this.vendorsService.getImageStatus(param.sessionUUID);
   }
 }

@@ -1,7 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
 
-import { Transform, TransformFnParams, Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   ArrayMaxSize,
   IsArray,
@@ -17,7 +17,6 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Types } from 'mongoose';
-import * as sanitizeHtml from 'sanitize-html';
 
 import {
   ADDRESSES_MAX_SIZE,
@@ -39,6 +38,7 @@ import {
 import {
   maxLengthStringMessage,
   minLengthStringMessage,
+  sanitizeStringIfNotNull,
   toArrayOfObjectIds,
   toBoolean,
   toLowercase,
@@ -73,7 +73,7 @@ export class UserDto implements IUser {
   @Matches(NAME_REGEXP, {
     message: 'First name can contain just latin symbols, digits, underscores and single quotes',
   })
-  @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
+  @Transform(sanitizeStringIfNotNull)
   firstName: string;
 
   @ApiProperty({
@@ -88,7 +88,7 @@ export class UserDto implements IUser {
   @Matches(NAME_REGEXP, {
     message: 'Middle name can contain just latin symbols, digits, underscores and single quotes',
   })
-  @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
+  @Transform(sanitizeStringIfNotNull)
   middleName: string;
 
   @ApiProperty({
@@ -106,7 +106,7 @@ export class UserDto implements IUser {
   @Matches(NAME_REGEXP, {
     message: 'Last name can contain just latin symbols, digits, underscores and single quotes',
   })
-  @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
+  @Transform(sanitizeStringIfNotNull)
   lastName: string;
 
   @ApiProperty({
@@ -124,7 +124,7 @@ export class UserDto implements IUser {
   @Matches(USERNAME_REGEXP, {
     message: 'Username can contain just latin symbols, digits, and dots',
   })
-  @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
+  @Transform(sanitizeStringIfNotNull)
   username: string;
 
   @ApiProperty({
@@ -138,7 +138,7 @@ export class UserDto implements IUser {
   @MaxLength(PROPERTY_LENGTH_64, {
     message: `Email must be equal or shorter than ${PROPERTY_LENGTH_64} symbols`,
   })
-  @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
+  @Transform(sanitizeStringIfNotNull)
   email: string;
 
   @ApiProperty({
@@ -149,7 +149,7 @@ export class UserDto implements IUser {
   @MaxLength(IMAGE_ADDRESS_MAX_LENGTH, {
     message: `Avatar file name length must be equal or shorter ${IMAGE_ADDRESS_MAX_LENGTH} characters`,
   })
-  @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
+  @Transform(sanitizeStringIfNotNull)
   avatar: string;
 
   @ApiProperty({
@@ -179,7 +179,7 @@ export class UserDto implements IUser {
   @MaxLength(PHONE_NUMBER_MAX_LENGTH, {
     message: `Maximal length for phone number is ${PHONE_NUMBER_MAX_LENGTH} symbols`,
   })
-  @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
+  @Transform(sanitizeStringIfNotNull)
   phoneNumber: string;
 
   @ApiProperty({

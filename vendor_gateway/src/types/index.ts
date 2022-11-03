@@ -1,6 +1,7 @@
 export * from './authenticated-request.type';
 export * from './authorized-request.type';
 export * from './create-brand-res.interface';
+export * from './delete-file-res.interface';
 export * from './delete-user-data.interface';
 export * from './delete-user-res.interface';
 export * from './file-data-store.interface';
@@ -16,6 +17,7 @@ export * from './reissue-tokens-req.interface';
 export * from './save-brand-images-req.interface';
 export * from './save-brand-images-res.interface';
 export * from './update-vendor-data.interface';
+export * from './update-vendor-images-req.interface';
 export * from './update-vendor-res.interface';
 export * from './vendor-sign-in-res.interface';
 export * from './verify-token-res.interface';

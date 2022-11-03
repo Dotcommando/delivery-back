@@ -10,6 +10,7 @@ import { AddressedErrorCatching, ApplyAddressedErrorCatching } from '../common/d
 import { IAddress, IResponse, IStorageData, IVendor } from '../common/types';
 import { FILE_TRANSFER_STATUS } from '../constants';
 import {
+  IDeleteFileRes,
   IDeleteVendorData,
   IFileDataStore,
   IGetAvatarDataRes,
@@ -17,6 +18,7 @@ import {
   IImageSavingInited,
   ILogoutRes,
   IUpdateVendorData,
+  IUpdateVendorImagesReq,
   IUpdateVendorRes,
 } from '../types';
 
@@ -32,50 +34,29 @@ export class VendorsService {
     this.changeUserAvatar = this.changeUserAvatar.bind(this);
   }
 
+  @AddressedErrorCatching()
   public async updateVendor(data: IUpdateVendorData): Promise<IResponse<IUpdateVendorRes>> {
-    let fileData: IImageSavingInited;
+    const bodyUpdated = { ...data.body };
 
-    if ('avatar' in data) {
-      const imageSavingInitedResponse: IResponse<IImageSavingInited> = await this.fileProcessingService
-        .saveImage({ file: data.avatar as Express.Multer.File, user: data.user }, this.changeUserAvatar(data.user));
+    delete bodyUpdated.avatar;
 
-      data.avatar = null;
-
-      if (imageSavingInitedResponse.status !== HttpStatus.OK) {
-        return {
-          status: HttpStatus.PRECONDITION_FAILED,
-          data: null,
-          errors: [
-            ...(Array.isArray(imageSavingInitedResponse.errors) ? imageSavingInitedResponse.errors : []),
-            'Cannot save avatar file',
-          ],
-        };
-      }
-
-      fileData = imageSavingInitedResponse.data;
-    }
-
-    if ((!data.body.email && !data.body.phoneNumber) || !Boolean(data.user)) {
+    if ((!bodyUpdated.email && !bodyUpdated.phoneNumber) || !Boolean(data.user)) {
       return await lastValueFrom(
         this.vendorServiceClient
-          .send(VENDORS_EVENTS.VENDOR_UPDATE_VENDOR, { ...data.body, _id: data._id })
+          .send(VENDORS_EVENTS.VENDOR_UPDATE_VENDOR, { ...bodyUpdated, _id: data._id })
           .pipe(
             timeout(MAX_TIME_OF_REQUEST_WAITING),
             map((response: IResponse<{ user: IVendor<IAddress> }>) => ({
               ...response,
               data: Boolean(response.data)
-                ? {
-                  user: response.data.user,
-                  ...(Boolean(fileData) && { fileData }),
-                } as IUpdateVendorRes
+                ? { user: response.data.user } as IUpdateVendorRes
                 : null,
             })),
           ),
       );
     }
 
-    const { body, _id, user } = data;
-    const bodyUpdated = { ...body };
+    const { _id, user } = data;
 
     if (bodyUpdated.phoneNumber === user.phoneNumber) {
       delete bodyUpdated.phoneNumber;
@@ -93,14 +74,65 @@ export class VendorsService {
           map((response: IResponse<{ user: IVendor<IAddress> }>) => ({
             ...response,
             data: Boolean(response.data)
-              ? {
-                user: response.data.user,
-                ...(Boolean(fileData) && { fileData }),
-              } as IUpdateVendorRes
+              ? { user: response.data.user } as IUpdateVendorRes
               : null,
           })),
         ),
     );
+  }
+
+  @AddressedErrorCatching()
+  public async updateVendorImages(data: IUpdateVendorImagesReq): Promise<IResponse<IImageSavingInited>> {
+    const { user } = data;
+    let fileData: IImageSavingInited;
+
+    if (Boolean(data.avatar)) {
+      const imageSavingInitedResponse: IResponse<IImageSavingInited> = await this.fileProcessingService
+        .saveImage({ file: data.avatar as Express.Multer.File, user: data.user }, this.changeUserAvatar(data.user));
+
+      data.avatar = null;
+
+      if (imageSavingInitedResponse.status !== HttpStatus.OK) {
+        return {
+          status: HttpStatus.PRECONDITION_FAILED,
+          data: null,
+          errors: [
+            ...(Array.isArray(imageSavingInitedResponse.errors) ? imageSavingInitedResponse.errors : []),
+            'Cannot save avatar file',
+          ],
+        };
+      }
+
+      fileData = imageSavingInitedResponse.data;
+    } else if ('avatar' in data && !Boolean(data.avatar) && Boolean(user.avatar)) {
+      const deleteAvatarFromUser: IResponse<{ user: IVendor<IAddress> }> = await lastValueFrom(
+        this.vendorServiceClient
+          .send(VENDORS_EVENTS.VENDOR_UPDATE_VENDOR, { _id: user._id, avatar: null })
+          .pipe(timeout(MAX_TIME_OF_REQUEST_WAITING)),
+      );
+
+      if (deleteAvatarFromUser.status !== HttpStatus.OK) {
+        return deleteAvatarFromUser as unknown as IResponse<IImageSavingInited>;
+      }
+
+      const deleteAvatarAsFileResponse: IResponse<IDeleteFileRes> = await lastValueFrom(
+        this.fileServiceClient.send(FILES_EVENTS.FILE_DELETE_FILE, { fileName: user.avatar }),
+      );
+
+      if (deleteAvatarAsFileResponse.status !== HttpStatus.OK) {
+        return deleteAvatarAsFileResponse as IResponse<IImageSavingInited>;
+      }
+
+      fileData = { fileName: deleteAvatarAsFileResponse.data.fileName, sessionUUID: null };
+    } else if (!Boolean(data.avatar) && !Boolean(user.avatar)) {
+      fileData = { fileName: null, sessionUUID: null };
+    }
+
+    return {
+      status: HttpStatus.OK,
+      data: fileData,
+      errors: null,
+    };
   }
 
   public async deleteUser(data: IDeleteVendorData): Promise<IResponse<ILogoutRes>> {
@@ -122,7 +154,7 @@ export class VendorsService {
   }
 
   @AddressedErrorCatching()
-  public async getAvatarData(sessionUUID: string): Promise<IResponse<IGetAvatarDataRes>> {
+  public async getImageStatus(sessionUUID: string): Promise<IResponse<IGetAvatarDataRes>> {
     const fileData: IStorageData = this.fileProcessingService.getStorageNote(sessionUUID);
 
     if (!fileData.data) {
@@ -157,7 +189,7 @@ export class VendorsService {
         status: HttpStatus.PRECONDITION_FAILED,
         data: null,
         errors: [
-          'Cannot get avatar URL',
+          'Cannot get image URL',
           ...(Array.isArray(fileLinkResponse.errors) ? fileLinkResponse.errors : []),
         ],
       };

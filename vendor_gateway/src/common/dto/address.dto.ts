@@ -1,9 +1,8 @@
 import { IntersectionType, PartialType, PickType } from '@nestjs/mapped-types';
 
-import { Transform, TransformFnParams, Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { IsDefined, IsString, Matches, MaxLength, MinLength } from 'class-validator';
 import { Types } from 'mongoose';
-import * as sanitizeHtml from 'sanitize-html';
 
 import {
   POSTAL_CODE_MAX_LENGTH,
@@ -14,7 +13,13 @@ import {
   PROPERTY_LENGTH_64,
 } from '../constants';
 import { NotNull, ValidateIfNull } from '../decorators';
-import { maxLengthStringMessage, minLengthStringMessage, toObjectId } from '../helpers';
+import {
+  maxLengthStringMessage,
+  minLengthStringMessage,
+  sanitizeString,
+  sanitizeStringIfNotNull,
+  toObjectId,
+} from '../helpers';
 import { IAddress } from '../types';
 
 
@@ -39,7 +44,7 @@ export class AddressDto implements IAddress {
   @Matches(POSTAL_CODE_REGEXP, {
     message: 'Postal code can contain digits and hyphens only',
   })
-  @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
+  @Transform(sanitizeString)
   postalCode: string;
 
   @IsString({ message: 'Country must be a string' })
@@ -49,14 +54,14 @@ export class AddressDto implements IAddress {
   @MaxLength(PROPERTY_LENGTH_64, {
     message: maxLengthStringMessage('Country', PROPERTY_LENGTH_64),
   })
-  @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
+  @Transform(sanitizeString)
   country: string;
 
   @IsString({ message: 'Region must be a string' })
   @MaxLength(PROPERTY_LENGTH_64, {
     message: maxLengthStringMessage('Region', PROPERTY_LENGTH_64),
   })
-  @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
+  @Transform(sanitizeString)
   region: string;
 
   @IsString({ message: 'City must be a string' })
@@ -66,7 +71,7 @@ export class AddressDto implements IAddress {
   @MaxLength(PROPERTY_LENGTH_64, {
     message: maxLengthStringMessage('City', PROPERTY_LENGTH_64),
   })
-  @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
+  @Transform(sanitizeString)
   city: string;
 
   @IsString({ message: 'Street must be a string' })
@@ -76,7 +81,7 @@ export class AddressDto implements IAddress {
   @MaxLength(PROPERTY_LENGTH_64, {
     message: maxLengthStringMessage('Street', PROPERTY_LENGTH_64),
   })
-  @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
+  @Transform(sanitizeString)
   street: string;
 
   @IsString({ message: 'Building must be a string' })
@@ -86,7 +91,7 @@ export class AddressDto implements IAddress {
   @MaxLength(PROPERTY_LENGTH_64, {
     message: maxLengthStringMessage('Building', PROPERTY_LENGTH_64),
   })
-  @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
+  @Transform(sanitizeString)
   building: string;
 
   @IsString({ message: 'Flat must be a string' })
@@ -96,7 +101,7 @@ export class AddressDto implements IAddress {
   @MaxLength(PROPERTY_LENGTH_4, {
     message: maxLengthStringMessage('Flat', PROPERTY_LENGTH_4),
   })
-  @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
+  @Transform(sanitizeStringIfNotNull)
   flat: string;
 }
 
@@ -120,7 +125,7 @@ export class UpdateAddressDto extends IntersectionType(
     message: maxLengthStringMessage('Country', PROPERTY_LENGTH_64),
   })
   @ValidateIfNull()
-  @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
+  @Transform(sanitizeString)
   country: string;
 
   @NotNull()
@@ -132,7 +137,7 @@ export class UpdateAddressDto extends IntersectionType(
     message: maxLengthStringMessage('City', PROPERTY_LENGTH_64),
   })
   @ValidateIfNull()
-  @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
+  @Transform(sanitizeString)
   city: string;
 
   @NotNull()
@@ -144,7 +149,7 @@ export class UpdateAddressDto extends IntersectionType(
     message: maxLengthStringMessage('Street', PROPERTY_LENGTH_64),
   })
   @ValidateIfNull()
-  @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
+  @Transform(sanitizeString)
   street: string;
 
   @NotNull()
@@ -156,6 +161,6 @@ export class UpdateAddressDto extends IntersectionType(
     message: maxLengthStringMessage('Building', PROPERTY_LENGTH_64),
   })
   @ValidateIfNull()
-  @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
+  @Transform(sanitizeString)
   building: string;
 }

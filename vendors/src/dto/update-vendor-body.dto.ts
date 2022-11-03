@@ -15,7 +15,13 @@ import {
 } from '../common/constants';
 import { NotNull, ValidateIfNull } from '../common/decorators';
 import { PartialVendorDto, VendorDto } from '../common/dto';
-import { maxLengthStringMessage, minLengthStringMessage, toLowercase } from '../common/helpers';
+import {
+  maxLengthStringMessage,
+  minLengthStringMessage,
+  sanitizeString,
+  sanitizeStringIfNotNull,
+  toLowercase,
+} from '../common/helpers';
 
 
 export class UpdateVendorDto extends PickType(
@@ -45,6 +51,7 @@ export class UpdateVendorDto extends PickType(
     message: 'First name can contain just latin symbols, digits, underscores and single quotes',
   })
   @ValidateIfNull()
+  @Transform(sanitizeString)
   firstName: string;
 
   @ApiProperty({
@@ -59,6 +66,7 @@ export class UpdateVendorDto extends PickType(
   @Matches(NAME_REGEXP, {
     message: 'Middle name can contain just latin symbols, digits, underscores and single quotes',
   })
+  @Transform(sanitizeStringIfNotNull)
   middleName: string;
 
   @ApiProperty({
@@ -77,16 +85,18 @@ export class UpdateVendorDto extends PickType(
     message: 'Last name can contain just latin symbols, digits, underscores and single quotes',
   })
   @ValidateIfNull()
+  @Transform(sanitizeString)
   lastName: string;
 
   @ApiProperty({
     description: 'Filename with extension. Can be null',
     example: 'mikhail-filchushkin-2022-10-24-12-53-04-097-9800fc.jpg',
   })
-  @IsOptional()
   @MaxLength(IMAGE_ADDRESS_MAX_LENGTH, {
     message: `Avatar file name length must be equal or shorter ${IMAGE_ADDRESS_MAX_LENGTH} characters`,
   })
+  @ValidateIfNull()
+  @Transform(sanitizeStringIfNotNull)
   avatar: string;
 
   @ApiProperty({
@@ -104,6 +114,7 @@ export class UpdateVendorDto extends PickType(
     message: `Maximal length for phone number is ${PHONE_NUMBER_MAX_LENGTH} symbols`,
   })
   @ValidateIfNull()
+  @Transform(sanitizeString)
   phoneNumber: string;
 
   @ApiProperty({

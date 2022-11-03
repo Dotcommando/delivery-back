@@ -1,15 +1,18 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 
-import { MongoError } from 'mongodb';
-
 import { AddressedHttpException } from '../exceptions';
 
+
 export function createAddressedException(
-  e: Error | HttpException | AddressedHttpException | MongoError,
+  e: Error | HttpException | AddressedHttpException,
   address: string,
 ): AddressedHttpException {
   throw new AddressedHttpException(
-    (e as HttpException)?.getStatus ? (e as HttpException).getStatus() : HttpStatus.PRECONDITION_FAILED,
+    (e as HttpException)?.getStatus
+      ? (e as HttpException).getStatus()
+      : e?.message?.includes('E11000')
+        ? HttpStatus.CONFLICT
+        : HttpStatus.PRECONDITION_FAILED,
     address,
     process.env.ENVIRONMENT === 'prod'
       ? 'Some internal error happened'
