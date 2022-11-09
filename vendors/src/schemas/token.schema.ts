@@ -3,7 +3,7 @@ import * as mongoose from 'mongoose';
 import { Schema } from 'mongoose';
 
 import { BEARER_PREFIX, JWT_SECRET_KEY } from '../common/constants';
-import { ITokenDocument } from '../common/types';
+import { ITokenDocument } from '../types';
 
 
 function prepareValue(doc, ret: { [key: string]: unknown }) {

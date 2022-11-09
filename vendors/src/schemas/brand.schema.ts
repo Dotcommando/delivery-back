@@ -18,10 +18,7 @@ import {
   SUPPORTED_LANGUAGES,
   SUPPORTED_LANGUAGES_ARRAY,
 } from '../common/constants';
-import {
-  IBrandDocument,
-  IBrandMultilingualFieldSetDoc,
-} from '../common/types';
+import { IBrandDocument, IBrandMultilingualFieldSetDoc } from '../types';
 import { optionalRange } from '../validators';
 
 
@@ -40,7 +37,11 @@ export const BrandSchema = new Schema<IBrandDocument, mongoose.Model<IBrandDocum
       type: String,
       validate: optionalRange(0, IMAGE_ADDRESS_MAX_LENGTH),
     },
-    logo: {
+    logoLight: {
+      type: String,
+      validate: optionalRange(0, IMAGE_ADDRESS_MAX_LENGTH),
+    },
+    logoDark: {
       type: String,
       validate: optionalRange(0, IMAGE_ADDRESS_MAX_LENGTH),
     },

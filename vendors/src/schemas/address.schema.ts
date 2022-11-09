@@ -8,7 +8,7 @@ import {
   PROPERTY_LENGTH_4,
   PROPERTY_LENGTH_64,
 } from '../common/constants';
-import { IAddressDocument } from '../common/types';
+import { IAddressDocument } from '../types';
 import { optionalRange } from '../validators';
 
 

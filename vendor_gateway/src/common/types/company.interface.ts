@@ -1,10 +1,10 @@
-import { Document, Types } from 'mongoose';
+import ObjectId from 'bson-objectid';
 
 import { LEGAL_ENTITY } from '../constants';
 
 
-export interface ICompany {
-  _id: Types.ObjectId;
+export interface ICompany<T_id = ObjectId, TAddress = ObjectId, TManager = ObjectId> {
+  _id: T_id;
   legalEntity: LEGAL_ENTITY;
   fullName: string;
   shortName: string;
@@ -12,12 +12,9 @@ export interface ICompany {
   phoneNumber: string;
   emailConfirmed: boolean;
   phoneConfirmed: boolean;
-  legalAddress: Types.ObjectId;
-  actualAddress: Types.ObjectId;
+  legalAddress: TAddress;
+  actualAddress: TAddress;
   bankData: string;
-  managers: Types.ObjectId[];
+  managers: TManager[];
   note?: string;
-}
-
-export interface ICompanyDocument extends Omit<ICompany, '_id'>, Document<ICompany> {
 }

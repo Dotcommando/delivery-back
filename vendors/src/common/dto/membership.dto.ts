@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+import ObjectId from 'bson-objectid';
 import { Transform, Type } from 'class-transformer';
 import { IsDefined, IsEnum } from 'class-validator';
-import { Types } from 'mongoose';
 
 import { VENDOR_ROLE } from '../constants';
 import { toObjectId } from '../helpers';
@@ -28,6 +28,6 @@ export class MembershipDto implements IMembership {
   })
   @IsDefined()
   @Transform(toObjectId)
-  @Type(() => Types.ObjectId)
-  group: Types.ObjectId;
+  @Type(() => ObjectId)
+  group: ObjectId;
 }

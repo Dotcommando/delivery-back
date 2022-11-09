@@ -1,20 +1,17 @@
-import { Types } from 'mongoose';
+import ObjectId from 'bson-objectid';
 
-import {
-  IBrand,
-  IBrandDocument,
-  IBrandMultilingualFieldSet,
-  IBrandMultilingualFieldSetDoc,
-} from '../common/types';
+import { IBrand, IBrandMultilingualFieldSet } from '../common/types';
+import { IBrandDocument, IBrandMultilingualFieldSetDoc } from '../types';
 
 
 export function mapIBrandDocumentToIBrand(brand: IBrandDocument): IBrand {
   return {
-    _id: new Types.ObjectId(String(brand._id)),
+    _id: new ObjectId(String(brand._id)),
     company: brand.company,
-    backgroundLight: brand.backgroundLight,
-    backgroundDark: brand.backgroundDark,
-    logo: brand.logo,
+    ...(brand.backgroundLight && { backgroundLight: brand.backgroundLight }),
+    ...(brand.backgroundDark && { backgroundDark: brand.backgroundDark }),
+    ...(brand.logoLight && { logoLight: brand.logoLight }),
+    ...(brand.logoDark && { logoDark: brand.logoDark }),
     translations: brand.translations?.length
       ? brand.translations.map((translationSet: IBrandMultilingualFieldSetDoc) => ({
         lang: translationSet.lang,

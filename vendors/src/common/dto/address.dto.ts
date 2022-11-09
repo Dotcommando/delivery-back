@@ -1,8 +1,8 @@
 import { IntersectionType, PartialType, PickType } from '@nestjs/mapped-types';
 
+import ObjectId from 'bson-objectid';
 import { Transform, Type } from 'class-transformer';
 import { IsDefined, IsString, Matches, MaxLength, MinLength } from 'class-validator';
-import { Types } from 'mongoose';
 
 import {
   POSTAL_CODE_MAX_LENGTH,
@@ -26,13 +26,13 @@ import { IAddress } from '../types';
 export class AddressDto implements IAddress {
   @IsDefined()
   @Transform(toObjectId)
-  @Type(() => Types.ObjectId)
-  _id: Types.ObjectId;
+  @Type(() => ObjectId)
+  _id: ObjectId;
 
   @IsDefined()
   @Transform(toObjectId)
-  @Type(() => Types.ObjectId)
-  userId: Types.ObjectId;
+  @Type(() => ObjectId)
+  userId: ObjectId;
 
   @IsString({ message: 'Postal code must be a string' })
   @MinLength(PROPERTY_LENGTH_1, {

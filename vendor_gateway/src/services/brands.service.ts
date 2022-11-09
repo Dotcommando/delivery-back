@@ -8,7 +8,13 @@ import { FileProcessingService } from './file-processing.service';
 import { FILES_EVENTS, MAX_TIME_OF_REQUEST_WAITING, VENDORS_EVENTS } from '../common/constants';
 import { AddressedErrorCatching, ApplyAddressedErrorCatching } from '../common/decorators';
 import { IBrand, IResponse } from '../common/types';
-import { ICreateBrandRes, IImageSavingInited, ISaveBrandImagesReq, ISaveBrandImagesRes } from '../types';
+import {
+  ICreateBrandRes,
+  IImageSavingInited,
+  ISaveBrandImagesReq,
+  ISaveBrandImagesRes, IUpdateBrandReq,
+  IUpdateBrandRes,
+} from '../types';
 
 
 @ApplyAddressedErrorCatching
@@ -26,6 +32,15 @@ export class BrandsService {
     return await lastValueFrom(
       this.vendorServiceClient
         .send(VENDORS_EVENTS.VENDOR_CREATE_BRAND, body)
+        .pipe(timeout(MAX_TIME_OF_REQUEST_WAITING)),
+    );
+  }
+
+  @AddressedErrorCatching()
+  public async updateBrand(body: IBrand | IUpdateBrandReq): Promise<IResponse<IUpdateBrandRes>> {
+    return await lastValueFrom(
+      this.vendorServiceClient
+        .send(VENDORS_EVENTS.VENDOR_UPDATE_VENDOR, body)
         .pipe(timeout(MAX_TIME_OF_REQUEST_WAITING)),
     );
   }

@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+import ObjectId from 'bson-objectid';
 import { Transform, Type } from 'class-transformer';
 import {
   ArrayMaxSize,
@@ -12,9 +13,9 @@ import {
   IsString,
   Matches,
   MaxLength,
-  MinLength, ValidateNested,
+  MinLength,
+  ValidateNested,
 } from 'class-validator';
-import { Types } from 'mongoose';
 
 import {
   BANK_DATA_MAX_LENGTH,
@@ -28,7 +29,8 @@ import {
 } from '../constants';
 import {
   maxLengthStringMessage,
-  minLengthStringMessage, toArrayOfObjectIds,
+  minLengthStringMessage,
+  toArrayOfObjectIds,
   toLowercase,
   toObjectId,
 } from '../helpers';
@@ -38,8 +40,8 @@ import { ICompany } from '../types';
 export class CompanyDto implements ICompany {
   @IsDefined()
   @Transform(toObjectId)
-  @Type(() => Types.ObjectId)
-  _id: Types.ObjectId;
+  @Type(() => ObjectId)
+  _id: ObjectId;
 
   @ApiProperty({
     description: 'Legal entity of user\'s company',
@@ -137,16 +139,16 @@ export class CompanyDto implements ICompany {
     example: '62a588187cebf9ce17bea893',
   })
   @Transform(toObjectId)
-  @Type(() => Types.ObjectId)
-  legalAddress: Types.ObjectId;
+  @Type(() => ObjectId)
+  legalAddress: ObjectId;
 
   @ApiProperty({
     description: 'Link on an actual address of the company. A valid MongoDB ObjectId',
     example: '62a588187cebf9ce17bea893',
   })
   @Transform(toObjectId)
-  @Type(() => Types.ObjectId)
-  actualAddress: Types.ObjectId;
+  @Type(() => ObjectId)
+  actualAddress: ObjectId;
 
   @ApiProperty({
     description: 'Bank data of the company',
@@ -171,6 +173,6 @@ export class CompanyDto implements ICompany {
   @ValidateNested({ each: true })
   @ArrayMaxSize(MANAGER_NUMBER)
   @Transform(toArrayOfObjectIds('Managers'))
-  @Type(() => Types.ObjectId)
-  managers: Types.ObjectId[];
+  @Type(() => ObjectId)
+  managers: ObjectId[];
 }

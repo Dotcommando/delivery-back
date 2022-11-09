@@ -5,7 +5,7 @@ import { BrandDbAccessService } from './brand-db-access-service';
 
 import { AddressedErrorCatching } from '../common/decorators';
 import { IBrand, IResponse } from '../common/types';
-import { ICreateBrandRes } from '../types';
+import { ICreateBrandRes, IUpdateBrandReq, IUpdateBrandRes } from '../types';
 
 
 @Injectable()
@@ -27,6 +27,21 @@ export class BrandsService {
     return {
       status: HttpStatus.CREATED,
       data: { brand: createBrandResponse.brand },
+      errors: null,
+    };
+  }
+
+  @AddressedErrorCatching()
+  public async updateBrand(data: IUpdateBrandReq): Promise<IResponse<IUpdateBrandRes>> {
+    const updateBrandResponse: { brand: IBrand } = await this.brandDbAccessService.updateBrand(data);
+
+    if (!updateBrandResponse?.brand) {
+      throw new PreconditionFailedException('Some internal error happened while updating the brand');
+    }
+
+    return {
+      status: HttpStatus.OK,
+      data: { brand: updateBrandResponse.brand },
       errors: null,
     };
   }

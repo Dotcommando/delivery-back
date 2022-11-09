@@ -1,4 +1,4 @@
-import { Types } from 'mongoose';
+import ObjectId from 'bson-objectid';
 
 import { IVendor } from '../common/types';
 import { UpdateVendorBodyDto } from '../dto';
@@ -6,6 +6,6 @@ import { UpdateVendorBodyDto } from '../dto';
 
 export interface IUpdateVendorData {
   body: UpdateVendorBodyDto;
-  _id: Types.ObjectId;
+  _id: ObjectId;
   user?: IVendor | null;
 }

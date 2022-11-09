@@ -13,7 +13,7 @@ import {
   PHONE_NUMBER_MIN_LENGTH,
   PROPERTY_LENGTH_64,
 } from '../common/constants';
-import { ICompanyDocument } from '../common/types';
+import { ICompanyDocument } from '../types';
 import { optionalRange } from '../validators';
 
 

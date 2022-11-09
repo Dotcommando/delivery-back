@@ -1,6 +1,7 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 
 import { AddressedErrorCatching, ApplyAddressedErrorCatching } from '../common/decorators';
+import { detectSuccessfulResponseCode, pickProperties } from '../common/helpers';
 import { ICombineRequest, IResponse } from '../common/types';
 
 
@@ -9,18 +10,19 @@ import { ICombineRequest, IResponse } from '../common/types';
 export class CommonService {
 
   @AddressedErrorCatching()
-  public async parallelCombineRequests<TReq1 = { [args: string]: any } | any[], TRes1 = any, TReq2 = { [args: string]: any }, TRes2 = any>(reqs: [ICombineRequest<TReq1, TRes1>, ICombineRequest<TReq2, TRes2>]): Promise<IResponse<| TRes1 | TRes2>> {
+  public async parallelCombineRequests<TReq1 = { [args: string]: any } | any[], TRes1 = any, TReq2 = { [args: string]: any }, TRes2 = any>(
+    reqs: [
+      ICombineRequest<TReq1, TRes1>,
+      ICombineRequest<TReq2, TRes2>
+    ],
+  ): Promise<IResponse<| TRes1 | TRes2>> {
     const parallelRequestsResult: [Awaited<Promise<IResponse<TRes1>>>, Awaited<Promise<IResponse<TRes2>>>] = await Promise.all([
       reqs[0].fn(reqs[0].args),
       reqs[1].fn(reqs[1].args),
     ]);
 
-    const firstFulfilled = Boolean(parallelRequestsResult[0].status)
-      && parallelRequestsResult[0].status >= 200
-      && parallelRequestsResult[0].status < 300;
-    const secondFulfilled = Boolean(parallelRequestsResult[1].status)
-      && parallelRequestsResult[1].status >= 200
-      && parallelRequestsResult[1].status < 300;
+    const firstFulfilled = detectSuccessfulResponseCode(parallelRequestsResult[0]);
+    const secondFulfilled = detectSuccessfulResponseCode(parallelRequestsResult[1]);
 
     if (!firstFulfilled && !secondFulfilled) {
       return {
@@ -57,6 +59,41 @@ export class CommonService {
       data: {
         ...parallelRequestsResult[0].data,
         ...parallelRequestsResult[1].data,
+      },
+      errors: null,
+    };
+  }
+
+  public async sequentialCombineRequests<
+    TReq1,
+    TRes1,
+    TReq2,
+    TRes2
+  >(
+    reqs: [
+      ICombineRequest<TReq1, TRes1>,
+      ICombineRequest<Partial<TReq2>, TRes2>
+    ],
+    keys: (keyof TRes1 & keyof TReq2)[],
+  ): Promise<IResponse<TRes1 | TRes2>> {
+    const firstRequestResult: IResponse<TRes1> = await reqs[0].fn(reqs[0].args);
+
+    if (!detectSuccessfulResponseCode(firstRequestResult)) {
+      return firstRequestResult as IResponse<| TRes1 | TRes2>;
+    }
+
+    const secondRequestResult: IResponse<TRes2> = await reqs[1]
+      .fn({ ...reqs[1].args, ...pickProperties<TRes1>(firstRequestResult.data as TRes1, ...keys) } as TReq2);
+
+    if (!detectSuccessfulResponseCode(secondRequestResult)) {
+      return secondRequestResult as IResponse<| TRes1 | TRes2>;
+    }
+
+    return {
+      status: firstRequestResult.status,
+      data: {
+        ...firstRequestResult.data,
+        ...secondRequestResult.data,
       },
       errors: null,
     };

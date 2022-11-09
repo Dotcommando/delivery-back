@@ -16,6 +16,8 @@ export * from './logout-res.interface';
 export * from './reissue-tokens-req.interface';
 export * from './save-brand-images-req.interface';
 export * from './save-brand-images-res.interface';
+export * from './update-brand-req.interface';
+export * from './update-brand-res.interface';
 export * from './update-vendor-data.interface';
 export * from './update-vendor-images-req.interface';
 export * from './update-vendor-res.interface';

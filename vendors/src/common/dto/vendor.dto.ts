@@ -1,6 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
 
+import ObjectId from 'bson-objectid';
 import { Transform, TransformFnParams, Type } from 'class-transformer';
 import {
   ArrayMaxSize,
@@ -16,7 +17,6 @@ import {
   MinLength,
   ValidateNested,
 } from 'class-validator';
-import { Types } from 'mongoose';
 import * as sanitizeHtml from 'sanitize-html';
 
 import { MembershipDto } from './membership.dto';
@@ -56,8 +56,8 @@ export class VendorDto implements IVendor {
   })
   @IsDefined()
   @Transform(toObjectId)
-  @Type(() => Types.ObjectId)
-  _id: Types.ObjectId;
+  @Type(() => ObjectId)
+  _id: ObjectId;
 
   @ApiProperty({
     description: `First name of user. It must have length from ${NAME_MIN_LENGTH} to ${NAME_MAX_LENGTH} characters`,
@@ -146,8 +146,8 @@ export class VendorDto implements IVendor {
   @ValidateNested({ each: true })
   @ArrayMaxSize(ADDRESSES_MAX_SIZE)
   @Transform(toArrayOfObjectIds('Addresses'))
-  @Type(() => Types.ObjectId)
-  addresses: Types.ObjectId[];
+  @Type(() => ObjectId)
+  addresses: ObjectId[];
 
   @ApiProperty({
     description: 'Role in the system, not in companies or brands',

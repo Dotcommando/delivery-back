@@ -11,6 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 
+import ObjectId from 'bson-objectid';
 import { Model, Types } from 'mongoose';
 
 import { VendorDbAccessService } from './vendor-db-access.service';
@@ -18,7 +19,7 @@ import { VendorDbAccessService } from './vendor-db-access.service';
 import { LOGIN_ORIGIN } from '../common/constants';
 import { AddressedErrorCatching } from '../common/decorators';
 import { PartialTokenDto, PartialVendorDto } from '../common/dto';
-import { IAddress, IResponse, IToken, IVendor, IVendorDocument } from '../common/types';
+import { IAddress, IResponse, IToken, IVendor } from '../common/types';
 import {
   DeleteVendorBodyDto,
   LogoutBodyDto,
@@ -34,6 +35,7 @@ import {
   IIssueTokensRes,
   ILogoutRes,
   IValidateVendorRes,
+  IVendorDocument,
   IVendorSignInRes,
   IVerifyTokenRes,
 } from '../types';
@@ -88,7 +90,7 @@ export class VendorsService {
   }
 
   @AddressedErrorCatching()
-  private issueToken(userId: string | Types.ObjectId, now: number, tokenType: 'refresh' | 'access' = 'access'): string {
+  private issueToken(userId: string | Types.ObjectId | ObjectId, now: number, tokenType: 'refresh' | 'access' = 'access'): string {
     const options = { secret: this.configService.get('secretKey') };
 
     return this.jwtService.sign(
@@ -106,7 +108,7 @@ export class VendorsService {
   }
 
   @AddressedErrorCatching()
-  public async issueTokens(userId: string | Types.ObjectId): Promise<IIssueTokensRes> {
+  public async issueTokens(userId: string | Types.ObjectId | ObjectId): Promise<IIssueTokensRes> {
     const now = Date.now();
     const accessTokenExpiredAfter = now + this.configService.get('accessTokenExpiresIn');
     const refreshTokenExpiredAfter = now + this.configService.get('refreshTokenExpiresIn');
@@ -114,9 +116,9 @@ export class VendorsService {
     const refreshToken = this.issueToken(userId, now, 'refresh');
 
     await this.vendorDbAccessService.saveRefreshToken({
-      userId: new Types.ObjectId(userId),
+      userId: new ObjectId(String(userId)),
       refreshToken: refreshToken,
-      issuedForUserAgent: new Types.ObjectId(),
+      issuedForUserAgent: new ObjectId(),
       issuedAt: new Date(now),
       expiredAfter: new Date(refreshTokenExpiredAfter),
       blacklisted: false,
@@ -202,7 +204,7 @@ export class VendorsService {
   public async reissueTokens(data: ReissueTokensBodyDto): Promise<IResponse<IIssueTokensRes>> {
     const accessToken = this.jwtService.decode(data?.accessToken);
     const refreshToken = this.jwtService.decode(data?.refreshToken);
-    const userId = new Types.ObjectId(refreshToken?.['sub']);
+    const userId = new ObjectId(refreshToken?.['sub']);
 
     if (!accessToken && refreshToken) {
       await this.vendorDbAccessService.updateToken({
@@ -288,8 +290,8 @@ export class VendorsService {
   }
 
   @AddressedErrorCatching()
-  public async readVendor(data: ReadVendorBodyDto): Promise<IResponse<{ user: IVendor<IAddress> }>> {
-    const user: IVendor<IAddress> | null = await this.vendorDbAccessService.getUserWithAddresses(data._id);
+  public async readVendor(data: ReadVendorBodyDto): Promise<IResponse<{ user: IVendor<ObjectId, IAddress> }>> {
+    const user: IVendor<ObjectId, IAddress> | null = await this.vendorDbAccessService.getUserWithAddresses(data._id);
 
     if (!user) {
       throw new NotFoundException(`Cannot find user with _id ${data._id}`);
@@ -303,8 +305,8 @@ export class VendorsService {
   }
 
   @AddressedErrorCatching()
-  public async updateVendor(data: UpdateVendorBodyDto): Promise<IResponse<{ user: IVendor<IAddress> }>> {
-    const user: IVendor<IAddress> | null = await this.vendorDbAccessService.updateUser(data);
+  public async updateVendor(data: UpdateVendorBodyDto): Promise<IResponse<{ user: IVendor<ObjectId, IAddress> }>> {
+    const user: IVendor<ObjectId, IAddress> | null = await this.vendorDbAccessService.updateUser(data);
 
     if (!user) {
       throw new NotFoundException(`Cannot find user with _id ${data._id} to update`);

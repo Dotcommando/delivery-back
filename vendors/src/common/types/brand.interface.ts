@@ -1,28 +1,14 @@
-import { Document, Types } from 'mongoose';
+import ObjectId from 'bson-objectid';
 
-import { IBasicMultilingualFieldSet } from './basic-multilingual-field-set.interface';
-
-import { SUPPORTED_LANGUAGES } from '../constants';
+import { IBrandMultilingualFieldSet } from './brand-multilingual-field-set.interface';
 
 
-export interface IBrand<T_id = Types.ObjectId, TCompany = Types.ObjectId> {
+export interface IBrand<T_id = ObjectId, TCompany = ObjectId> {
   _id: T_id;
   company: TCompany;
+  logoLight?: string;
+  logoDark?: string;
   backgroundLight?: string;
   backgroundDark?: string;
-  logo?: string;
   translations: IBrandMultilingualFieldSet[];
-}
-
-export interface IBrandMultilingualFieldSet extends IBasicMultilingualFieldSet {
-  lang: SUPPORTED_LANGUAGES;
-  fullName?: string;
-  shortName?: string;
-}
-
-export interface IBrandMultilingualFieldSetDoc extends Omit<IBrandMultilingualFieldSet, '_id'>, Document<IBrandMultilingualFieldSet> {
-}
-
-export interface IBrandDocument extends Omit<IBrand, '_id' | 'translations'>, Document<IBrand> {
-  translations: IBrandMultilingualFieldSetDoc[];
 }

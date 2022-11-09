@@ -29,6 +29,7 @@
     "@nestjs/platform-fastify": "9.1.4",
     "@nestjs/schedule": "2.1.0",
     "bcrypt": "5.1.0",
+    "bson-objectid": "2.0.3",
     "class-transformer": "0.5.1",
     "class-validator": "0.13.2",
     "mongoose": "6.6.5",

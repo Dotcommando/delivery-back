@@ -19,4 +19,9 @@ export class BrandsController {
   public async createBrand(data: BrandDto): Promise<IResponse<ICreateBrandRes>> {
     return await this.brandsService.createBrand(data);
   }
+
+  @MessagePattern(VENDORS_EVENTS.VENDOR_UPDATE_BRAND)
+  public async updateBrand(data) {
+    return await this.brandsService.updateBrand(data);
+  }
 }

@@ -16,7 +16,7 @@ import {
   PROPERTY_LENGTH_64,
   ROLE,
 } from '../common/constants';
-import { IVendorDocument } from '../common/types';
+import { IVendorDocument } from '../types';
 import { optionalRange } from '../validators';
 
 

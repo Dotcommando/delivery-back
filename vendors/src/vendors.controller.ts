@@ -1,6 +1,8 @@
 import { Controller, UseFilters } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 
+import ObjectId from 'bson-objectid';
+
 import { VENDORS_EVENTS } from './common/constants';
 import { TcpCommonExceptionFilter } from './common/filters';
 import { IAddress, IResponse, IVendor } from './common/types';
@@ -55,12 +57,12 @@ export class VendorsController {
   }
 
   @MessagePattern(VENDORS_EVENTS.VENDOR_READ_VENDOR)
-  public async readVendor(user: ReadVendorBodyDto): Promise<IResponse<{ user: IVendor<IAddress> }>> {
+  public async readVendor(user: ReadVendorBodyDto): Promise<IResponse<{ user: IVendor<ObjectId, IAddress> }>> {
     return await this.vendorsService.readVendor(user);
   }
 
   @MessagePattern(VENDORS_EVENTS.VENDOR_UPDATE_VENDOR)
-  public async updateVendor(data: UpdateVendorBodyDto): Promise<IResponse<{ user: IVendor<IAddress> }>> {
+  public async updateVendor(data: UpdateVendorBodyDto): Promise<IResponse<{ user: IVendor<ObjectId, IAddress> }>> {
     return await this.vendorsService.updateVendor(data);
   }
 

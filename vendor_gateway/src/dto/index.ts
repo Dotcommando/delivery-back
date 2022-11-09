@@ -20,6 +20,7 @@ export * from './read-vendor-param.dto';
 export * from './reissue-tokens-body.dto';
 export * from './reissue-tokens-precondition-failed-response.dto';
 export * from './reissue-tokens-success-response.dto';
+export * from './update-brand-body.dto';
 export * from './update-user-bad-request-response.dto';
 export * from './update-user-forbidden-response.dto';
 export * from './update-user-success-response.dto';

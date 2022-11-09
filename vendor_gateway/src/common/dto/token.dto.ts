@@ -1,9 +1,9 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
 
+import ObjectId from 'bson-objectid';
 import { Transform, TransformFnParams, Type } from 'class-transformer';
 import { IsBoolean, IsDateString, IsDefined, IsString, MaxLength, MinLength } from 'class-validator';
-import { Types } from 'mongoose';
 
 import { BEARER_PREFIX, JWT_MAX_TOKEN_LENGTH, JWT_MIN_TOKEN_LENGTH } from '../constants';
 import { maxLengthStringMessage, minLengthStringMessage, toBoolean, toObjectId } from '../helpers';
@@ -18,8 +18,8 @@ export class TokenDto implements IToken {
   })
   @IsDefined()
   @Transform(toObjectId)
-  @Type(() => Types.ObjectId)
-  _id: Types.ObjectId;
+  @Type(() => ObjectId)
+  _id: ObjectId;
 
   @ApiProperty({
     description: 'It matches \'_id\' from collection \'users\' from DB. This shows who owns the token. Valid MongoDB compatible ObjectId',
@@ -28,8 +28,8 @@ export class TokenDto implements IToken {
   })
   @IsDefined()
   @Transform(toObjectId)
-  @Type(() => Types.ObjectId)
-  userId: Types.ObjectId;
+  @Type(() => ObjectId)
+  userId: ObjectId;
 
   @ApiProperty({
     description: `Access token. It must have length from ${JWT_MIN_TOKEN_LENGTH} to ${JWT_MAX_TOKEN_LENGTH} symbols. Bearer prefix will be removed automatically`,
@@ -68,8 +68,8 @@ export class TokenDto implements IToken {
   })
   @IsDefined()
   @Transform(toObjectId)
-  @Type(() => Types.ObjectId)
-  issuedForUserAgent: Types.ObjectId;
+  @Type(() => ObjectId)
+  issuedForUserAgent: ObjectId;
 
   @ApiProperty({
     description: 'JS string of Date. Shows when token pare was issued',

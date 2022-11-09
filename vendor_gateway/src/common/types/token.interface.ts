@@ -1,17 +1,12 @@
-import { Document, Types } from 'mongoose';
+import ObjectId from 'bson-objectid';
 
 export interface IToken {
-  _id: Types.ObjectId;
-  userId: Types.ObjectId;
+  _id: ObjectId;
+  userId: ObjectId;
   accessToken?: string;
   refreshToken: string;
-  issuedForUserAgent: Types.ObjectId;
+  issuedForUserAgent: ObjectId;
   issuedAt: Date;
   expiredAfter: Date;
   blacklisted: boolean;
-}
-
-export interface ITokenDocument extends Omit<IToken, '_id'>, Document<IToken> {
-  compareEncryptedRefreshToken: (refreshToken: string) => boolean;
-  getEncryptedToken: (refreshToken: string) => string;
 }

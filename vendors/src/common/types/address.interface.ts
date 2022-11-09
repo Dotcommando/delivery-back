@@ -1,8 +1,9 @@
-import { Document, Types } from 'mongoose';
+import ObjectId from 'bson-objectid';
 
-export interface IAddress {
-  _id: Types.ObjectId;
-  userId: Types.ObjectId;
+
+export interface IAddress<T_id = ObjectId, TUser = ObjectId> {
+  _id: T_id;
+  userId: TUser;
   postalCode?: string;
   country: string;
   region?: string;
@@ -10,7 +11,4 @@ export interface IAddress {
   street: string;
   building: string;
   flat?: string;
-}
-
-export interface IAddressDocument extends Omit<IAddress, '_id'>, Document {
 }

@@ -2,6 +2,7 @@ import { BadRequestException, ConflictException, Injectable, NotFoundException }
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 
+import ObjectId from 'bson-objectid';
 import { createHash } from 'crypto';
 import { BulkWriteResult } from 'mongodb';
 import { ClientSession, Model, Types } from 'mongoose';
@@ -12,11 +13,8 @@ import { AddAddressDto, PartialTokenDto, PartialVendorDto, UpdateAddressDto } fr
 import { pickProperties } from '../common/helpers';
 import {
   IAddress,
-  IAddressDocument,
   IToken,
-  ITokenDocument,
   IVendor,
-  IVendorDocument,
 } from '../common/types';
 import { DEFAULT_VENDOR_DATA } from '../constants';
 import {
@@ -26,10 +24,13 @@ import {
 } from '../dto';
 import { mapIVendorDocumentToIVendor } from '../helpers';
 import {
+  IAddressDocument,
   IEmailPassword,
   ILogoutRes,
+  IRefreshTokenData,
+  ITokenDocument,
   IValidateVendorRes,
-  RefreshTokenData,
+  IVendorDocument,
 } from '../types';
 
 
@@ -43,8 +44,8 @@ export class VendorDbAccessService {
   ) {
   }
 
-  public async getUserWithAddresses(_id: Types.ObjectId): Promise<IVendor<IAddress> | null> {
-    const userDoc: IVendorDocument<IAddress> = (await this.vendorModel.aggregate([
+  public async getUserWithAddresses(_id: Types.ObjectId | ObjectId): Promise<IVendor<ObjectId, IAddress> | null> {
+    const userDoc: IVendorDocument<Types.ObjectId, IAddressDocument> = (await this.vendorModel.aggregate([
       {
         $match: { _id },
       },
@@ -102,9 +103,13 @@ export class VendorDbAccessService {
     return { user: savedUserDoc.toJSON() as IVendor };
   }
 
-  public async saveRefreshToken(token: RefreshTokenData): Promise<{ saved: boolean }> {
+  public async saveRefreshToken(token: IRefreshTokenData): Promise<{ saved: boolean }> {
     try {
-      const newToken = new this.tokenModel(token);
+      const newToken = new this.tokenModel({
+        ...token,
+        userId: new Types.ObjectId(String(token.userId)),
+        issuedForUserAgent: new Types.ObjectId(String(token.issuedForUserAgent)),
+      });
       const saved = await newToken.save();
 
       return {
@@ -135,8 +140,8 @@ export class VendorDbAccessService {
   }
 
   @AddressedErrorCatching()
-  public async findManyUsers(userIds: Array<string | Types.ObjectId>): Promise<IVendor[] | null> {
-    const ids = userIds.map((userId: string | Types.ObjectId) => new Types.ObjectId(userId));
+  public async findManyUsers(userIds: Array<string | Types.ObjectId | ObjectId>): Promise<IVendor[] | null> {
+    const ids = userIds.map((userId: string | Types.ObjectId) => new ObjectId(String(userId)));
     const userDocs: IVendorDocument[] = await this.vendorModel.find({
       _id: { $in: ids },
     });
@@ -145,10 +150,10 @@ export class VendorDbAccessService {
       return null;
     }
 
-    return userDocs.map((userDoc: IVendorDocument) => userDoc.toJSON());
+    return userDocs.map((userDoc: IVendorDocument) => mapIVendorDocumentToIVendor(userDoc));
   }
 
-  public async findUserById(userId: string | Types.ObjectId): Promise<IVendor | null> {
+  public async findUserById(userId: string | Types.ObjectId | ObjectId): Promise<IVendor | null> {
     return (await this.findManyUsers([userId]))?.[0] ?? null;
   }
 
@@ -172,7 +177,7 @@ export class VendorDbAccessService {
   public async updateToken(filter: PartialTokenDto, updates: PartialTokenDto): Promise<IToken> {
     const updatedFilter: PartialTokenDto = {
       ...filter,
-      ...(filter?._id && { _id: new Types.ObjectId(filter._id) }),
+      ...(filter?._id && { _id: new ObjectId(String(filter._id)) }),
       ...(filter?.refreshToken && { refreshToken: this.encryptRefreshToken(filter.refreshToken) }),
     };
 
@@ -291,9 +296,9 @@ export class VendorDbAccessService {
   }
 
   @AddressedErrorCatching()
-  public async editAddresses(data: EditAddressesBodyDto, withSession = false): Promise<IVendor<IAddress> | null> {
+  public async editAddresses(data: EditAddressesBodyDto, withSession = false): Promise<IVendor<ObjectId, IAddress> | null> {
     const session: ClientSession = withSession ? await this.vendorModel.startSession() : null;
-    const userId = data._id;
+    const userId = new Types.ObjectId(String(data._id));
 
     try {
       const queryOps = [];
@@ -333,7 +338,7 @@ export class VendorDbAccessService {
   }
 
   @AddressedErrorCatching()
-  public async updateUser(data: UpdateVendorBodyDto): Promise<IVendor<IAddress> | null> {
+  public async updateUser(data: UpdateVendorBodyDto): Promise<IVendor<ObjectId, IAddress> | null> {
     const updates: Partial<UpdateVendorBodyDto> = pickProperties(
       data,
       'firstName', 'middleName', 'lastName', 'avatar', 'phoneNumber', 'email',
@@ -368,7 +373,7 @@ export class VendorDbAccessService {
       }
     }
 
-    const updateUserDoc: IVendorDocument<IAddress> | null = await this.vendorModel.findOneAndUpdate(
+    const updateUserDoc: IVendorDocument<Types.ObjectId, IAddressDocument> | null = await this.vendorModel.findOneAndUpdate(
       {
         _id: data._id,
       },
@@ -386,7 +391,7 @@ export class VendorDbAccessService {
     )
       .populate('addresses');
 
-    return updateUserDoc ? mapIVendorDocumentToIVendor<IAddress>(updateUserDoc) : null;
+    return updateUserDoc ? mapIVendorDocumentToIVendor(updateUserDoc) : null;
   }
 
   @AddressedErrorCatching()

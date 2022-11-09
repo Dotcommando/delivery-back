@@ -1,9 +1,9 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
 
+import ObjectId from 'bson-objectid';
 import { Transform, Type } from 'class-transformer';
 import { IsArray, IsDefined, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
-import { Types } from 'mongoose';
 
 import { BrandMultilingualFieldSetDto } from './brand-multilingual-field-set.dto';
 
@@ -19,8 +19,8 @@ export class BrandDto {
   })
   @IsDefined()
   @Transform(toObjectId)
-  @Type(() => Types.ObjectId)
-  _id: Types.ObjectId;
+  @Type(() => ObjectId)
+  _id: ObjectId;
 
   @ApiProperty({
     description: 'It matches \'_id\' from collection \'companies\' from DB. Valid MongoDB compatible ObjectId',
@@ -29,8 +29,8 @@ export class BrandDto {
   })
   @IsDefined({ message: 'Each brand must be related with a company' })
   @Transform(toObjectId)
-  @Type(() => Types.ObjectId)
-  company: Types.ObjectId;
+  @Type(() => ObjectId)
+  company: ObjectId;
 
   @ApiProperty({
     description: 'Filename with extension',
