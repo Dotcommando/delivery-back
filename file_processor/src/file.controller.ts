@@ -7,6 +7,8 @@ import { IResponse } from './common/types';
 import { FileService } from './services';
 import {
   IDeleteFileRes,
+  IDeleteFilesReq,
+  IDeleteFilesRes,
   IFileFragmentSavedRes,
   IFileFragmentToSaveReq,
   IFileTransferCompletedReq,
@@ -50,5 +52,10 @@ export class FileController {
   @MessagePattern(FILES_EVENTS.FILE_DELETE_FILE)
   public async deleteFile(data: { fileName: string }): Promise<IResponse<IDeleteFileRes>> {
     return await this.fileService.deleteFile(data);
+  }
+
+  @MessagePattern(FILES_EVENTS.FILE_DELETE_FILES)
+  public async deleteFiles(data: IDeleteFilesReq): Promise<IResponse<IDeleteFilesRes>> {
+    return await this.fileService.deleteFiles(data);
   }
 }

@@ -5,4 +5,5 @@ export enum FILES_EVENTS {
   FILE_GET_FILE_LINK = 'file_get_file_link',
   FILE_GET_FILE_BUFFER64 = 'file_get_file_buffer64',
   FILE_DELETE_FILE = 'file_delete_file',
+  FILE_DELETE_FILES = 'file_delete_files',
 }

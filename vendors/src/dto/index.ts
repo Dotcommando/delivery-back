@@ -2,6 +2,7 @@ export * from './delete-vendor-body.dto';
 export * from './edit-addresses-body.dto';
 export * from './edit-groups-body.dto';
 export * from './logout-body.dto';
+export * from './read-brand-body.dto';
 export * from './read-vendor-body.dto';
 export * from './register-vendor-body.dto';
 export * from './reissue-tokens-body.dto';

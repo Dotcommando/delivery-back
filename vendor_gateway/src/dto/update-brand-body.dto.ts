@@ -14,7 +14,8 @@ export class UpdateBrandDto extends PickType(
   PartialBrandDto,
   [
     'company',
-    'logo',
+    'logoLight',
+    'logoDark',
     'backgroundLight',
     'backgroundDark',
     'translations',

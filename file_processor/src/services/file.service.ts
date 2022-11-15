@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, PreconditionFailedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import * as dayjs from 'dayjs';
@@ -12,6 +12,8 @@ import { AddressedErrorCatching, ApplyAddressedErrorCatching } from '../common/d
 import { FileBase64, IResponse } from '../common/types';
 import {
   IDeleteFileRes,
+  IDeleteFilesReq,
+  IDeleteFilesRes,
   IFileFragmentSavedRes,
   IFileFragmentToSaveReq,
   IFileTransferCompletedReq,
@@ -194,16 +196,28 @@ export class FileService {
     const deleteFileResponse = await this.s3Service.deleteFile(fileName);
 
     if (deleteFileResponse.$metadata?.httpStatusCode !== HttpStatus.NO_CONTENT) {
-      return {
-        status: HttpStatus.PRECONDITION_FAILED,
-        data: null,
-        errors: [`Cannot delete file ${fileName}`],
-      };
+      throw new PreconditionFailedException(`Cannot delete file ${fileName}`);
     }
 
     return {
       status: HttpStatus.OK,
       data: { fileName },
+      errors: null,
+    };
+  }
+
+  @AddressedErrorCatching()
+  public async deleteFiles(data: IDeleteFilesReq): Promise<IResponse<IDeleteFilesRes>> {
+    const { fileNames } = data;
+    const deleteFilesResponse = await this.s3Service.deleteFiles(fileNames);
+
+    if (deleteFilesResponse.$metadata?.httpStatusCode !== HttpStatus.NO_CONTENT) {
+      throw new PreconditionFailedException(`Cannot delete files ${fileNames.join(', ')}`);
+    }
+
+    return {
+      status: HttpStatus.OK,
+      data: { fileNames },
       errors: null,
     };
   }

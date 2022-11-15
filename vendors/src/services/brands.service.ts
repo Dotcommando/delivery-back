@@ -1,11 +1,11 @@
-import { HttpStatus, Injectable, PreconditionFailedException } from '@nestjs/common';
+import { HttpStatus, Injectable, NotFoundException, PreconditionFailedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { BrandDbAccessService } from './brand-db-access-service';
 
 import { AddressedErrorCatching } from '../common/decorators';
 import { IBrand, IResponse } from '../common/types';
-import { ICreateBrandRes, IUpdateBrandReq, IUpdateBrandRes } from '../types';
+import { ICreateBrandRes, IReadBrandRes, IUpdateBrandReq, IUpdateBrandRes } from '../types';
 
 
 @Injectable()
@@ -27,6 +27,21 @@ export class BrandsService {
     return {
       status: HttpStatus.CREATED,
       data: { brand: createBrandResponse.brand },
+      errors: null,
+    };
+  }
+
+  @AddressedErrorCatching()
+  public async readBrand(data: { _id: IBrand['_id'] }): Promise<IResponse<IReadBrandRes>> {
+    const findBrandResponse: IReadBrandRes = await this.brandDbAccessService.findBrandById(data._id);
+
+    if (!findBrandResponse.brand) {
+      throw new NotFoundException(`Cannot get brand with id ${data._id}`);
+    }
+
+    return {
+      status: HttpStatus.OK,
+      data: findBrandResponse,
       errors: null,
     };
   }

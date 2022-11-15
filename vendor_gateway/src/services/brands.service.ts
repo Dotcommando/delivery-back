@@ -7,12 +7,17 @@ import { FileProcessingService } from './file-processing.service';
 
 import { FILES_EVENTS, MAX_TIME_OF_REQUEST_WAITING, VENDORS_EVENTS } from '../common/constants';
 import { AddressedErrorCatching, ApplyAddressedErrorCatching } from '../common/decorators';
+import { brandHasEmptyImageField } from '../common/helpers';
 import { IBrand, IResponse } from '../common/types';
+import { IMAGE_FIELDS } from '../constants';
 import {
   ICreateBrandRes,
+  IDeleteFilesRes,
   IImageSavingInited,
+  IReadBrandRes,
   ISaveBrandImagesReq,
-  ISaveBrandImagesRes, IUpdateBrandReq,
+  ISaveBrandImagesRes,
+  IUpdateBrandReq,
   IUpdateBrandRes,
 } from '../types';
 
@@ -38,9 +43,44 @@ export class BrandsService {
 
   @AddressedErrorCatching()
   public async updateBrand(body: IBrand | IUpdateBrandReq): Promise<IResponse<IUpdateBrandRes>> {
+    if (!brandHasEmptyImageField(body)) {
+      return await lastValueFrom(
+        this.vendorServiceClient
+          .send(VENDORS_EVENTS.VENDOR_UPDATE_BRAND, body)
+          .pipe(timeout(MAX_TIME_OF_REQUEST_WAITING)),
+      );
+    }
+
+    const prevBrandDataResponse: IResponse<IReadBrandRes> = await lastValueFrom(
+      this.vendorServiceClient
+        .send(VENDORS_EVENTS.VENDOR_READ_BRAND, body)
+        .pipe(timeout(MAX_TIME_OF_REQUEST_WAITING)),
+    );
+
+    if (!prevBrandDataResponse.data?.brand) {
+      return prevBrandDataResponse as IResponse<IUpdateBrandRes>;
+    }
+
+    const oldBrand: IBrand<string, string> = { ...prevBrandDataResponse.data.brand };
+    const filesToDelete: string[] = [];
+
+    for (const imageField of IMAGE_FIELDS) {
+      if (imageField in oldBrand) {
+        filesToDelete.push(oldBrand[imageField] as string);
+      }
+    }
+
+    const deleteImagesResponse: IResponse<IDeleteFilesRes> = await lastValueFrom(
+      this.fileServiceClient.send(FILES_EVENTS.FILE_DELETE_FILES, { fileNames: filesToDelete }),
+    );
+
+    if (!deleteImagesResponse.data?.fileNames) {
+      return deleteImagesResponse as undefined as IResponse<IUpdateBrandRes>;
+    }
+
     return await lastValueFrom(
       this.vendorServiceClient
-        .send(VENDORS_EVENTS.VENDOR_UPDATE_VENDOR, body)
+        .send(VENDORS_EVENTS.VENDOR_UPDATE_BRAND, body)
         .pipe(timeout(MAX_TIME_OF_REQUEST_WAITING)),
     );
   }

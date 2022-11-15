@@ -4,6 +4,9 @@ import { ConfigService } from '@nestjs/config';
 import {
   DeleteObjectCommand,
   DeleteObjectCommandOutput,
+  DeleteObjectsCommand,
+  DeleteObjectsCommandInput,
+  DeleteObjectsCommandOutput,
   GetObjectCommand,
   PutObjectCommand,
   PutObjectCommandOutput,
@@ -46,6 +49,16 @@ export class S3Service {
     };
 
     return await this.s3Client.send(new DeleteObjectCommand(deleteParams));
+  }
+
+  @AddressedErrorCatching()
+  public async deleteFiles(fileNames: string[]): Promise<DeleteObjectsCommandOutput> {
+    const deleteParams: DeleteObjectsCommandInput = {
+      Bucket: this.imageStorageName,
+      Delete: { Objects: fileNames.map((fileName) => ({ Key: fileName })) },
+    };
+
+    return await this.s3Client.send(new DeleteObjectsCommand(deleteParams));
   }
 
   @AddressedErrorCatching()

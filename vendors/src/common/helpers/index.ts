@@ -1,3 +1,4 @@
+export * from './any-id-to-mongo-id';
 export * from './create-addressed-exception';
 export * from './get-exception-messages';
 export * from './is-valid-object-id';

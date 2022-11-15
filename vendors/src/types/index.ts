@@ -1,4 +1,5 @@
 export * from './address-document.interface';
+export * from './any-id.type';
 export * from './brand-document.interface';
 export * from './brand-multilingual-field-set-doc.interface';
 export * from './company-document.interface';
@@ -6,6 +7,7 @@ export * from './create-brand-res.interface';
 export * from './email-password.interface';
 export * from './issue-tokens-res.interface';
 export * from './logout-res.interface';
+export * from './read-brand-res.interface';
 export * from './refresh-token-data.interface';
 export * from './token-document.interface';
 export * from './update-brand-req.interface';

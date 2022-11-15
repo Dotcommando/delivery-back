@@ -1,3 +1,4 @@
+export * from './brand-has-empty-image-field';
 export * from './create-addressed-exception';
 export * from './detect-successful-response-code';
 export * from './is-valid-object-id';

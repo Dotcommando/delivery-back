@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 import { AddressedErrorCatching, ApplyAddressedErrorCatching } from '../common/decorators';
+import { anyIdToMongoId } from '../common/helpers';
 import { IBrand } from '../common/types';
 import { applyTranslations, mapIBrandDocumentToIBrand } from '../helpers';
-import { IBrandDocument, IUpdateBrandReq } from '../types';
+import { AnyId, IBrandDocument, IUpdateBrandReq } from '../types';
 
 
 @ApplyAddressedErrorCatching
@@ -23,6 +24,24 @@ export class BrandDbAccessService {
     const savedBrandDoc: IBrandDocument = await brandDoc.save();
 
     return { brand: mapIBrandDocumentToIBrand(savedBrandDoc) };
+  }
+
+  @AddressedErrorCatching()
+  public async findManyBrands(brandIds: Array<AnyId>): Promise<IBrand[] | null> {
+    const ids = brandIds.map((brandId: AnyId): Types.ObjectId => anyIdToMongoId(brandId));
+    const brandDocs: IBrandDocument[] = await this.brandModel.find({
+      _id: { $in: ids },
+    });
+
+    if (!brandDocs || !brandDocs.length) {
+      return null;
+    }
+
+    return brandDocs.map((brandDoc: IBrandDocument) => mapIBrandDocumentToIBrand(brandDoc));
+  }
+
+  public async findBrandById(brandId: AnyId): Promise<{ brand: IBrand | null }> {
+    return { brand: (await this.findManyBrands([brandId]))?.[0] ?? null };
   }
 
   @AddressedErrorCatching()

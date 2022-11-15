@@ -14,7 +14,13 @@ import { FILES_EVENTS } from '../common/constants';
 import { AddressedErrorCatching, ApplyAddressedErrorCatching } from '../common/decorators';
 import { FileBase64, IResponse, IStorageData, IVendor } from '../common/types';
 import { FILE_TRANSFER_STATUS } from '../constants';
-import { IFileDataStore, IFileFragmentSavedRes, IImageSavingInited } from '../types';
+import {
+  IDeleteFilesReq,
+  IDeleteFilesRes,
+  IFileDataStore,
+  IFileFragmentSavedRes,
+  IImageSavingInited,
+} from '../types';
 
 
 @ApplyAddressedErrorCatching
@@ -258,5 +264,12 @@ export class FileProcessingService {
 
   public getStorageNote(sessionUUID: string): IStorageData {
     return this.storeService.get(sessionUUID);
+  }
+
+  @AddressedErrorCatching()
+  public async deleteImage(data: IDeleteFilesReq): Promise<IResponse<IDeleteFilesRes>> {
+    return await lastValueFrom(
+      this.fileServiceClient.send(FILES_EVENTS.FILE_DELETE_FILE, data),
+    );
   }
 }

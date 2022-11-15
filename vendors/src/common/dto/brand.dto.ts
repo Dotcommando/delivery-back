@@ -61,12 +61,24 @@ export class BrandDto {
     example: 'logo-2022-10-24-12-53-04-097-9800fc.jpg',
   })
   @IsOptional()
-  @IsString({ message: 'Logo filename must be a string' })
+  @IsString({ message: 'Light logo filename must be a string' })
   @MaxLength(IMAGE_ADDRESS_MAX_LENGTH, {
-    message: `Logotype filename length must be equal or shorter ${IMAGE_ADDRESS_MAX_LENGTH} characters`,
+    message: `Light logotype filename length must be equal or shorter ${IMAGE_ADDRESS_MAX_LENGTH} characters`,
   })
   @Transform(sanitizeString)
-  logo: string;
+  logoLight: string;
+
+  @ApiProperty({
+    description: 'Filename with extension',
+    example: 'logo-2022-10-24-12-53-04-097-9800fc.jpg',
+  })
+  @IsOptional()
+  @IsString({ message: 'Dark logo filename must be a string' })
+  @MaxLength(IMAGE_ADDRESS_MAX_LENGTH, {
+    message: `Dark logotype filename length must be equal or shorter ${IMAGE_ADDRESS_MAX_LENGTH} characters`,
+  })
+  @Transform(sanitizeString)
+  logoDark: string;
 
   @ApiProperty({
     example: [

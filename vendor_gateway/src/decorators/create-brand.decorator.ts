@@ -21,11 +21,11 @@ export function CreateBrand() {
       type: CreateBrandSuccessResponseDto,
     }),
     ApiBadRequestResponse({
-      description: 'When one of field did not pass validation',
+      description: 'When one of fields did not pass validation',
       type: CreateBrandBadRequestResponseDto,
     }),
     ApiPreconditionFailedResponse({
-      description: 'When DB is out of work',
+      description: 'When an internal error happened.',
       type: CreateBrandPreconditionFailedResponseDto,
     }),
     ApiForbiddenResponse({
