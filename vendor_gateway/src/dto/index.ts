@@ -19,6 +19,7 @@ export * from './get-user-success-response.dto';
 export * from './logout-bad-request-response.dto';
 export * from './logout-body.dto';
 export * from './logout-success-response.dto';
+export * from './read-brand-param.dto';
 export * from './read-vendor-param.dto';
 export * from './reissue-tokens-body.dto';
 export * from './reissue-tokens-precondition-failed-response.dto';

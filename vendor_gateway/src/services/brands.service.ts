@@ -44,6 +44,15 @@ export class BrandsService {
   }
 
   @AddressedErrorCatching()
+  public async readBrand(data: { _id: ObjectId }): Promise<IResponse<IReadBrandRes>> {
+    return await lastValueFrom(
+      this.vendorServiceClient
+        .send(VENDORS_EVENTS.VENDOR_READ_BRAND, data)
+        .pipe(timeout(MAX_TIME_OF_REQUEST_WAITING)),
+    );
+  }
+
+  @AddressedErrorCatching()
   public async updateBrand(body: IBrand | IUpdateBrandReq): Promise<IResponse<IUpdateBrandRes>> {
     if (!brandHasEmptyImageField(body)) {
       return await lastValueFrom(
@@ -72,12 +81,14 @@ export class BrandsService {
       }
     }
 
-    const deleteImagesResponse: IResponse<IDeleteFilesRes> = await lastValueFrom(
-      this.fileServiceClient.send(FILES_EVENTS.FILE_DELETE_FILES, { fileNames: filesToDelete }),
-    );
+    if (filesToDelete.length) {
+      const deleteImagesResponse: IResponse<IDeleteFilesRes> = await lastValueFrom(
+        this.fileServiceClient.send(FILES_EVENTS.FILE_DELETE_FILES, { fileNames: filesToDelete }),
+      );
 
-    if (!deleteImagesResponse.data?.fileNames) {
-      return deleteImagesResponse as undefined as IResponse<IUpdateBrandRes>;
+      if (!deleteImagesResponse.data?.fileNames) {
+        return deleteImagesResponse as undefined as IResponse<IUpdateBrandRes>;
+      }
     }
 
     return await lastValueFrom(

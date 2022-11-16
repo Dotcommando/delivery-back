@@ -2,11 +2,11 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   ParseFilePipe,
   Patch,
   Post,
-  Req,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
@@ -24,14 +24,15 @@ import { CreateBrand, DeleteBrand, UpdateBrand } from './decorators';
 import {
   CreateBrandBodyDto,
   DeleteBrandParamDto,
+  ReadBrandParamDto,
   UpdateBrandBodyDto,
   UpdateBrandParamDto,
 } from './dto';
 import { JwtGuard } from './guards';
 import { BrandsService, CommonService } from './services';
 import {
-  AuthenticatedRequest,
   ICreateBrandRes,
+  IReadBrandRes,
   ISaveBrandImagesReq,
   ISaveBrandImagesRes,
   IUpdateBrandReq,
@@ -89,7 +90,6 @@ export class BrandsController {
       backgroundLight?: [Express.Multer.File];
       backgroundDark?: [Express.Multer.File];
     },
-    @Req() req: AuthenticatedRequest,
   ): Promise<IResponse<| ICreateBrandRes | ISaveBrandImagesRes>> {
     const _id = new ObjectId();
     const brand = { ...body, _id };
@@ -100,6 +100,13 @@ export class BrandsController {
         { fn: this.brandsService.saveBrandImages, args: { files, brand }},
       ])
       : await this.brandsService.createBrand(brand);
+  }
+
+  @Get('/one/:_id')
+  public async readBrand(
+    @Param() param: ReadBrandParamDto,
+  ): Promise<IResponse<IReadBrandRes>> {
+    return await this.brandsService.readBrand(param);
   }
 
   @UpdateBrand()
@@ -143,7 +150,6 @@ export class BrandsController {
       backgroundLight?: [Express.Multer.File];
       backgroundDark?: [Express.Multer.File];
     },
-    @Req() req: AuthenticatedRequest,
   ): Promise<IResponse<| IUpdateBrandRes | ISaveBrandImagesRes>> {
     const brand: IUpdateBrandReq = { ...body, _id: param._id };
 
@@ -168,7 +174,6 @@ export class BrandsController {
   @Delete('one/:_id')
   public async deleteBrand(
     @Param() param: DeleteBrandParamDto,
-    @Req() req: AuthenticatedRequest,
   ): Promise<IResponse<null>> {
     return await this.brandsService.deleteBrand({ _id: param._id });
   }
