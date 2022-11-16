@@ -1,6 +1,8 @@
 import {
   Body,
   Controller,
+  Delete,
+  Param,
   ParseFilePipe,
   Patch,
   Post,
@@ -18,8 +20,13 @@ import ObjectId from 'bson-objectid';
 import { BRAND_BGRD_SIZE, BRAND_LOGO_SIZE, MIME_TYPES } from './common/constants';
 import { FilesSizePipe, FilesTypePipe } from './common/pipes';
 import { IBrand, IResponse } from './common/types';
-import { CreateBrand, UpdateBrand } from './decorators';
-import { CreateBrandBodyDto, UpdateBrandBodyDto } from './dto';
+import { CreateBrand, DeleteBrand, UpdateBrand } from './decorators';
+import {
+  CreateBrandBodyDto,
+  DeleteBrandParamDto,
+  UpdateBrandBodyDto,
+  UpdateBrandParamDto,
+} from './dto';
 import { JwtGuard } from './guards';
 import { BrandsService, CommonService } from './services';
 import {
@@ -104,9 +111,10 @@ export class BrandsController {
     { name: 'backgroundLight', maxCount: 1 },
     { name: 'backgroundDark', maxCount: 1 },
   ]))
-  @Patch('/one')
+  @Patch('/one/:_id')
   public async updateBrand(
     @Body() body: UpdateBrandBodyDto,
+    @Param() param: UpdateBrandParamDto,
     @UploadedFiles(
       new ParseFilePipe({
         validators: [
@@ -137,7 +145,7 @@ export class BrandsController {
     },
     @Req() req: AuthenticatedRequest,
   ): Promise<IResponse<| IUpdateBrandRes | ISaveBrandImagesRes>> {
-    const brand: IUpdateBrandReq = { ...body };
+    const brand: IUpdateBrandReq = { ...body, _id: param._id };
 
     return Object.keys(files).length
       ? await this.commonService.sequentialCombineRequests<
@@ -153,5 +161,15 @@ export class BrandsController {
           ['brand'],
         )
       : await this.brandsService.updateBrand(brand);
+  }
+
+  @DeleteBrand()
+  @UseGuards(JwtGuard)
+  @Delete('one/:_id')
+  public async deleteBrand(
+    @Param() param: DeleteBrandParamDto,
+    @Req() req: AuthenticatedRequest,
+  ): Promise<IResponse<null>> {
+    return await this.brandsService.deleteBrand({ _id: param._id });
   }
 }

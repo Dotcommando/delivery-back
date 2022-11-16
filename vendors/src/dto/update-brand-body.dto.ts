@@ -1,4 +1,4 @@
-import { PickType } from '@nestjs/mapped-types';
+import { IntersectionType, PickType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
 
 import { Type } from 'class-transformer';
@@ -6,11 +6,11 @@ import { IsArray, IsOptional, ValidateNested } from 'class-validator';
 
 import { UpdateMultilingualFieldSetDto } from './update-multilingual-field-set.dto';
 
-import { PartialBrandDto } from '../common/dto';
+import { BrandDto, PartialBrandDto } from '../common/dto';
 import { IUpdateBrandReq } from '../types';
 
 
-export class UpdateBrandBodyDto extends PickType(
+export class UpdateBrandDto extends PickType(
   PartialBrandDto,
   [
     'company',
@@ -20,7 +20,7 @@ export class UpdateBrandBodyDto extends PickType(
     'backgroundDark',
     'translations',
   ] as const,
-) implements Omit<IUpdateBrandReq, '_id'> {
+) {
   @ApiProperty({
     example: [
       {
@@ -51,3 +51,8 @@ export class UpdateBrandBodyDto extends PickType(
   @Type(() => UpdateMultilingualFieldSetDto)
   translations: UpdateMultilingualFieldSetDto[];
 }
+
+export class UpdateBrandBodyDto extends IntersectionType(
+  UpdateBrandDto,
+  PickType(BrandDto, ['_id'] as const),
+) implements IUpdateBrandReq {}

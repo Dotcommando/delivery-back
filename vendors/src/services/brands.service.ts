@@ -1,6 +1,8 @@
 import { HttpStatus, Injectable, NotFoundException, PreconditionFailedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
+import ObjectId from 'bson-objectid';
+
 import { BrandDbAccessService } from './brand-db-access-service';
 
 import { AddressedErrorCatching } from '../common/decorators';
@@ -57,6 +59,17 @@ export class BrandsService {
     return {
       status: HttpStatus.OK,
       data: { brand: updateBrandResponse.brand },
+      errors: null,
+    };
+  }
+
+  @AddressedErrorCatching()
+  public async deleteBrand(data: { _id: ObjectId }): Promise<IResponse<null>> {
+    await this.brandDbAccessService.deleteBrand(data);
+
+    return {
+      status: HttpStatus.OK,
+      data: null,
       errors: null,
     };
   }

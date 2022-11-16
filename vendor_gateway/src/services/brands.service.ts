@@ -3,6 +3,8 @@ import { ClientProxy } from '@nestjs/microservices';
 
 import { lastValueFrom, timeout } from 'rxjs';
 
+import ObjectId from 'bson-objectid';
+
 import { FileProcessingService } from './file-processing.service';
 
 import { FILES_EVENTS, MAX_TIME_OF_REQUEST_WAITING, VENDORS_EVENTS } from '../common/constants';
@@ -139,20 +141,33 @@ export class BrandsService {
       try {
         if (Boolean(brand[fieldName])) {
           const deleteOldFieldFromAWSResponse = await lastValueFrom(
-            this.fileServiceClient.send(FILES_EVENTS.FILE_DELETE_FILE, { fileName: brand[fieldName] }),
+            this.fileServiceClient
+              .send(FILES_EVENTS.FILE_DELETE_FILE, { fileName: brand[fieldName] })
+              .pipe(timeout(MAX_TIME_OF_REQUEST_WAITING)),
           );
         }
 
         const updateBrandResponse = await lastValueFrom(
-          this.vendorServiceClient.send(VENDORS_EVENTS.VENDOR_UPDATE_BRAND, {
-            _id: brand._id,
-            [fieldName]: fileName,
-          }),
+          this.vendorServiceClient
+            .send(VENDORS_EVENTS.VENDOR_UPDATE_BRAND, {
+              _id: brand._id,
+              [fieldName]: fileName,
+            })
+            .pipe(timeout(MAX_TIME_OF_REQUEST_WAITING)),
         );
 
         return;
       } catch (e) {
       }
     };
+  }
+
+  @AddressedErrorCatching()
+  public async deleteBrand(data: { _id: ObjectId }): Promise<IResponse<null>> {
+    return await lastValueFrom(
+      this.vendorServiceClient
+        .send(VENDORS_EVENTS.VENDOR_DELETE_BRAND, data)
+        .pipe(timeout(MAX_TIME_OF_REQUEST_WAITING)),
+    );
   }
 }

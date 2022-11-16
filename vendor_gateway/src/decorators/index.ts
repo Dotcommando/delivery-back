@@ -1,4 +1,5 @@
 export * from './create-brand.decorator';
+export * from './delete-brand.decorator';
 export * from './delete-vendor.decorator';
 export * from './get-avatar-data.decorator';
 export * from './logout.decorator';

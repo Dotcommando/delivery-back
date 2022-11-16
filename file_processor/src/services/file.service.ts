@@ -1,6 +1,8 @@
 import { HttpStatus, Injectable, PreconditionFailedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
+import { DeletedObject } from '@aws-sdk/client-s3';
+
 import * as dayjs from 'dayjs';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -211,13 +213,13 @@ export class FileService {
     const { fileNames } = data;
     const deleteFilesResponse = await this.s3Service.deleteFiles(fileNames);
 
-    if (deleteFilesResponse.$metadata?.httpStatusCode !== HttpStatus.NO_CONTENT) {
+    if (deleteFilesResponse.$metadata?.httpStatusCode !== HttpStatus.OK) {
       throw new PreconditionFailedException(`Cannot delete files ${fileNames.join(', ')}`);
     }
 
     return {
       status: HttpStatus.OK,
-      data: { fileNames },
+      data: { fileNames: deleteFilesResponse.Deleted.map((deleted: DeletedObject) => deleted.Key) },
       errors: null,
     };
   }

@@ -5,9 +5,9 @@ import { VENDORS_EVENTS } from './common/constants';
 import { BrandDto } from './common/dto';
 import { TcpCommonExceptionFilter } from './common/filters';
 import { IResponse } from './common/types';
-import { ReadBrandBodyDto } from './dto';
+import { DeleteBrandBodyDto, ReadBrandBodyDto, UpdateBrandBodyDto } from './dto';
 import { BrandsService } from './services';
-import { ICreateBrandRes, IReadBrandRes } from './types';
+import { ICreateBrandRes, IReadBrandRes, IUpdateBrandRes } from './types';
 
 
 @UseFilters(new TcpCommonExceptionFilter())
@@ -27,7 +27,12 @@ export class BrandsController {
   }
 
   @MessagePattern(VENDORS_EVENTS.VENDOR_UPDATE_BRAND)
-  public async updateBrand(data) {
+  public async updateBrand(data: UpdateBrandBodyDto): Promise<IResponse<IUpdateBrandRes>> {
     return await this.brandsService.updateBrand(data);
+  }
+
+  @MessagePattern(VENDORS_EVENTS.VENDOR_DELETE_BRAND)
+  public async deleteBrand(data: DeleteBrandBodyDto): Promise<IResponse<null>> {
+    return await this.brandsService.deleteBrand(data);
   }
 }

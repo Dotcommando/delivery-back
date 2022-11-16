@@ -3,7 +3,14 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import ObjectId from 'bson-objectid';
 import { Transform, Type } from 'class-transformer';
-import { IsArray, IsDefined, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsDefined,
+  IsOptional,
+  IsString,
+  MaxLength,
+  ValidateNested,
+} from 'class-validator';
 
 import { BrandMultilingualFieldSetDto } from './brand-multilingual-field-set.dto';
 

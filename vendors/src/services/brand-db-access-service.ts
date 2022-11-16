@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
 import { Model, Types } from 'mongoose';
@@ -20,7 +20,11 @@ export class BrandDbAccessService {
 
   @AddressedErrorCatching()
   public async saveNewBrand(brand: IBrand): Promise<{ brand: IBrand }> {
-    const brandDoc: IBrandDocument = new this.brandModel({ ...brand });
+    const brandDoc: IBrandDocument = new this.brandModel({
+      ...brand,
+      _id: anyIdToMongoId(brand._id),
+      company: anyIdToMongoId(brand.company),
+    });
     const savedBrandDoc: IBrandDocument = await brandDoc.save();
 
     return { brand: mapIBrandDocumentToIBrand(savedBrandDoc) };
@@ -65,5 +69,16 @@ export class BrandDbAccessService {
     const saveResult = await brandDoc.save();
 
     return { brand: mapIBrandDocumentToIBrand(saveResult) };
+  }
+
+  @AddressedErrorCatching()
+  public async deleteBrand(data: { _id: AnyId }): Promise<void> {
+    const deleteBrandResponse = await this.brandModel.deleteOne({ _id: anyIdToMongoId(data._id) });
+
+    if (deleteBrandResponse.deletedCount !== 1) {
+      throw new NotFoundException(`No brands with _id ${data._id} found`);
+    }
+
+    return;
   }
 }
