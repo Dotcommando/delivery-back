@@ -13,6 +13,7 @@ import { brandHasEmptyImageField } from '../common/helpers';
 import { IBrand, IResponse } from '../common/types';
 import { IMAGE_FIELDS } from '../constants';
 import {
+  ICreateBrand,
   ICreateBrandRes,
   IDeleteFilesRes,
   IImageSavingInited,
@@ -35,7 +36,7 @@ export class BrandsService {
   }
 
   @AddressedErrorCatching()
-  public async createBrand(body: IBrand): Promise<IResponse<ICreateBrandRes>> {
+  public async createBrand(body: ICreateBrand): Promise<IResponse<ICreateBrandRes>> {
     return await lastValueFrom(
       this.vendorServiceClient
         .send(VENDORS_EVENTS.VENDOR_CREATE_BRAND, body)
@@ -147,7 +148,7 @@ export class BrandsService {
       };
   }
 
-  private changeBrandImage({ brand, fieldName }: { brand: IBrand; fieldName: string }): { (fileName: string): Promise<void> } {
+  private changeBrandImage({ brand, fieldName }: { brand: | IBrand | ICreateBrand; fieldName: string }): { (fileName: string): Promise<void> } {
     return async (fileName: string): Promise<void> => {
       try {
         if (Boolean(brand[fieldName])) {

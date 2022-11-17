@@ -4,7 +4,6 @@ import {
   Delete,
   Get,
   Param,
-  ParseFilePipe,
   Patch,
   Post,
   UploadedFiles,
@@ -17,9 +16,7 @@ import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 
 import ObjectId from 'bson-objectid';
 
-import { BRAND_BGRD_SIZE, BRAND_LOGO_SIZE, MIME_TYPES } from './common/constants';
-import { FilesSizePipe, FilesTypePipe } from './common/pipes';
-import { IBrand, IResponse } from './common/types';
+import { IResponse } from './common/types';
 import { CreateBrand, DeleteBrand, UpdateBrand } from './decorators';
 import {
   CreateBrandBodyDto,
@@ -29,8 +26,11 @@ import {
   UpdateBrandParamDto,
 } from './dto';
 import { JwtGuard } from './guards';
+import { getFileInterceptorSettings, getFilePipe } from './helpers';
 import { BrandsService, CommonService } from './services';
 import {
+  IBrandFiles,
+  ICreateBrand,
   ICreateBrandRes,
   IReadBrandRes,
   ISaveBrandImagesReq,
@@ -53,49 +53,17 @@ export class BrandsController {
   @CreateBrand()
   @ApiConsumes('multipart/form-data')
   @UseGuards(JwtGuard)
-  @UseInterceptors(FileFieldsInterceptor([
-    { name: 'logoLight', maxCount: 1 },
-    { name: 'logoDark', maxCount: 1 },
-    { name: 'backgroundLight', maxCount: 1 },
-    { name: 'backgroundDark', maxCount: 1 },
-  ]))
+  @UseInterceptors(FileFieldsInterceptor(getFileInterceptorSettings()))
   @Post('/one')
   public async createBrand(
     @Body() body: CreateBrandBodyDto,
-    @UploadedFiles(
-      new ParseFilePipe({
-        validators: [
-          new FilesSizePipe({
-            sizes: [
-              { logoLight: BRAND_LOGO_SIZE },
-              { logoDark: BRAND_LOGO_SIZE },
-              { backgroundLight: BRAND_BGRD_SIZE },
-              { backgroundDark: BRAND_BGRD_SIZE },
-            ],
-          }),
-          new FilesTypePipe({
-            types: [
-              { logoLight: [ MIME_TYPES.JPG, MIME_TYPES.PNG, MIME_TYPES.GIF ] },
-              { logoDark: [ MIME_TYPES.JPG, MIME_TYPES.PNG, MIME_TYPES.GIF ] },
-              { backgroundLight: [ MIME_TYPES.JPG, MIME_TYPES.PNG, MIME_TYPES.GIF ] },
-              { backgroundDark: [ MIME_TYPES.JPG, MIME_TYPES.PNG, MIME_TYPES.GIF ] },
-            ],
-          }),
-        ],
-        fileIsRequired: false,
-      }),
-    ) files: {
-      logoLight?: [Express.Multer.File];
-      logoDark?: [Express.Multer.File];
-      backgroundLight?: [Express.Multer.File];
-      backgroundDark?: [Express.Multer.File];
-    },
+    @UploadedFiles(getFilePipe()) files: IBrandFiles,
   ): Promise<IResponse<| ICreateBrandRes | ISaveBrandImagesRes>> {
     const _id = new ObjectId();
     const brand = { ...body, _id };
 
     return Object.keys(files).length
-      ? await this.commonService.parallelCombineRequests<IBrand, ICreateBrandRes, ISaveBrandImagesReq, ISaveBrandImagesRes>([
+      ? await this.commonService.parallelCombineRequests<ICreateBrand, ICreateBrandRes, ISaveBrandImagesReq, ISaveBrandImagesRes>([
         { fn: this.brandsService.createBrand, args: brand },
         { fn: this.brandsService.saveBrandImages, args: { files, brand }},
       ])
@@ -112,44 +80,12 @@ export class BrandsController {
   @UpdateBrand()
   @ApiConsumes('multipart/form-data')
   @UseGuards(JwtGuard)
-  @UseInterceptors(FileFieldsInterceptor([
-    { name: 'logoLight', maxCount: 1 },
-    { name: 'logoDark', maxCount: 1 },
-    { name: 'backgroundLight', maxCount: 1 },
-    { name: 'backgroundDark', maxCount: 1 },
-  ]))
+  @UseInterceptors(FileFieldsInterceptor(getFileInterceptorSettings()))
   @Patch('/one/:_id')
   public async updateBrand(
     @Body() body: UpdateBrandBodyDto,
     @Param() param: UpdateBrandParamDto,
-    @UploadedFiles(
-      new ParseFilePipe({
-        validators: [
-          new FilesSizePipe({
-            sizes: [
-              { logoLight: BRAND_LOGO_SIZE },
-              { logoDark: BRAND_LOGO_SIZE },
-              { backgroundLight: BRAND_BGRD_SIZE },
-              { backgroundDark: BRAND_BGRD_SIZE },
-            ],
-          }),
-          new FilesTypePipe({
-            types: [
-              { logoLight: [ MIME_TYPES.JPG, MIME_TYPES.PNG, MIME_TYPES.GIF ] },
-              { logoDark: [ MIME_TYPES.JPG, MIME_TYPES.PNG, MIME_TYPES.GIF ] },
-              { backgroundLight: [ MIME_TYPES.JPG, MIME_TYPES.PNG, MIME_TYPES.GIF ] },
-              { backgroundDark: [ MIME_TYPES.JPG, MIME_TYPES.PNG, MIME_TYPES.GIF ] },
-            ],
-          }),
-        ],
-        fileIsRequired: false,
-      }),
-    ) files: {
-      logoLight?: [Express.Multer.File];
-      logoDark?: [Express.Multer.File];
-      backgroundLight?: [Express.Multer.File];
-      backgroundDark?: [Express.Multer.File];
-    },
+    @UploadedFiles(getFilePipe()) files: IBrandFiles,
   ): Promise<IResponse<| IUpdateBrandRes | ISaveBrandImagesRes>> {
     const brand: IUpdateBrandReq = { ...body, _id: param._id };
 

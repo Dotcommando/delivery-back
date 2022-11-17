@@ -1,5 +1,7 @@
 export * from './authenticated-request.type';
 export * from './authorized-request.type';
+export * from './brand-files.interface';
+export * from './create-brand.interface';
 export * from './create-brand-res.interface';
 export * from './delete-file-res.interface';
 export * from './delete-files-req.interface';

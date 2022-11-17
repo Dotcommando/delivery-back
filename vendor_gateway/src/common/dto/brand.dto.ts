@@ -44,11 +44,11 @@ export class BrandDto {
     example: 'light-background-2022-10-24-12-53-04-097-9800fc.jpg',
   })
   @IsOptional()
-  // @IsString({ message: 'Light background filename must be a string' })
+  @IsString({ message: 'Light background filename must be a string' })
   @MaxLength(IMAGE_ADDRESS_MAX_LENGTH, {
     message: `Light background filename length must be equal or shorter ${IMAGE_ADDRESS_MAX_LENGTH} characters`,
   })
-  // @Transform(sanitizeString)
+  @Transform(sanitizeString)
   backgroundLight: string;
 
   @ApiProperty({
