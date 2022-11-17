@@ -4,7 +4,7 @@ import { Schema } from 'mongoose';
 
 import {
   EMAIL_REGEXP,
-  IMAGE_BASE64_MAX_LENGTH,
+  IMAGE_ADDRESS_MAX_LENGTH,
   NAME_MAX_LENGTH,
   NAME_MIN_LENGTH,
   NAME_REGEXP,
@@ -52,6 +52,7 @@ export const UserSchema = new Schema<IUserDocument, mongoose.Model<IUserDocument
     username: {
       type: String,
       validate: optionalRange(USERNAME_MIN_LENGTH, USERNAME_MAX_LENGTH),
+      // @ts-ignore
       match: [
         USERNAME_REGEXP,
         'Username should includes English letters, digits and dots only',
@@ -68,12 +69,13 @@ export const UserSchema = new Schema<IUserDocument, mongoose.Model<IUserDocument
       required: [ true, 'Email can not be empty' ],
       index: { unique: true },
       lowercase: true,
+      // @ts-ignore
       match: [ EMAIL_REGEXP, 'Email should be valid' ],
       maxLength: PROPERTY_LENGTH_64,
     },
     avatar: {
       type: String,
-      validate: optionalRange(0, IMAGE_BASE64_MAX_LENGTH),
+      validate: optionalRange(0, IMAGE_ADDRESS_MAX_LENGTH),
     },
     addresses: {
       type: [Schema.Types.ObjectId],
@@ -83,17 +85,15 @@ export const UserSchema = new Schema<IUserDocument, mongoose.Model<IUserDocument
       type: String,
       validate: optionalRange(PHONE_NUMBER_MIN_LENGTH, PHONE_NUMBER_MAX_LENGTH),
     },
-    roles: {
-      type: [String],
-      required: [ true, 'User must have at least one role' ],
-      default: [ROLE.GUEST],
+    role: {
+      type: String,
+      required: [ true, 'User must have a role' ],
+      default: ROLE.USER,
       enum: [
-        ROLE.GUEST,
-        ROLE.USER,
-        ROLE.DELIVERYMAN,
-        ROLE.OPERATOR,
-        ROLE.MANAGER,
+        ROLE.SUPERADMIN,
         ROLE.ADMIN,
+        ROLE.USER,
+        ROLE.GUEST,
       ],
     },
     orders: {

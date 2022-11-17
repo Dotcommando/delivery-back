@@ -1,4 +1,6 @@
+import { ROLE } from '../common/constants';
 import { IUser } from '../common/types';
+
 
 export const DEFAULT_USER_DATA: Omit<IUser, '_id'> = {
   firstName: '',
@@ -7,7 +9,7 @@ export const DEFAULT_USER_DATA: Omit<IUser, '_id'> = {
   avatar: '',
   addresses: [],
   phoneNumber: '',
-  roles: [],
+  role: ROLE.USER,
   orders: [],
   emailConfirmed: false,
   phoneConfirmed: false,
