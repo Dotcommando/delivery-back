@@ -1,23 +1,15 @@
-version: "3"
+version: '3.1'
+
 services:
-  nest-mongodb:
-    image: mongo:5
-    container_name: delivery-vendors
+
+  vendors-db:
+    image: mongo
+    command: [ "--bind_ip", "0.0.0.0", "--replSet", "rs0", "--keyFile", "/mng/keyfile.key", "--port", "27038" ]
+    restart: always
+    env_file: .env
+    container_name: vendors-rs-mongo
     volumes:
-      - ./db/mongo/mongod.conf:/etc/mongod.conf
-      - ./db/mongo/initdb.d/:/docker-entrypoint-initdb.d/
-      - ./db/mongo/data/db/:/data/db/
-      - ./db/mongo/data/log/:/var/log/mongodb/
-    env_file:
-        - ../.env
+      - "./db/replica-set.key:/mng/keyfile.key"
+    hostname: localhost
     ports:
       - "27038:27038"
-    command: ["-f", "/etc/mongod.conf"]
-    restart: unless-stopped
-    labels:
-      autoheal: "true"
-    healthcheck:
-      test: curl -sS http://delivery-users:27038 || exit 1
-      interval: 5m
-      timeout: 10s
-      retries: 3

@@ -44,3 +44,7 @@ lerna-debug.log*
 
 # Docker Redis non-commitable files
 **/redis/
+
+# Private key for replica set
+/users/db/replica-set.key
+/vendors/db/replica-set.key

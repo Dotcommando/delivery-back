@@ -3,10 +3,12 @@ import {
   MongooseOptionsFactory,
 } from '@nestjs/mongoose';
 
+import { VENDORS_DB_DSN } from '../common/constants';
+
 export class MongoConfigService implements MongooseOptionsFactory {
   createMongooseOptions(): MongooseModuleOptions {
     return {
-      uri: process.env.VENDORS_DB_DSN,
+      uri: VENDORS_DB_DSN,
     };
   }
 }
