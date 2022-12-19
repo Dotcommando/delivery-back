@@ -1,0 +1,664 @@
+{
+	"info": {
+		"_postman_id": "7785ef5f-4e8d-4dc7-83c9-308197517978",
+		"name": "Delivery/Vendor Gateway",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "5673578"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const accessToken = pm.response.json()?.data?.accessToken;",
+									"const refreshToken = pm.response.json()?.data?.refreshToken;",
+									"",
+									"if (accessToken) {",
+									"    pm.collectionVariables.set('AccessToken', accessToken);",
+									"    pm.collectionVariables.set('RefreshToken', refreshToken);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"Adam\",\n    \"middleName1\": \"Aleksandrovich\",\n    \"lastName\": \"Jensen\",\n    \"email\": \"a.jensen@gmail.com\",\n    \"password\": \"125xdcw0\",\n    \"phoneNumber1\": \"+37477717509\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ENV}}/api/v1/auth/vendor-register",
+							"host": [
+								"{{ENV}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"vendor-register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sign In",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const accessToken = pm.response.json()?.data?.accessToken;",
+									"const refreshToken = pm.response.json()?.data?.refreshToken;",
+									"",
+									"if (accessToken) {",
+									"    pm.collectionVariables.set('AccessToken', accessToken);",
+									"    pm.collectionVariables.set('RefreshToken', refreshToken);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"a.jensen@gmail.com\",\n    \"password\": \"125xdcw0\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ENV}}/api/v1/auth/vendor-sign-in",
+							"host": [
+								"{{ENV}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"vendor-sign-in"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Tokens",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2MzQ2OGFmN2FhMDhjNjQ1OTQ5Yjc2YTMiLCJhdWQiOiJodHRwczovL2pldGYuYW0iLCJpc3MiOiJodHRwczovL2pldGYuYW0iLCJhenAiOiJqZXRmLmFtIiwiZXhwIjoxNjY1NTgwODA3Mjg2LCJpYXQiOjE2NjU1NzcyMDcyODYsImxvZ2luT3JpZ2luIjoidXNlcm5hbWVfcGFzc3dvcmQifQ.yJ4_iCUEeSwmpmudKmK6ERR5ETtCdXwX7uxDR5Pf39c\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ENV}}/api/v1/auth/vendor-reissue-tokens",
+							"host": [
+								"{{ENV}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"vendor-reissue-tokens"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2MzQ2OGFmN2FhMDhjNjQ1OTQ5Yjc2YTMiLCJhdWQiOiJodHRwczovL2pldGYuYW0iLCJpc3MiOiJodHRwczovL2pldGYuYW0iLCJhenAiOiJqZXRmLmFtIiwiZXhwIjoxNjY1NzQzMDU1MzU5LCJpYXQiOjE2NjU2NTY2NTUzNTksImxvZ2luT3JpZ2luIjoidXNlcm5hbWVfcGFzc3dvcmQifQ.ODr76pfuLfAfG4iNodbrwTSBGDd4k7wQUeoIF1rFtDc\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ENV}}/api/v1/auth/vendor-logout",
+							"host": [
+								"{{ENV}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"vendor-logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Vendors",
+			"item": [
+				{
+					"name": "Brands",
+					"item": [
+						{
+							"name": "Create Brand",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "company",
+											"value": "634549e0871ea8d4a5e8480b",
+											"type": "text"
+										},
+										{
+											"key": "backgroundLight",
+											"type": "file",
+											"src": "/Users/alphared/Yandex.Disk.localized/Ремонт квартир/Объект 2/Unprocessed JPGs/IMG_1770.jpeg"
+										},
+										{
+											"key": "backgroundDark",
+											"type": "file",
+											"src": "/Users/alphared/Yandex.Disk.localized/Ремонт квартир/Объект 2/Unprocessed JPGs/IMG_1759.jpeg"
+										},
+										{
+											"key": "logoLight",
+											"type": "file",
+											"src": "/Users/alphared/Yandex.Disk.localized/Ремонт квартир/Объект 2/Unprocessed JPGs/IMG_1756.jpeg"
+										},
+										{
+											"key": "logoDark",
+											"type": "file",
+											"src": "/Users/alphared/Yandex.Disk.localized/Ремонт квартир/Объект 2/Unprocessed JPGs/IMG_1749.jpeg"
+										},
+										{
+											"key": "translations[0][lang]",
+											"value": "hy",
+											"type": "text"
+										},
+										{
+											"key": "translations[0][fullName]",
+											"value": "Ներողություն. Բաճկոններ տղամարդկանց համար",
+											"type": "text"
+										},
+										{
+											"key": "translations[0][shortName]",
+											"value": "Ներողություն",
+											"type": "text"
+										},
+										{
+											"key": "translations[0][title]",
+											"value": "Ներողություն. Բաճկոններ տղամարդկանց համար՝ կիսասեզոն և ձմեռ",
+											"type": "text"
+										},
+										{
+											"key": "translations[0][shortDescription]",
+											"value": "Արդեն 17 տարի Apologet-ը ձմեռային և կիսասեզոնային բաճկոններ է կարում տղամարդկանց համար",
+											"type": "text"
+										},
+										{
+											"key": "translations[0][description]",
+											"value": "17 տարի շարունակ Apologet-ը կարում է ձմեռային և կիսասեզոնային բաճկոններ տղամարդկանց համար, այժմ առաքվում է շուկաների միջոցով: Առկա է բոլոր չափսերը՝ S-ից մինչև 6XL: Ոճեր՝ ռմբակոծիչներ, հողմաբաճկոններ, բաճկոններ և անձրևանոցներ:",
+											"type": "text"
+										},
+										{
+											"key": "translations[0][keywords]",
+											"value": "բաճկոններ, ապոլոգետ, տղամարդկանց համար, տղամարդու, հողմաբաճկոններ, բոմբերներ, բաճկոններ, անձրևանոցներ",
+											"type": "text"
+										},
+										{
+											"key": "translations[1][lang]",
+											"value": "ru",
+											"type": "text"
+										},
+										{
+											"key": "translations[1][fullName]",
+											"value": "Апологет. Куртки для мужчин",
+											"type": "text"
+										},
+										{
+											"key": "translations[1][shortName]",
+											"value": "Апологет",
+											"type": "text"
+										},
+										{
+											"key": "translations[1][title]",
+											"value": "Апологет. Куртки для мужчин: демисезонные и зимние",
+											"type": "text"
+										},
+										{
+											"key": "translations[1][shortDescription]",
+											"value": "Вот уже 17 лет Апологет шьёт зимние и демисезонные куртки для мужчин",
+											"type": "text"
+										},
+										{
+											"key": "translations[1][description]",
+											"value": "Вот уже 17 лет Апологет шьёт зимние и демисезонные куртки для мужчин, теперь и с доставкой через маркетплейсы! Доступна вся размерная линейка, от S размера до 6XL. Фасоны: бомберы, ветровки, дафлкоты и дождевики.",
+											"type": "text"
+										},
+										{
+											"key": "translations[1][keywords]",
+											"value": "куртки, апологет, для мужчин, мужские, ветровки, бомберы, дафлкоты, дождевики",
+											"type": "text"
+										},
+										{
+											"key": "logo",
+											"type": "file",
+											"src": "/Users/alphared/Yandex.Disk.localized/Ремонт квартир/Объект 2/Unprocessed JPGs/IMG_1758.jpeg",
+											"disabled": true
+										}
+									]
+								},
+								"url": {
+									"raw": "{{ENV}}/api/v1/brands/one",
+									"host": [
+										"{{ENV}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"brands",
+										"one"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Brand",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "company",
+											"value": "634549e0871ea8d4a5e8480b",
+											"type": "text"
+										},
+										{
+											"key": "backgroundLight",
+											"type": "file",
+											"src": "/Users/alphared/Yandex.Disk.localized/Ремонт квартир/Объект 2/Unprocessed JPGs/IMG_1758.jpeg"
+										},
+										{
+											"key": "backgroundDark",
+											"type": "file",
+											"src": []
+										},
+										{
+											"key": "logoLight",
+											"type": "file",
+											"src": "/Users/alphared/Yandex.Disk.localized/Ремонт квартир/Объект 2/Unprocessed JPGs/IMG_1750.jpeg"
+										},
+										{
+											"key": "logoDark",
+											"type": "file",
+											"src": []
+										},
+										{
+											"key": "translations[0][lang]",
+											"value": "hy",
+											"type": "text"
+										},
+										{
+											"key": "translations[0][fullName]",
+											"value": "Ներողություն. Բաճկոններ տղամարդկանց համար",
+											"type": "text"
+										},
+										{
+											"key": "translations[0][shortName]",
+											"value": "Ներողություն",
+											"type": "text"
+										},
+										{
+											"key": "translations[0][title]",
+											"value": "Ներողություն. Բաճկոններ տղամարդկանց համար՝ կիսասեզոն և ձմեռ",
+											"type": "text"
+										},
+										{
+											"key": "translations[0][shortDescription]",
+											"value": "Արդեն 17 տարի Apologet-ը ձմեռային և կիսասեզոնային բաճկոններ է կարում տղամարդկանց համար",
+											"type": "text"
+										},
+										{
+											"key": "translations[0][description]",
+											"value": "17 տարի շարունակ Apologet-ը կարում է ձմեռային և կիսասեզոնային բաճկոններ տղամարդկանց համար, այժմ առաքվում է շուկաների միջոցով: Առկա է բոլոր չափսերը՝ S-ից մինչև 6XL: Ոճեր՝ ռմբակոծիչներ, հողմաբաճկոններ, բաճկոններ և անձրևանոցներ:",
+											"type": "text"
+										},
+										{
+											"key": "translations[0][keywords]",
+											"value": "բաճկոններ, ապոլոգետ, տղամարդկանց համար, տղամարդու, հողմաբաճկոններ, բոմբերներ, բաճկոններ, անձրևանոցներ",
+											"type": "text"
+										},
+										{
+											"key": "translations[1][lang]",
+											"value": "ru",
+											"type": "text"
+										},
+										{
+											"key": "translations[1][fullName]",
+											"value": "Апологет. Куртки для мужчин",
+											"type": "text"
+										},
+										{
+											"key": "translations[1][shortName]",
+											"value": "Апологет",
+											"type": "text"
+										},
+										{
+											"key": "translations[1][title]",
+											"value": "Апологет. Куртки для мужчин: демисезонные и зимние",
+											"type": "text"
+										},
+										{
+											"key": "translations[1][shortDescription]",
+											"value": "Вот уже 17 лет Апологет шьёт зимние и демисезонные куртки для мужчин.",
+											"type": "text"
+										},
+										{
+											"key": "translations[1][description]",
+											"value": "Вот уже 17 лет Апологет шьёт зимние и демисезонные куртки для мужчин, теперь и с доставкой через маркетплейсы! Доступна вся размерная линейка, от S размера до 6XL. Фасоны: бомберы, ветровки, дафлкоты и дождевики.",
+											"type": "text"
+										},
+										{
+											"key": "translations[1]keywords",
+											"value": "куртки, апологет, для мужчин, мужские, ветровки, бомберы, дафлкоты, дождевики",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{ENV}}/api/v1/brands/one/:_id",
+									"host": [
+										"{{ENV}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"brands",
+										"one",
+										":_id"
+									],
+									"variable": [
+										{
+											"key": "_id",
+											"value": "6375335e7f6e5c0f2a3a1bf6"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Brand",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{ENV}}/api/v1/brands/one/:_id",
+									"host": [
+										"{{ENV}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"brands",
+										"one",
+										":_id"
+									],
+									"variable": [
+										{
+											"key": "_id",
+											"value": "6374bb44aff2de194aef08bb"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Read Brand",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{ENV}}/api/v1/brands/one/:_id",
+									"host": [
+										"{{ENV}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"brands",
+										"one",
+										":_id"
+									],
+									"variable": [
+										{
+											"key": "_id",
+											"value": "6374efbbf1d95c532d9a3cf7"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Read Me",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{ENV}}/api/v1/vendors/me/:_id",
+							"host": [
+								"{{ENV}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"vendors",
+								"me",
+								":_id"
+							],
+							"variable": [
+								{
+									"key": "_id",
+									"value": "635652147e1dfb4a1fbf9283"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read Image Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{ENV}}/api/v1/vendors/image-status/:sessionUUID",
+							"host": [
+								"{{ENV}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"vendors",
+								"image-status",
+								":sessionUUID"
+							],
+							"variable": [
+								{
+									"key": "sessionUUID",
+									"value": "68191322-921f-440b-8ad6-0a2fc9d08bf1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Me",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "firstName",
+									"value": "Mikhail",
+									"type": "text"
+								},
+								{
+									"key": "avatar",
+									"type": "file",
+									"src": "/Users/alphared/Desktop/bipolar-bear.jpeg"
+								},
+								{
+									"key": "lastName",
+									"value": "Filchushkin",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{ENV}}/api/v1/vendors/me/:_id",
+							"host": [
+								"{{ENV}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"vendors",
+								"me",
+								":_id"
+							],
+							"variable": [
+								{
+									"key": "_id",
+									"value": "635652147e1dfb4a1fbf9283"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{ENV}}/api/v1/vendors/me/:_id",
+							"host": [
+								"{{ENV}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"vendors",
+								"me",
+								":_id"
+							],
+							"variable": [
+								{
+									"key": "_id",
+									"value": "635652147e1dfb4a1fbf9283"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{AccessToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "ENV",
+			"value": "http://localhost:9001",
+			"type": "string"
+		},
+		{
+			"key": "AccessToken",
+			"value": ""
+		},
+		{
+			"key": "RefreshToken",
+			"value": ""
+		}
+	]
+}

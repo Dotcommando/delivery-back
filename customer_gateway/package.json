@@ -8,7 +8,7 @@
   "scripts": {
     "build": "rimraf dist && tsc -p tsconfig.build.json",
     "start": "nest start",
-    "start:dev": "tsc-watch -p tsconfig.build.json --onSuccess \"node -r dotenv/config dist/main.js dotenv_config_path=../.env\"",
+    "start:dev": "npm run build && tsc-watch -p tsconfig.build.json --onSuccess \"node -r dotenv/config dist/main.js dotenv_config_path=./.env\"",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",

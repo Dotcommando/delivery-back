@@ -6,8 +6,9 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "rimraf dist && tsc -p tsconfig.build.json",
-    "start:dev": "tsc-watch -p tsconfig.build.json --onSuccess \"node -r dotenv/config dist/main.js dotenv_config_path=../.env\"",
-    "start:test": "tsc-watch -p tsconfig.build.json --onSuccess \"node -r dotenv/config dist/main.js dotenv_config_path=../.env.test\"",
+    "start": "nest start",
+    "start:dev": "npm run build && tsc-watch -p tsconfig.build.json --onSuccess \"node -r dotenv/config dist/main.js dotenv_config_path=./.env\"",
+    "start:test": "tsc-watch -p tsconfig.build.json --onSuccess \"node -r dotenv/config dist/main.js dotenv_config_path=./.env.test\"",
     "start:prod": "node dist/main.js",
     "lint": "eslint \"src/**/*.ts\" --fix"
   },

@@ -1,0 +1,361 @@
+{
+	"info": {
+		"_postman_id": "6e2d57f7-fc92-43f0-9530-e6a553ff243a",
+		"name": "Delivery/Customer Gateway",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "5673578"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const accessToken = pm.response.json()?.data?.accessToken;",
+									"const refreshToken = pm.response.json()?.data?.refreshToken;",
+									"",
+									"if (accessToken) {",
+									"    pm.collectionVariables.set('AccessToken', accessToken);",
+									"    pm.collectionVariables.set('RefreshToken', refreshToken);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"isaac\",\n    \"lastName\": \"Asimov\",\n    \"username\": \"i.asimov\",\n    \"email\": \"isaac.asimov@gmail.com\",\n    \"password\": \"125xdcw0\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ENV}}/api/v1/auth/register",
+							"host": [
+								"{{ENV}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sign In",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const accessToken = pm.response.json()?.data?.accessToken;",
+									"const refreshToken = pm.response.json()?.data?.refreshToken;",
+									"",
+									"if (accessToken) {",
+									"    pm.collectionVariables.set('AccessToken', accessToken);",
+									"    pm.collectionVariables.set('RefreshToken', refreshToken);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"isaac.asimov@gmail.com\",\n    \"password\": \"125xdcw0\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ENV}}/api/v1/auth/sign-in",
+							"host": [
+								"{{ENV}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"sign-in"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Tokens",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2MmE5ZWY2YWRlYmIzNzYwNjAyMDdmODEiLCJhdWQiOiJodHRwczovL2pldGYuYW0iLCJpc3MiOiJodHRwczovL2pldGYuYW0iLCJhenAiOiJqZXRmLmFtIiwiZXhwIjoxNjU1ODE0MTY0OTc0LCJpYXQiOjE2NTU4MTA1NjQ5NzQsImxvZ2luT3JpZ2luIjoidXNlcm5hbWVfcGFzc3dvcmQifQ.TN1JPfL3QNqGKYoNAzr13CEtCDlfjH_5AcNUIi5oxMk\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ENV}}/api/v1/auth/reissue-tokens",
+							"host": [
+								"{{ENV}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"reissue-tokens"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2MmE5ZWY2YWRlYmIzNzYwNjAyMDdmODEiLCJhdWQiOiJodHRwczovL2pldGYuYW0iLCJpc3MiOiJodHRwczovL2pldGYuYW0iLCJhenAiOiJqZXRmLmFtIiwiZXhwIjoxNjU1MzIwMjE1MjU1LCJpYXQiOjE2NTUzMTk5NzUyNTUsImxvZ2luT3JpZ2luIjoidXNlcm5hbWVfcGFzc3dvcmQifQ.ISujgoPBmlz4JNp8zR_hzOo1k6c3UkNdPy3GADuQ-sc\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ENV}}/api/v1/auth/logout",
+							"host": [
+								"{{ENV}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get User By Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{ENV}}/api/v1/users/one/:_id",
+							"host": [
+								"{{ENV}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"one",
+								":_id"
+							],
+							"variable": [
+								{
+									"key": "_id",
+									"value": "63a026b59e607c24f6378045"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Addresses",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"add1\": [\n        {\n            \"country\": \"Russia\",\n            \"region\": \"Mordovia\",\n            \"city\": \"Saransk\",\n            \"street\": \"Kosareva\",\n            \"building\": \"39\",\n            \"flat\": \"125\"\n        },\n        {\n            \"country\": \"Armenia\",\n            \"city\": \"Dilijan\",\n            \"street\": \"Gai\",\n            \"building\": \"82\",\n            \"flat\": \"40\"\n        }\n    ],\n    \"update\": [\n        {\n          \"_id\": \"63641be1babfd966a03d0d55\",\n          \"postalCode1\": null,\n          \"postalCode\": \"3906\",\n          \"country1\": null,\n          \"country\": \"Armenia\",\n          \"country3\": \"ArmeniaArmeniaArmeniaArmeniaArmeniaArmeniaArmeniaArmeniaArmeniaArmeniaArmeniaArmeniaArmeniaArmeniaArmenia\",\n          \"region\": \"Tavush\",\n          \"city1\": null,\n          \"city\": \"Dilijan\",\n          \"city3\": \"DilijanDilijanDilijanDilijanDilijanDilijanDilijanDilijanDilijanDilijanDilijanDilijanDilijanDilijanDilijanDilijanDilijanDilijan\",\n          \"street1\": null,\n          \"street\": \"Gai\",\n          \"street3\": \"GaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGaiGai\",\n          \"building\": \"82\",\n          \"flat1\": null,\n          \"flat\": \"40\",\n          \"flat3\": \"40404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040\"\n        },\n        {\n          \"_id\": \"63641be1babfd966a03d0d56\",\n          \"postalCode\": \"430024\",\n          \"country\": \"Russia\",\n          \"region\": null,\n          \"city\": \"Saransk\",\n          \"street\": \"Kosarev\",\n          \"building\": \"39\",\n          \"flat\": \"125\"\n        }\n    ],\n    \"delete\": [ \"63641c5440ce67eaa3f19b48\", \"63641c5440ce67eaa3f19b47\" ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ENV}}/api/v1/users/addresses/:_id",
+							"host": [
+								"{{ENV}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"addresses",
+								":_id"
+							],
+							"variable": [
+								{
+									"key": "_id",
+									"value": "63402683b6d5363a50c03092"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName1\": null,\n    \"firstName\": \"Adam\",\n    \"firstName3\": \"MikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhailMikhail\",\n    \"middleName\": null,\n    \"middleName2\": \"Aleksandrovich\",\n    \"lastName1\": null,\n    \"lastName\": \"Jensen\",\n    \"lastName3\": \"FilchushkinFilchushkinFilchushkinFilchushkinFilchushkinFilchushkinFilchushkinFilchushkinFilchushkinFilchushkinFilchushkinFilchushkinFilchushkinFilchushkinFilchushkinFilchushkinFilchushkinFilchushkinFilchushkinFilchushkinFilchushkinFilchushkinFilchushkinFilchushkinFilchushkinFilchushkinFilchushkinFilchushkinFilchushkinFilchushkinFilchushkin\",\n    \"username1\": \"Dotcommando\",\n    \"username2\": null,\n    \"avatar\": null,\n    \"phoneNumber1\": null,\n    \"phoneNumber\": \"+37477717509\",\n    \"email1\": \"webestet@gmail.com\",\n    \"email\": \"adam.jensen@gmail.com\",\n    \"email3\": null\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ENV}}/api/v1/users/one/:_id",
+							"host": [
+								"{{ENV}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"one",
+								":_id"
+							],
+							"variable": [
+								{
+									"key": "_id",
+									"value": "63402683b6d5363a50c03092"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{ENV}}/api/v1/users/one/:_id",
+							"host": [
+								"{{ENV}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"one",
+								":_id"
+							],
+							"variable": [
+								{
+									"key": "_id",
+									"value": "633ec01ef9605e60b6b20641"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{AccessToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "ENV",
+			"value": "http://localhost:9000",
+			"type": "string"
+		},
+		{
+			"key": "AccessToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "RefreshToken",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
