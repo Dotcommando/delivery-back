@@ -1,8 +1,10 @@
 import { PickType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
 
-import { Transform } from 'class-transformer';
-import { IsEmail, IsOptional, IsString, Matches, MaxLength, MinLength } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { IsEmail, IsOptional, IsString, Matches, MaxLength, MinLength, ValidateNested } from 'class-validator';
+
+import { UpdateGroupsBodyDto } from './update-groups-body.dto';
 
 import {
   NAME_MAX_LENGTH,
@@ -44,7 +46,7 @@ export class UpdateVendorBodyDto extends PickType(
     message: 'First name can contain just latin symbols, digits, underscores and single quotes',
   })
   @ValidateIfNull()
-  firstName: string;
+  firstName?: string;
 
   @ApiProperty({
     description: `Middle name of user. Optional. It must have length up to ${NAME_MAX_LENGTH} characters. Can be null`,
@@ -59,7 +61,7 @@ export class UpdateVendorBodyDto extends PickType(
   @Matches(NAME_REGEXP, {
     message: 'Middle name can contain just latin symbols, digits, underscores and single quotes',
   })
-  middleName: string;
+  middleName?: string;
 
   @ApiProperty({
     description: `Last name of user. It must have length from ${NAME_MIN_LENGTH} to ${NAME_MAX_LENGTH} characters. Cannot be null`,
@@ -78,14 +80,14 @@ export class UpdateVendorBodyDto extends PickType(
     message: 'Last name can contain just latin symbols, digits, underscores and single quotes',
   })
   @ValidateIfNull()
-  lastName: string;
+  lastName?: string;
 
   @ApiProperty({
     description: `It expects avatar image file with size up to ${Number(process.env.AVATAR_FILE_SIZE)} KBytes`,
     required: false,
   })
   @IsOptional()
-  avatar: Buffer;
+  avatar?: Buffer;
 
   @ApiProperty({
     description: 'User phone number. Cannot be null',
@@ -103,7 +105,7 @@ export class UpdateVendorBodyDto extends PickType(
     message: `Maximal length for phone number is ${PHONE_NUMBER_MAX_LENGTH} symbols`,
   })
   @ValidateIfNull()
-  phoneNumber: string;
+  phoneNumber?: string;
 
   @ApiProperty({
     description: 'User\'s email. Automatically converts to lowercase. Cannot be null',
@@ -118,5 +120,14 @@ export class UpdateVendorBodyDto extends PickType(
     message: `Email must be equal or shorter than ${PROPERTY_LENGTH_64} symbols`,
   })
   @ValidateIfNull()
-  email: string;
+  email?: string;
+
+  @ApiProperty({
+    description: 'Field contains \'add\', \'update\' and \'delete\' fields to manage user\'s companies',
+    required: false,
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UpdateGroupsBodyDto)
+  companies?: UpdateGroupsBodyDto;
 }

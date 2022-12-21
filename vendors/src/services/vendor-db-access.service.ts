@@ -13,6 +13,7 @@ import { AddAddressDto, PartialTokenDto, PartialVendorDto, UpdateAddressDto } fr
 import { pickProperties } from '../common/helpers';
 import {
   IAddress,
+  IMembership,
   IToken,
   IVendor,
 } from '../common/types';
@@ -22,13 +23,14 @@ import {
   EditAddressesBodyDto,
   UpdateVendorBodyDto,
 } from '../dto';
-import { mapIVendorDocumentToIVendor } from '../helpers';
+import { applyChangesToGroupFields, mapIVendorDocumentToIVendor } from '../helpers';
 import {
   IAddressDocument,
   IEmailPassword,
   ILogoutRes,
   IRefreshTokenData,
   ITokenDocument,
+  IUpdatesForNonGroupVendorFields,
   IValidateVendorRes,
   IVendorDocument,
 } from '../types';
@@ -338,7 +340,9 @@ export class VendorDbAccessService {
   }
 
   @AddressedErrorCatching()
-  public async updateUser(data: UpdateVendorBodyDto): Promise<IVendor<ObjectId, IAddress> | null> {
+  private async getUpdatesForNonGroupVendorFields<T_id = ObjectId, TAddress = ObjectId, TCompany = ObjectId, TBrand = ObjectId>(
+    data: UpdateVendorBodyDto,
+  ): Promise<IUpdatesForNonGroupVendorFields<T_id, TAddress, TCompany, TBrand>> {
     const updates: Partial<UpdateVendorBodyDto> = pickProperties(
       data,
       'firstName', 'middleName', 'lastName', 'avatar', 'phoneNumber', 'email',
@@ -373,12 +377,83 @@ export class VendorDbAccessService {
       }
     }
 
+    return {
+      areFieldsToUpdate,
+      areFieldsToRemove,
+      valuesToSet,
+      valuesToUnset,
+    };
+  }
+
+  @AddressedErrorCatching()
+  public async updateUser(data: UpdateVendorBodyDto): Promise<IVendor<ObjectId, IAddress> | null> {
+    const {
+      areFieldsToUpdate,
+      areFieldsToRemove,
+      valuesToSet,
+      valuesToUnset,
+    } = await this.getUpdatesForNonGroupVendorFields(data);
+
     const updateUserDoc: IVendorDocument<Types.ObjectId, IAddressDocument> | null = await this.vendorModel.findOneAndUpdate(
       {
         _id: data._id,
       },
       {
         ...(areFieldsToUpdate && {
+          $set: valuesToSet,
+        }),
+        ...(areFieldsToRemove && {
+          $unset: valuesToUnset,
+        }),
+      },
+      {
+        new: true,
+      },
+    )
+      .populate('addresses');
+
+    return updateUserDoc ? mapIVendorDocumentToIVendor(updateUserDoc) : null;
+  }
+
+  @AddressedErrorCatching()
+  public async updateUserWithGroupFields(data: UpdateVendorBodyDto): Promise<IVendor<ObjectId, IAddress> | null> {
+    const vendorDoc: IVendorDocument = await this.vendorModel.findOne({ _id: data._id });
+
+    if (!vendorDoc) {
+      return null;
+    }
+
+    const {
+      areFieldsToUpdate,
+      areFieldsToRemove,
+      valuesToSet,
+      valuesToUnset,
+    } = await this.getUpdatesForNonGroupVendorFields<Types.ObjectId, Types.ObjectId, Types.ObjectId, Types.ObjectId>(data);
+
+    let brands: IMembership<Types.ObjectId>[] = [...vendorDoc.brands];
+    let companies: IMembership<Types.ObjectId>[] = [...vendorDoc.companies];
+
+    const brandsNeedToBeUpdated = 'brands' in data;
+    const companiesNeedToBeUpdated = 'companies' in data;
+
+    if (brandsNeedToBeUpdated) {
+      brands = applyChangesToGroupFields(brands, data.brands);
+
+      valuesToSet.brands = brands;
+    }
+
+    if (companiesNeedToBeUpdated) {
+      companies = applyChangesToGroupFields(companies, data.companies);
+
+      valuesToSet.companies = companies;
+    }
+
+    const updateUserDoc: IVendorDocument<Types.ObjectId, IAddressDocument> | null = await this.vendorModel.findOneAndUpdate(
+      {
+        _id: data._id,
+      },
+      {
+        ...((areFieldsToUpdate || brandsNeedToBeUpdated || companiesNeedToBeUpdated) && {
           $set: valuesToSet,
         }),
         ...(areFieldsToRemove && {

@@ -306,7 +306,9 @@ export class VendorsService {
 
   @AddressedErrorCatching()
   public async updateVendor(data: UpdateVendorBodyDto): Promise<IResponse<{ user: IVendor<ObjectId, IAddress> }>> {
-    const user: IVendor<ObjectId, IAddress> | null = await this.vendorDbAccessService.updateUser(data);
+    const user: IVendor<ObjectId, IAddress> | null = 'companies' in data || 'brands' in data
+      ? await this.vendorDbAccessService.updateUserWithGroupFields(data)
+      : await this.vendorDbAccessService.updateUser(data);
 
     if (!user) {
       throw new NotFoundException(`Cannot find user with _id ${data._id} to update`);

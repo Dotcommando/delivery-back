@@ -10,6 +10,7 @@ import {
   AuthService,
   BrandsService,
   CommonService,
+  CompaniesService,
   FileProcessingService,
   StoreService,
   VendorsService,
@@ -35,6 +36,7 @@ import { VendorsController } from './vendors.controller';
   providers: [
     AuthService,
     CommonService,
+    CompaniesService,
     BrandsService,
     FileProcessingService,
     StoreService,

@@ -33,7 +33,7 @@ export function mapICompanyDocumentToICompany(companyDoc: ICompanyDocument<Types
     legalAddress: isValidObjectId(companyDoc.legalAddress)
       ? new ObjectId(String(companyDoc.legalAddress))
       : mapAddressDocumentToIAddress(companyDoc.legalAddress as IAddressDocument),
-    managers: isValidObjectId(companyDoc.managers.some(manager => isValidObjectId(manager)))
+    managers: companyDoc.managers?.some(manager => isValidObjectId(manager))
       ? companyDoc.managers.map((managerId: Types.ObjectId) => new ObjectId(String(managerId)))
       : companyDoc.managers.map((managerDoc: IVendorDocument) => mapIVendorDocumentToIVendor(managerDoc)),
   } as ICompany<ObjectId, IAddress | ObjectId, IVendor | ObjectId>;

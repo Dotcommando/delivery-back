@@ -1,19 +1,18 @@
+import { OmitType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
 
 import ObjectId from 'bson-objectid';
 import { Transform, Type } from 'class-transformer';
 import {
-  ArrayMaxSize,
-  IsArray,
-  IsBoolean,
   IsDefined,
   IsEmail,
   IsEnum,
-  IsOptional,
+  IsObject,
   IsString,
   Matches,
   MaxLength,
   MinLength,
+  ValidateNested,
 } from 'class-validator';
 
 import {
@@ -21,28 +20,21 @@ import {
   COMPANY_NAME_MAX_LENGTH,
   COMPANY_NAME_MIN_LENGTH,
   LEGAL_ENTITY,
-  MANAGER_NUMBER,
   NAME_REGEXP,
   PHONE_NUMBER_MAX_LENGTH,
   PHONE_NUMBER_MIN_LENGTH,
   PROPERTY_LENGTH_64,
-} from '../constants';
+  VENDOR_ROLE,
+} from '../common/constants';
+import { CompanyDto } from '../common/dto';
 import {
   maxLengthStringMessage,
   minLengthStringMessage,
-  toArrayOfObjectIds,
   toLowercase,
   toObjectId,
-} from '../helpers';
-import { ICompany } from '../types';
+} from '../common/helpers';
 
-
-export class CompanyDto implements ICompany {
-  @IsDefined()
-  @Transform(toObjectId)
-  @Type(() => ObjectId)
-  _id: ObjectId;
-
+export class CreateCompanyDto extends OmitType(CompanyDto, [ '_id', 'emailConfirmed', 'phoneConfirmed', 'managers' ] as const) {
   @ApiProperty({
     description: 'Legal entity of user\'s company',
     enum: LEGAL_ENTITY,
@@ -118,26 +110,11 @@ export class CompanyDto implements ICompany {
   phoneNumber: string;
 
   @ApiProperty({
-    description: 'Is company email confirmed or not',
-    example: true,
-  })
-  @IsBoolean()
-  @IsOptional()
-  emailConfirmed: boolean;
-
-  @ApiProperty({
-    description: 'Is company phone number confirmed or not',
-    example: true,
-  })
-  @IsBoolean()
-  @IsOptional()
-  phoneConfirmed: boolean;
-
-  @ApiProperty({
     description: 'Link on a legal address of the company. A valid MongoDB ObjectId',
     required: true,
     example: '62a588187cebf9ce17bea893',
   })
+  @IsDefined()
   @Transform(toObjectId)
   @Type(() => ObjectId)
   legalAddress: ObjectId;
@@ -146,6 +123,7 @@ export class CompanyDto implements ICompany {
     description: 'Link on an actual address of the company. A valid MongoDB ObjectId',
     example: '62a588187cebf9ce17bea893',
   })
+  @IsDefined()
   @Transform(toObjectId)
   @Type(() => ObjectId)
   actualAddress: ObjectId;
@@ -162,16 +140,27 @@ export class CompanyDto implements ICompany {
     message: `Maximal length for the bank data is ${BANK_DATA_MAX_LENGTH} symbols`,
   })
   bankData: string;
+}
+
+export class CreateCompanyBodyDto {
+  @ApiProperty({
+    description: 'Company data',
+    required: true,
+  })
+  @IsObject()
+  @ValidateNested()
+  @Type(() => CreateCompanyDto)
+  company: CreateCompanyDto;
 
   @ApiProperty({
-    description: 'List of ObjectIds of managers. Array of valid MongoDB compatible ObjectId',
-    required: true,
-    uniqueItems: true,
-    example: [ '62a588187cebf9ce17bea893', '62a826ad1774f165f826923f' ],
+    description: 'Role of user in the company or brand',
+    enum: VENDOR_ROLE,
+    enumName: 'VENDOR_ROLE',
+    example: VENDOR_ROLE.OWNER,
+    required: false,
   })
-  @IsArray({ message: 'Managers must be an array' })
-  @ArrayMaxSize(MANAGER_NUMBER)
-  @Transform(toArrayOfObjectIds('Managers'))
-  @Type(() => ObjectId)
-  managers: ObjectId[];
+  @IsEnum(VENDOR_ROLE, {
+    message: 'The role must be a valid value of the enum',
+  })
+  role?: VENDOR_ROLE;
 }

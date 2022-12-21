@@ -5,7 +5,7 @@ import { TransformFnParams } from 'class-transformer';
 
 
 export function toObjectIdFn({ value, key }: { [key: string]: string }): ObjectId {
-  if (!ObjectId.isValid(value) || String(value) !== value) {
+  if (!ObjectId.isValid(value) || String(new ObjectId(String(value))) !== String(new ObjectId(value))) {
     throw new BadRequestException(`${key} is not a valid ObjectId`);
   }
 

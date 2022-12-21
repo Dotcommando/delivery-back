@@ -3,6 +3,8 @@ export * from './authorized-request.type';
 export * from './brand-files.interface';
 export * from './create-brand.interface';
 export * from './create-brand-res.interface';
+export * from './create-company-req.interface';
+export * from './create-company-res.interface';
 export * from './delete-file-res.interface';
 export * from './delete-files-req.interface';
 export * from './delete-files-res.interface';
