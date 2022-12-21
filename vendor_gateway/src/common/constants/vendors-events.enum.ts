@@ -19,4 +19,8 @@ export enum VENDORS_EVENTS {
   VENDOR_READ_BRAND = 'vendor_read_brand',
   VENDOR_UPDATE_BRAND = 'vendor_update_brand',
   VENDOR_DELETE_BRAND = 'vendor_delete_brand',
+  VENDOR_CREATE_COMPANY = 'vendor_create_company',
+  VENDOR_READ_COMPANY = 'vendor_read_company',
+  VENDOR_UPDATE_COMPANY = 'vendor_update_company',
+  VENDOR_DELETE_COMPANY = 'vendor_delete_company',
 }

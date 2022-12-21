@@ -4,10 +4,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { BrandsController } from './brands.controller';
+import { CompaniesController } from './companies.controller';
 import { AddressSchema, BrandSchema, CompanySchema, TokenSchema, VendorSchema } from './schemas';
 import {
   BrandDbAccessService,
   BrandsService,
+  CompaniesService,
+  CompanyDbAccessService,
   JwtConfigService,
   MongoConfigService,
   VendorDbAccessService,
@@ -66,11 +69,14 @@ import { VendorsController } from './vendors.controller';
   ],
   controllers: [
     BrandsController,
+    CompaniesController,
     VendorsController,
   ],
   providers: [
     BrandDbAccessService,
     BrandsService,
+    CompaniesService,
+    CompanyDbAccessService,
     VendorDbAccessService,
     VendorsService,
   ],

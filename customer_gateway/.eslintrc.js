@@ -86,6 +86,7 @@ module.exports = {
     ],
     'quotes': [ 'error', 'single', { 'avoidEscape': true } ],
     '@typescript-eslint/ban-ts-ignore': 0,
+    '@typescript-eslint/no-empty-interface': 0,
     '@typescript-eslint/ban-ts-comment': [
       1,
       {
