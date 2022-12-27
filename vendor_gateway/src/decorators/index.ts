@@ -9,4 +9,5 @@ export * from './register.decorator';
 export * from './reissue-tokens.decorator';
 export * from './sign-in.decorator';
 export * from './update-brand.decorator';
+export * from './update-company.decorator';
 export * from './update-vendor.decorator';

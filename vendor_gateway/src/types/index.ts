@@ -30,3 +30,5 @@ export * from './update-vendor-images-req.interface';
 export * from './update-vendor-res.interface';
 export * from './vendor-sign-in-res.interface';
 export * from './verify-token-res.interface';
+export * from './update-company-req.interface';
+export * from './update-company-res.interface';

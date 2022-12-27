@@ -14,3 +14,4 @@ export * from './update-multilingual-field-set.dto';
 export * from './update-vendor-body.dto';
 export * from './vendor-sign-in-body.dto';
 export * from './verify-access-token-body.dto';
+export * from './update-company-dto';
