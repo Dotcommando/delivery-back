@@ -34,10 +34,10 @@ export function mapIVendorDocumentToIVendor(userDoc: IVendorDocument<Types.Objec
       'suspended',
     ),
     _id: new ObjectId(String(userDoc._id)),
-    addresses: userDoc.addresses.some((address: IAddressDocument | Types.ObjectId) => isValidObjectId(address))
+    addresses: userDoc.addresses?.some((address: IAddressDocument | Types.ObjectId) => isValidObjectId(address))
       ? userDoc.addresses.map((addressId: Types.ObjectId) => new ObjectId(String(addressId)))
       : userDoc.addresses.map((addressDoc: IAddressDocument) => mapAddressDocumentToIAddress(addressDoc)),
-    companies: userDoc.companies.some((company: IMembership<Types.ObjectId | ICompanyDocument>) => isValidObjectId(company.group))
+    companies: userDoc.companies?.some((company: IMembership<Types.ObjectId | ICompanyDocument>) => isValidObjectId(company.group))
       ? userDoc.companies.map((company: IMembership<Types.ObjectId>) => ({
         group: new ObjectId(String(company.group)),
         role: company.role,

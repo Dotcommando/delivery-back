@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 
 import ObjectId from 'bson-objectid';
 
-import { BrandDbAccessService } from './brand-db-access-service';
+import { BrandDbAccessService } from './brand-db-access.service';
 
 import { AddressedErrorCatching } from '../common/decorators';
 import { IBrand, IResponse } from '../common/types';

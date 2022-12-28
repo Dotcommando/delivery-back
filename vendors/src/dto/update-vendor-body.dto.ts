@@ -1,8 +1,10 @@
 import { IntersectionType, PickType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
 
-import { Transform } from 'class-transformer';
-import { IsEmail, IsOptional, IsString, Matches, MaxLength, MinLength } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { IsEmail, IsOptional, IsString, Matches, MaxLength, MinLength, ValidateNested } from 'class-validator';
+
+import { UpdateGroupsBodyDto } from './update-groups-body.dto';
 
 import {
   IMAGE_ADDRESS_MAX_LENGTH,
@@ -130,6 +132,24 @@ export class UpdateVendorDto extends PickType(
   })
   @ValidateIfNull()
   email: string;
+
+  @ApiProperty({
+    description: 'Field contains \'add\', \'update\' and \'delete\' fields to manage user\'s companies',
+    required: false,
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UpdateGroupsBodyDto)
+  companies?: UpdateGroupsBodyDto;
+
+  @ApiProperty({
+    description: 'Field contains \'add\', \'update\' and \'delete\' fields to manage user\'s brands',
+    required: false,
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UpdateGroupsBodyDto)
+  brands?: UpdateGroupsBodyDto;
 }
 
 export class UpdateVendorBodyDto extends IntersectionType(

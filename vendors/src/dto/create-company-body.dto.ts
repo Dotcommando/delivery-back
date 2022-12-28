@@ -1,3 +1,4 @@
+import { OmitType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
 
 import ObjectId from 'bson-objectid';
@@ -5,11 +6,9 @@ import { Transform, Type } from 'class-transformer';
 import {
   ArrayMaxSize,
   IsArray,
-  IsBoolean,
   IsDefined,
   IsEmail,
   IsEnum,
-  IsOptional,
   IsString,
   Matches,
   MaxLength,
@@ -26,18 +25,17 @@ import {
   PHONE_NUMBER_MAX_LENGTH,
   PHONE_NUMBER_MIN_LENGTH,
   PROPERTY_LENGTH_64,
-} from '../constants';
+} from '../common/constants';
+import { CompanyDto } from '../common/dto';
 import {
   maxLengthStringMessage,
   minLengthStringMessage,
   toArrayOfObjectIds,
   toLowercase,
   toObjectId,
-} from '../helpers';
-import { ICompany } from '../types';
+} from '../common/helpers';
 
-
-export class CompanyDto implements ICompany {
+export class CreateCompanyBodyDto extends OmitType(CompanyDto, [ 'emailConfirmed', 'phoneConfirmed' ] as const) {
   @IsDefined()
   @Transform(toObjectId)
   @Type(() => ObjectId)
@@ -118,26 +116,11 @@ export class CompanyDto implements ICompany {
   phoneNumber: string;
 
   @ApiProperty({
-    description: 'Is company email confirmed or not',
-    example: true,
-  })
-  @IsBoolean()
-  @IsOptional()
-  emailConfirmed: boolean;
-
-  @ApiProperty({
-    description: 'Is company phone number confirmed or not',
-    example: true,
-  })
-  @IsBoolean()
-  @IsOptional()
-  phoneConfirmed: boolean;
-
-  @ApiProperty({
     description: 'Link on a legal address of the company. A valid MongoDB ObjectId',
     required: true,
     example: '62a588187cebf9ce17bea893',
   })
+  @IsDefined()
   @Transform(toObjectId)
   @Type(() => ObjectId)
   legalAddress: ObjectId;
@@ -146,6 +129,7 @@ export class CompanyDto implements ICompany {
     description: 'Link on an actual address of the company. A valid MongoDB ObjectId',
     example: '62a588187cebf9ce17bea893',
   })
+  @IsDefined()
   @Transform(toObjectId)
   @Type(() => ObjectId)
   actualAddress: ObjectId;

@@ -143,7 +143,6 @@ export class VendorDto implements IVendor {
     example: [ '62a588187cebf9ce17bea893', '62a826ad1774f165f826923f' ],
   })
   @IsArray({ message: 'Addresses must be an array' })
-  @ValidateNested({ each: true })
   @ArrayMaxSize(ADDRESSES_MAX_SIZE)
   @Transform(toArrayOfObjectIds('Addresses'))
   @Type(() => ObjectId)

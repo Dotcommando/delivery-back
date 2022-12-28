@@ -1,3 +1,4 @@
+export * from './create-company-body.dto';
 export * from './delete-brand-body.dto';
 export * from './delete-vendor-body.dto';
 export * from './edit-addresses-body.dto';
@@ -8,6 +9,7 @@ export * from './read-vendor-body.dto';
 export * from './register-vendor-body.dto';
 export * from './reissue-tokens-body.dto';
 export * from './update-brand-body.dto';
+export * from './update-groups-body.dto';
 export * from './update-multilingual-field-set.dto';
 export * from './update-vendor-body.dto';
 export * from './vendor-sign-in-body.dto';

@@ -486,6 +486,40 @@
 					]
 				},
 				{
+					"name": "Companies",
+					"item": [
+						{
+							"name": "Create Company",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"company\": {\n        \"legalEntity\": \"sole_proprietorship\",\n        \"fullName\": \"Mitsubishi Heavy Industries\",\n        \"shortName\": \"MHI\",\n        \"email\": \"info@mhi.com\",\n        \"phoneNumber\": \"+1755755755\",\n        \"legalAddress\": \"62a584a2f2fdd2cf95548230\",\n        \"actualAddress\": \"62a584a2f2fdd2cf95548231\",\n        \"bankData\": \"Some bank data\"\n    },\n    \"role\": \"director\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{ENV}}/api/v1/companies/one",
+									"host": [
+										"{{ENV}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"companies",
+										"one"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
 					"name": "Read Me",
 					"request": {
 						"method": "GET",
@@ -561,6 +595,74 @@
 									"key": "lastName",
 									"value": "Filchushkin",
 									"type": "text"
+								},
+								{
+									"key": "companies[add][0][role]",
+									"value": "owner",
+									"type": "text"
+								},
+								{
+									"key": "companies[add][0][group]",
+									"value": "62a584a2f2fdd2cf95548238",
+									"type": "text"
+								},
+								{
+									"key": "companies[add][1][role]",
+									"value": "director",
+									"type": "text"
+								},
+								{
+									"key": "companies[add][1][group]",
+									"value": "62a584a2f2fdd2cf95548237",
+									"type": "text"
+								},
+								{
+									"key": "companies[update][0][role]",
+									"value": "senior_accountant",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "companies[update][0][group]",
+									"value": "62a584a2f2fdd2cf95548236",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "companies[update][1][role]",
+									"value": "senior_accountant",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "companies[update][1][group]",
+									"value": "62a584a2f2fdd2cf95548237",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "companies[update][2][role]",
+									"value": "senior_accountant",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "companies[update][2][group]",
+									"value": "62a584a2f2fdd2cf95548238",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "companies[delete][0]",
+									"value": "62a584a2f2fdd2cf95548238",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "companies[delete][1]",
+									"value": "62a584a2f2fdd2cf95548237",
+									"type": "text",
+									"disabled": true
 								}
 							]
 						},
@@ -579,7 +681,7 @@
 							"variable": [
 								{
 									"key": "_id",
-									"value": "635652147e1dfb4a1fbf9283"
+									"value": "63a02556f29b379caae2b030"
 								}
 							]
 						}
