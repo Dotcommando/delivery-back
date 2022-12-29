@@ -45,11 +45,11 @@ export class CompaniesService {
     });
 
     if (!updateBrandResponse?.company) {
-      throw new PreconditionFailedException('Some internal error happened while creating the company');
+      throw new PreconditionFailedException('Some internal error happened while updating the company');
     }
 
     return {
-      status: HttpStatus.CREATED,
+      status: HttpStatus.OK,
       data: { company: updateBrandResponse.company },
       errors: null,
     };

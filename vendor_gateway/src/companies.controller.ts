@@ -6,14 +6,13 @@ import ObjectId from 'bson-objectid';
 import { VENDOR_ROLE } from './common/constants';
 import { IResponse, IVendor } from './common/types';
 import { CreateCompany, UpdateCompany } from './decorators';
-import { CreateCompanyBodyDto, UpdateCompanyBodyDto, UpdateCompanyParamDto } from './dto';
+import { CreateCompanyBodyDto, UpdateCompanyParamDto, UpdateCompanyBodyDto } from './dto';
 import { JwtGuard } from './guards';
 import { CommonService, CompaniesService, VendorsService } from './services';
 import {
   AuthenticatedRequest,
   ICreateCompanyReq,
   ICreateCompanyRes,
-  IUpdateCompanyReq,
   IUpdateCompanyRes,
   IUpdateVendorData,
   IUpdateVendorRes,
@@ -61,20 +60,14 @@ export class CompaniesController {
     @Body() body: UpdateCompanyBodyDto,
     @Req() req: AuthenticatedRequest,
   ): Promise<IResponse<| IUpdateCompanyRes | IUpdateVendorRes>> {
-    const _id = param._id;
     const user: IVendor = req?.user;
-    const company = { ...body.company, _id, managers: [user._id]};
-    const updateBody = {
-      body: { companies: { add: [{ role: body?.role ?? VENDOR_ROLE.OWNER, group: _id }]}},
-      _id: user._id,
-      user,
-    };
 
-    return await this.commonService
-      .parallelCombineRequests<IUpdateCompanyReq, IUpdateCompanyRes, IUpdateVendorData, IUpdateVendorRes>([
-        { fn: this.companiesService.updateCompany, args: company },
-        { fn: this.vendorsService.updateVendor, args: updateBody },
-      ]);
+    return await this.companiesService.updateCompany({
+      _id: param._id,
+      body,
+      user,
+    });
+
   }
 
 }

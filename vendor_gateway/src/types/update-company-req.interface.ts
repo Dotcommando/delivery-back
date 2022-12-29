@@ -1,5 +1,11 @@
-import { ICompany } from '../common/types';
+import ObjectId from 'bson-objectid';
+
+import { IVendor } from '../common/types';
+import { UpdateCompanyBodyDto } from '../dto';
 
 
-export interface IUpdateCompanyReq extends Omit<ICompany, 'emailConfirmed' | 'phoneConfirmed'> {
+export interface IUpdateCompanyData {
+  body: UpdateCompanyBodyDto;
+  _id: ObjectId;
+  user?: IVendor | null;
 }

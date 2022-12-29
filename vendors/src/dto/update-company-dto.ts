@@ -42,6 +42,7 @@ export class UpdateCompanyBodyDto extends OmitType(CompanyDto, [ 'emailConfirmed
   @Type(() => ObjectId)
   _id: ObjectId;
 
+  @IsOptional()
   @ApiProperty({
     description: 'Legal entity of user\'s company',
     enum: LEGAL_ENTITY,
@@ -131,6 +132,7 @@ export class UpdateCompanyBodyDto extends OmitType(CompanyDto, [ 'emailConfirmed
   @Type(() => ObjectId)
   legalAddress: ObjectId;
 
+  @IsOptional()
   @ApiProperty({
     description: 'Link on an actual address of the company. A valid MongoDB ObjectId',
     example: '62a588187cebf9ce17bea893',
