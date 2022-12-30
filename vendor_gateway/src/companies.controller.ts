@@ -6,7 +6,7 @@ import ObjectId from 'bson-objectid';
 import { VENDOR_ROLE } from './common/constants';
 import { IResponse, IVendor } from './common/types';
 import { CreateCompany, UpdateCompany } from './decorators';
-import { CreateCompanyBodyDto, UpdateCompanyParamDto, UpdateCompanyBodyDto } from './dto';
+import { CreateCompanyBodyDto, UpdateCompanyDto, UpdateCompanyParamDto } from './dto';
 import { JwtGuard } from './guards';
 import { CommonService, CompaniesService, VendorsService } from './services';
 import {
@@ -57,15 +57,11 @@ export class CompaniesController {
   @Patch('/one/:_id')
   public async updateCompany(
     @Param() param: UpdateCompanyParamDto,
-    @Body() body: UpdateCompanyBodyDto,
-    @Req() req: AuthenticatedRequest,
+    @Body() company: UpdateCompanyDto,
   ): Promise<IResponse<| IUpdateCompanyRes | IUpdateVendorRes>> {
-    const user: IVendor = req?.user;
-
     return await this.companiesService.updateCompany({
       _id: param._id,
-      body,
-      user,
+      company,
     });
 
   }

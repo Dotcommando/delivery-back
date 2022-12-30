@@ -5,7 +5,8 @@ import { CompanyDbAccessService } from './company-db-access.service';
 import { AddressedErrorCatching, ApplyAddressedErrorCatching } from '../common/decorators';
 import { TcpCommonExceptionFilter } from '../common/filters';
 import { ICompany, IResponse } from '../common/types';
-import { ICreateCompanyReq, ICreateCompanyRes, IUpdateCompanyReq, IUpdateCompanyRes } from '../types';
+import { IUpdateCompanyReq } from '../types';
+import { ICreateCompanyReq, ICreateCompanyRes, IUpdateCompanyRes } from '../types';
 
 
 @ApplyAddressedErrorCatching
@@ -38,11 +39,8 @@ export class CompaniesService {
 
  @AddressedErrorCatching()
   public async updateCompany(data: IUpdateCompanyReq): Promise<IResponse<IUpdateCompanyRes>> {
-    const updateBrandResponse: { company: ICompany } = await this.companyDbAccessService.updateCompany({
-      ...data,
-      phoneConfirmed: false,
-      emailConfirmed: false,
-    });
+
+    const updateBrandResponse: { company: ICompany } = await this.companyDbAccessService.updateCompany(data);
 
     if (!updateBrandResponse?.company) {
       throw new PreconditionFailedException('Some internal error happened while updating the company');

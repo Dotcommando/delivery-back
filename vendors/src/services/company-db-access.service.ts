@@ -8,7 +8,8 @@ import { AddressedErrorCatching, ApplyAddressedErrorCatching } from '../common/d
 import { anyIdToMongoId } from '../common/helpers';
 import { ICompany } from '../common/types';
 import { mapICompanyDocumentToICompany } from '../helpers';
-import { AnyId, ICompanyDocument, IUpdateCompanyReq } from '../types';
+import { IUpdateCompanyReq } from '../types';
+import { AnyId, ICompanyDocument } from '../types';
 
 
 @ApplyAddressedErrorCatching
@@ -52,8 +53,12 @@ export class CompanyDbAccessService {
   }
 
   @AddressedErrorCatching()
-  public async updateCompany(company: IUpdateCompanyReq): Promise<{ company: ICompany }> {
-    const companyDoc: ICompanyDocument = await this.companyModel.findOne({ _id: company._id });
+  public async updateCompany({ _id, company }: IUpdateCompanyReq): Promise<{ company: ICompany }> {
+    const companyDoc: ICompanyDocument = await this.companyModel.findOne({ _id });
+
+    if (!companyDoc) {
+      throw new NotFoundException(`No companies with _id ${_id} found`);
+    }
 
     for (const key in company) {
       if (company[key] === null) {

@@ -6,7 +6,7 @@ import { lastValueFrom, timeout } from 'rxjs';
 import { MAX_TIME_OF_REQUEST_WAITING, VENDORS_EVENTS } from '../common/constants';
 import { AddressedErrorCatching, ApplyAddressedErrorCatching } from '../common/decorators';
 import { IResponse } from '../common/types';
-import { ICreateCompanyReq, ICreateCompanyRes, IUpdateCompanyData, IUpdateCompanyRes } from '../types';
+import { ICreateCompanyReq, ICreateCompanyRes, IUpdateCompanyReq, IUpdateCompanyRes } from '../types';
 
 
 @ApplyAddressedErrorCatching
@@ -31,7 +31,7 @@ export class CompaniesService {
 
   @AddressedErrorCatching()
   public async updateCompany(
-    company: IUpdateCompanyData,
+    company: IUpdateCompanyReq,
   ): Promise<IResponse<IUpdateCompanyRes>> {
     return await lastValueFrom(
       this.vendorServiceClient

@@ -1,11 +1,9 @@
 import ObjectId from 'bson-objectid';
 
-import { IVendor } from '../common/types';
-import { UpdateCompanyBodyDto } from '../dto';
+import { UpdateCompanyDto } from '../dto';
 
 
-export interface IUpdateCompanyData {
-  body: UpdateCompanyBodyDto;
+export interface IUpdateCompanyReq {
+  company: UpdateCompanyDto;
   _id: ObjectId;
-  user?: IVendor | null;
 }

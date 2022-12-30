@@ -1,6 +1,10 @@
+
 import { ICompany } from '../common/types';
 
+import { UpdateCompanyBodyDto } from '../dto';
 
-export interface IUpdateCompanyReq extends Partial<Omit<ICompany, '_id'>> {
+
+export interface IUpdateCompanyReq {
+  company: UpdateCompanyBodyDto;
   _id: ICompany['_id'];
 }
